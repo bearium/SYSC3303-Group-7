@@ -15,7 +15,7 @@ import org.xml.sax.SAXException;
 
 
 
-public class ElevatorSystemConfiguration {
+public class ElevatorSystemConfiguration { 
 	public final static int DEFAULT_PACKET_SIZE=1024;
 	public final static boolean SEND_PACKET_EVENT = true;			//This boolean is used to indicate a send packet event occurred
 	public final static boolean RECEIVE_PACKET_EVENT = false;		//This boolean is used to indicate a receive packet event occurred
