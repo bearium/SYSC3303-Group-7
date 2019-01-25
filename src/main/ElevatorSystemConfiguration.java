@@ -1,23 +1,15 @@
 package main;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
 import java.util.HashMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
 
 
 public class ElevatorSystemConfiguration { 
@@ -43,29 +35,63 @@ public class ElevatorSystemConfiguration {
 		}
 	}
 	
+	/**
+	 * Method used to parse element's and their respective attributes from the config.xml document.
+	 * This will return a map containing the attributes for all instances of 'element'. 
+	 * 
+	 * The Map is structured as such: [ <element name> : [<attribute name> : <attribute value>, 
+	 * 													  <attribute name> : <attribute value>],
+	 * 									<element name> : [<attribute name> : <attribute value>, 
+	 * 													  <attribute name> : <attribute value>],
+	 * 									.... ]
+	 * @param element	- the tag associated with an element to parse from config.xml (ie. Elevator, Floor, Scheduler)
+	 * @param attributes	- a list containing all attributes to search for 
+	 * @return
+	 */
+	static HashMap<String, HashMap<String, String>> getConfiguration (String element){
+		HashMap<String, HashMap<String, String>> config = new HashMap<String, HashMap<String, String>>();
+		if (configDocument == null) {
+			readConfig();
+		}
+		
+		NodeList nodeList = configDocument.getElementsByTagName(element);
+		Node node = null;
+		
+		//Iterate through each of the element nodes
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			HashMap<String, String> attributesMap = new HashMap<String, String>();
+			
+			//For each 'element' node get a NamedNodeMap consisting of key value pairs of all of this element's attributes
+			node = nodeList.item(i);
+			NamedNodeMap nm = node.getAttributes();
 
+			//Iterate through each of the attributes and construct a map of key value pairs for each
+			int numberOfAttributes = nm.getLength();
+			for (int j = 0; j < numberOfAttributes; j++) {
+				   Node temp = nm.item(j);
+				   String attributeName = temp.getNodeName();
+				   String attributeValue = temp.getNodeValue();
+				   attributesMap.put(attributeName, attributeValue);
+			}
+			
+			//Get the name of this element, a name attribute must be specified in the config.xml to use as a key for the configuration map.
+			//If a name is present remove from attributesMap and add to config.
+			String name = attributesMap.get("name");
+			if (name != null) {
+				attributesMap.remove("name");
+				config.put(name, attributesMap);
+			}
+		}
+		return config;
+	}
+	
 	/**
 	 * Get configuration for all elevators.
 	 * 
 	 * @return - HashMap containing an entry for each elevator, where the key is the elevator name and the value is the port (each elevator will listen at this specified port)
 	 */
-	static HashMap<String, String> getAllElevatorSubsystemConfigurations(){
-		HashMap<String, String> config = new HashMap<String, String>();
-		if (configDocument == null) {
-			readConfig();
-		}
-		
-		NodeList nList = configDocument.getElementsByTagName("Elevator");
-		Node node = null;
-		for (int i = 0; i < nList.getLength(); i++) {
-			node = nList.item(i);
-			NamedNodeMap nm = node.getAttributes();
-			String name = nm.getNamedItem("name").getNodeValue();
-			String port = nm.getNamedItem("port").getNodeValue();
-			config.put(name, port);
-			System.out.println("");
-		}
-		return config;
+	static HashMap<String, HashMap<String, String>> getAllElevatorSubsystemConfigurations(){
+		return getConfiguration("Elevator");
 	}
 	
 	/**
@@ -73,22 +99,11 @@ public class ElevatorSystemConfiguration {
 	 * 
 	 * @return - HashMap containing an entry for each elevator, where the key is the elevator name and the value is the port (each elevator will listen at this specified port)
 	 */
-	static HashMap<String, String> getAllFloorSubsytemConfigurations(){
-		HashMap<String, String> config = new HashMap<String, String>();
-		if (configDocument == null) {
-			readConfig();
-		}
-		
-		NodeList nList = configDocument.getElementsByTagName("Floor");
-		Node node = null;
-		for (int i = 0; i < nList.getLength(); i++) {
-			node = nList.item(i);
-			NamedNodeMap nm = node.getAttributes();
-			String name = nm.getNamedItem("name").getNodeValue();
-			String port = nm.getNamedItem("port").getNodeValue();
-			config.put(name, port);
-			System.out.println("");
-		}
-		return config;
+	static HashMap<String, HashMap<String, String>> getAllFloorSubsytemConfigurations(){
+		return getConfiguration("Floor");
+	}
+	
+	static HashMap<String, HashMap<String, String>> getSchedulerConfiguration(){
+		return getConfiguration("Scheduler");
 	}
 }

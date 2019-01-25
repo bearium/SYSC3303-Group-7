@@ -2,11 +2,11 @@
 <Config>
 	<Scheduler name="Scheduler" port="8000"/>
 	<Elevators>
-		<Elevator name="E1" port="6000"/>
-		<Elevator name="E2" port="6001"/>
+		<Elevator name="E1" port="6000" startFloor="1"/>
+		<Elevator name="E2" port="6001" startFloor="1"/>
 	</Elevators>
 	<Floors>
-		<Floor name="Floor1" port="7000"/>
-		<Floor name="Floor2" port="7001"/>
+		<Floor name="1" port="7000"/>
+		<Floor name="2" port="7001"/>
 	</Floors>
 </Config>

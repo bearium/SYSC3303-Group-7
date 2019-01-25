@@ -60,14 +60,23 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 	}
 
 	public static void main(String[] args){
-		HashMap<String, String> portsByElevatorNameMap = ElevatorSystemConfiguration.getAllElevatorSubsystemConfigurations();
-		
-		for (String elevatorName : portsByElevatorNameMap.keySet()) {
-			ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem(elevatorName, Integer.parseInt(portsByElevatorNameMap.get(elevatorName)));
+		//This will return a Map of Maps. First key -> elevator Name, Value -> map of all attributes for that elevator (as per config.xml)
+		HashMap<String, HashMap<String, String>> elevatorConfigurations = ElevatorSystemConfiguration.getAllElevatorSubsystemConfigurations();
+
+		//Iterate through each elevator and create an instance of an ElevatorSubsystem
+		for (String elevatorName : elevatorConfigurations.keySet()) {
+			//Get the configuration for this particular 'elevatorName'
+			HashMap<String, String> elevatorConfiguration = elevatorConfigurations.get(elevatorName);
+			
+			//Create an instance of ElevatorSubsystem for this 'elevatorName'
+			ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem(elevatorName, Integer.parseInt(elevatorConfiguration.get("port")));
+			
+			//Spawn and start a new thread for this ElevatorSubsystem instance
 			Thread elevatorSubsystemThread = new Thread(elevatorSubsystem, elevatorName);
 			elevatorSubsystemThread.start();
 		}
 
+		
 		//This is some bogus code for testing basic functionality of ElevatorSubsystem / server interactions
 		
 		//Wait 10 seconds to until sending a fake event to the elevator subsystem
