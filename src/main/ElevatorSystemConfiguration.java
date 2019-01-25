@@ -36,19 +36,18 @@ public class ElevatorSystemConfiguration {
 	}
 	
 	/**
-	 * Method used to parse element's and their respective attributes from the config.xml document.
+	 * Method used to parse config.xml and return a map of configurations for multiple items.
 	 * This will return a map containing the attributes for all instances of 'element'. 
 	 * 
 	 * The Map is structured as such: [ <element name> : [<attribute name> : <attribute value>, 
 	 * 													  <attribute name> : <attribute value>],
 	 * 									<element name> : [<attribute name> : <attribute value>, 
 	 * 													  <attribute name> : <attribute value>],
-	 * 									.... ]
-	 * @param element	- the tag associated with an element to parse from config.xml (ie. Elevator, Floor, Scheduler)
-	 * @param attributes	- a list containing all attributes to search for 
+	 * 									... ]
+	 * @param element		- the tag associated with an element to parse from config.xml (ie. Elevator, Floor, Scheduler)
 	 * @return
 	 */
-	static HashMap<String, HashMap<String, String>> getConfiguration (String element){
+	static HashMap<String, HashMap<String, String>> getConfigurations(String element){
 		HashMap<String, HashMap<String, String>> config = new HashMap<String, HashMap<String, String>>();
 		if (configDocument == null) {
 			readConfig();
@@ -86,12 +85,48 @@ public class ElevatorSystemConfiguration {
 	}
 	
 	/**
+	 * Method used to parse config.xml and return a map of configurations for a single item.
+	 * This will return a map containing the attributes for all instances of 'element'. 
+	 * 
+	 * The Map is structured as such: [ <attribute name> : <attribute value>, 
+	 * 								    <attribute name> : <attribute value>,
+	 * 									... ]
+	 * @param element	- the tag associated with an element to parse from config.xml (ie. Scheduler, etc.)
+	 * @return
+	 */
+	static HashMap<String, String> getConfiguration(String element){
+		HashMap<String, String> attributesMap = new HashMap<String, String>();
+		if (configDocument == null) {
+			readConfig();
+		}
+		
+		NodeList nodeList = configDocument.getElementsByTagName(element);
+		Node node = null;
+		
+		
+		//For each 'element' node get a NamedNodeMap consisting of key value pairs of all of this element's attributes
+		node = nodeList.item(0);
+		NamedNodeMap nm = node.getAttributes();
+
+		//Iterate through each of the attributes and construct a map of key value pairs for each
+		int numberOfAttributes = nm.getLength();
+		for (int j = 0; j < numberOfAttributes; j++) {
+			   Node temp = nm.item(j);
+			   String attributeName = temp.getNodeName();
+			   String attributeValue = temp.getNodeValue();
+			   attributesMap.put(attributeName, attributeValue);
+		}
+		
+		return attributesMap;
+	}
+	
+	/**
 	 * Get configuration for all elevators.
 	 * 
 	 * @return - HashMap containing an entry for each elevator, where the key is the elevator name and the value is the port (each elevator will listen at this specified port)
 	 */
 	static HashMap<String, HashMap<String, String>> getAllElevatorSubsystemConfigurations(){
-		return getConfiguration("Elevator");
+		return getConfigurations("Elevator");
 	}
 	
 	/**
@@ -100,10 +135,10 @@ public class ElevatorSystemConfiguration {
 	 * @return - HashMap containing an entry for each elevator, where the key is the elevator name and the value is the port (each elevator will listen at this specified port)
 	 */
 	static HashMap<String, HashMap<String, String>> getAllFloorSubsytemConfigurations(){
-		return getConfiguration("Floor");
+		return getConfigurations("Floor");
 	}
 	
-	static HashMap<String, HashMap<String, String>> getSchedulerConfiguration(){
+	static HashMap<String, String> getSchedulerConfiguration(){
 		return getConfiguration("Scheduler");
 	}
 }
