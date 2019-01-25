@@ -1,10 +1,12 @@
-<ElevatorSystemConfiguration>
+<?xml version="1.0" encoding="UTF-8"?>
+<Config>
+	<Scheduler name="Scheduler" port="8000"/>
 	<Elevators>
-		<Elevator name="E1" port="6001"></Elevator>
-		<Elevator name="E2" port="6002"></Elevator>
-		<Elevator name="E3" port="6003"></Elevator>
-		<Elevator name="E4" port="6004></Elevator>
-		<Elevator name="E5" port="6005"></Elevator>
-		<Elevator name="E6" port="6006"></Elevator>
+		<Elevator name="E1" port="6000"/>
+		<Elevator name="E2" port="6001"/>
 	</Elevators>
-</ElevatorSystemConfiguration>
+	<Floors>
+		<Floor name="Floor1" port="7000"/>
+		<Floor name="Floor2" port="7001"/>
+	</Floors>
+</Config>

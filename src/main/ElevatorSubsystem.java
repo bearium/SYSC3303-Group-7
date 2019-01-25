@@ -1,10 +1,12 @@
 package main;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -16,14 +18,13 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 	private Queue<String> eventsQueue;
 	private boolean debug = false;
 	
-	public ElevatorSubsystem(String name){
+	public ElevatorSubsystem(String name, int port){
 		this.name = name;
 		this.eventsQueue = new LinkedList<String>();
-		
-		//Register ElevatorSystem with ElevatorSystemConfiguration
-		ElevatorSystemConfiguration.registerElevator(name);
 
-		serverThread = new Thread(new Server(this, ElevatorSystemConfiguration.getElevatorPort(name), this.debug), name);
+		//Create a server (bound to this Instance of ElevatorSubsystem) in a new thread.
+		//When this server receives requests, they will be added to the eventsQueue of THIS ElevatorSubsystem instance.
+		serverThread = new Thread(new Server(this, port, this.debug), name);
 		serverThread.start();
 	}
 	
@@ -59,14 +60,15 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 	}
 
 	public static void main(String[] args){
-		//ElevatorSystemConfiguration.test();
-		ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem("E1");
-		Thread elevatorSubsystemThread = new Thread(elevatorSubsystem, "E1");
-		elevatorSubsystemThread.start();
+		HashMap<String, String> portsByElevatorNameMap = ElevatorSystemConfiguration.getAllElevatorSubsystemConfigurations();
+		
+		for (String elevatorName : portsByElevatorNameMap.keySet()) {
+			ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem(elevatorName, Integer.parseInt(portsByElevatorNameMap.get(elevatorName)));
+			Thread elevatorSubsystemThread = new Thread(elevatorSubsystem, elevatorName);
+			elevatorSubsystemThread.start();
+		}
 
-		ElevatorSubsystem elevatorSubsystem2 = new ElevatorSubsystem("E2");
-		Thread elevatorSubsystemThread2 = new Thread(elevatorSubsystem2, "E2");
-		elevatorSubsystemThread2.start();
+		//This is some bogus code for testing basic functionality of ElevatorSubsystem / server interactions
 		
 		//Wait 10 seconds to until sending a fake event to the elevator subsystem
 		try {
@@ -92,9 +94,12 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 		DatagramPacket packet2 = null;
 		DatagramPacket packet3 = null;
 		try {
-			packet1 = new DatagramPacket(event1, event1.length, InetAddress.getLocalHost(), ElevatorSystemConfiguration.getElevatorPort("E1"));
-			packet2 = new DatagramPacket(event2, event2.length, InetAddress.getLocalHost(), ElevatorSystemConfiguration.getElevatorPort("E2"));
-			packet3 = new DatagramPacket(event3, event3.length, InetAddress.getLocalHost(), ElevatorSystemConfiguration.getElevatorPort("E1"));
+			//Send to Elevator 1
+			packet1 = new DatagramPacket(event1, event1.length, InetAddress.getLocalHost(), 6000);
+			//Send to Elevator 2
+			packet2 = new DatagramPacket(event2, event2.length, InetAddress.getLocalHost(), 6001);
+			//Send to Elevator 1
+			packet3 = new DatagramPacket(event3, event3.length, InetAddress.getLocalHost(), 6000);
 		} catch (UnknownHostException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
