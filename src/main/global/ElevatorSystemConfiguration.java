@@ -1,4 +1,4 @@
-package main;
+package main.global;
 
 import java.io.File;
 import java.util.HashMap;
@@ -47,7 +47,7 @@ public class ElevatorSystemConfiguration {
 	 * @param element		- the tag associated with an element to parse from config.xml (ie. Elevator, Floor, Scheduler)
 	 * @return
 	 */
-	static HashMap<String, HashMap<String, String>> getConfigurations(String element){
+	static public HashMap<String, HashMap<String, String>> getConfigurations(String element){
 		HashMap<String, HashMap<String, String>> config = new HashMap<String, HashMap<String, String>>();
 		if (configDocument == null) {
 			readConfig();
@@ -94,7 +94,7 @@ public class ElevatorSystemConfiguration {
 	 * @param element	- the tag associated with an element to parse from config.xml (ie. Scheduler, etc.)
 	 * @return
 	 */
-	static HashMap<String, String> getConfiguration(String element){
+	static public HashMap<String, String> getConfiguration(String element){
 		HashMap<String, String> attributesMap = new HashMap<String, String>();
 		if (configDocument == null) {
 			readConfig();
@@ -125,7 +125,7 @@ public class ElevatorSystemConfiguration {
 	 * 
 	 * @return - HashMap containing an entry for each elevator, where the key is the elevator name and the value is the port (each elevator will listen at this specified port)
 	 */
-	static HashMap<String, HashMap<String, String>> getAllElevatorSubsystemConfigurations(){
+	static public HashMap<String, HashMap<String, String>> getAllElevatorSubsystemConfigurations(){
 		return getConfigurations("Elevator");
 	}
 	
@@ -134,11 +134,11 @@ public class ElevatorSystemConfiguration {
 	 * 
 	 * @return - HashMap containing an entry for each elevator, where the key is the elevator name and the value is the port (each elevator will listen at this specified port)
 	 */
-	static HashMap<String, HashMap<String, String>> getAllFloorSubsytemConfigurations(){
+	static public HashMap<String, HashMap<String, String>> getAllFloorSubsytemConfigurations(){
 		return getConfigurations("Floor");
 	}
 	
-	static HashMap<String, String> getSchedulerConfiguration(){
+	static public HashMap<String, String> getSchedulerConfiguration(){
 		return getConfiguration("Scheduler");
 	}
 }

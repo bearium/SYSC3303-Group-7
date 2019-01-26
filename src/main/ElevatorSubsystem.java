@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import main.global.ElevatorSystemConfiguration;
+import main.server.Server;
+
 public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 
 	private Server server;
