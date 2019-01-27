@@ -1,4 +1,4 @@
-package main;
+package main.elevatorSubsystem;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -9,6 +9,10 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
+
+import main.ElevatorSystemComponent;
+import main.global.ElevatorSystemConfiguration;
+import main.server.Server;
 
 public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 

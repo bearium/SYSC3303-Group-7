@@ -1,8 +1,11 @@
-package main;
+package main.server;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+
+import main.ElevatorSystemComponent;
+import main.global.ElevatorSystemConfiguration;
 
 public class Server implements Runnable{
 
