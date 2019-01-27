@@ -1,7 +1,7 @@
 package shared;
 
 
-public class LampRequest {
+public class LampRequest extends Request{
 	
 
 	public enum LampStatus {ON, OFF}

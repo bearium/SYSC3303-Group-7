@@ -1,5 +1,5 @@
 package shared;
 
-public abstract class Request {
+public class Request {
 
 }

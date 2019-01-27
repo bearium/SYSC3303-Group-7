@@ -1,6 +1,6 @@
 package shared;
 
-public class ElevatorDoorRequest {
+public class ElevatorDoorRequest extends Request{
 	public enum DoorStatus {CLOSING, CLOSED, OPEN, OPENING}
 	public enum DoorAction {CLOSE, OPEN}
 	

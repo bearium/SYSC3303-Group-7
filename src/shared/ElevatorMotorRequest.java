@@ -1,6 +1,6 @@
 package shared;
 
-public class ElevatorMotorRequest {
+public class ElevatorMotorRequest extends Request{
 	public enum MotorStatus {ON, OFF}
 	public enum MotorAction {TURN_ON, TURN_OFF}
 	

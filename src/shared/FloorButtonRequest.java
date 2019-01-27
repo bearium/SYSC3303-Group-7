@@ -2,7 +2,7 @@ package shared;
 
 import java.util.Date;
 
-public class FloorButtonRequest {
+public class FloorButtonRequest extends Request{
 	public Date Time;
 	public String FloorName;
 	public FloorButton ButtonPressed;
