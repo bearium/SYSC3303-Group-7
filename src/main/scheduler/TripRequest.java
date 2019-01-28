@@ -2,6 +2,10 @@ package main.scheduler;
 
 import main.global.Direction;
 
+/**
+ * 
+ *
+ */
 public class TripRequest {
 	private int pickupFloor;
 	private int destinationFloor;
