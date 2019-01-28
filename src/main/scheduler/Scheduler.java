@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.TreeSet;
 
 import main.ElevatorSystemComponent;
 import main.global.Direction;
@@ -36,12 +35,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 	private boolean debug = false;
 	private HashMap<String, Integer> portsByElevatorName;										//key -> elevator name, value -> port number
 	private HashMap<String, Integer> portsByFloorName;											//key -> floor number, value -> port number
-	private HashMap<String, Integer> currentFloorLocationByElevatorName;						//key -> elevator name, value -> current floor location
-	private HashMap<String, Integer> startFloorLocationByElevatorName;							//key -> elevator name, value -> starting floor location
 	private HashMap<String, ElevatorMonitor> elevatorMonitorByElevatorName;						//key -> elevator name, value -> elevator monitor
-	private HashMap<String, Direction> currentDirectionByElevatorName;							//key -> elevator name, value -> current elevator direction
-	private HashMap<String, ElevatorStatus> currentElevatorStatusByElevatorName; 				//key -> elevator name, value -> current elevator status
-	private HashMap<String, ElevatorDoorStatus> currentElevatorDoorStatusByElevatorName; 		//key -> elevator name, value -> current elevator door status
 	private ArrayList<TripRequest> pendingTripRequests;
 	
 	public Scheduler(String name, int port, HashMap<String, HashMap<String, String>> elevatorConfiguration, HashMap<String, HashMap<String, String>> floorConfigurations) {
@@ -49,12 +43,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		this.eventsQueue = new LinkedList<String>();
 		this.portsByElevatorName = new HashMap<String, Integer>();
 		this.portsByFloorName = new HashMap<String, Integer>();
-		this.currentFloorLocationByElevatorName = new HashMap<String, Integer>();
-		this.startFloorLocationByElevatorName = new HashMap<String, Integer>();
 		this.elevatorMonitorByElevatorName = new HashMap<String, ElevatorMonitor>();
-		this.currentDirectionByElevatorName = new HashMap<String, Direction>();
-		this.currentElevatorStatusByElevatorName = new HashMap<String, ElevatorStatus>();
-		this.currentElevatorDoorStatusByElevatorName = new HashMap<String, ElevatorDoorStatus>();
 		this.pendingTripRequests = new ArrayList<TripRequest>();
 		
 		//Initialize infrastructure configurations (elevators/floors)
@@ -78,21 +67,18 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 			HashMap<String, String> config = elevatorConfiguration.get(elevatorName);
 			
 			this.portsByElevatorName.put(elevatorName, Integer.parseInt(config.get("port")));
-			this.currentFloorLocationByElevatorName.put(elevatorName, Integer.parseInt(config.get("startFloor")));
-			this.startFloorLocationByElevatorName.put(elevatorName, Integer.parseInt(config.get("startFloor")));
-			this.currentDirectionByElevatorName.put(elevatorName, Direction.IDLE);
-			this.currentElevatorStatusByElevatorName.put(elevatorName, ElevatorStatus.STOPPED);
-			this.currentElevatorDoorStatusByElevatorName.put(elevatorName, ElevatorDoorStatus.OPENED);
 			
 			//Initialize elevatorMonitors for each elevator
 			this.elevatorMonitorByElevatorName.put(
 					elevatorName, 
 					new ElevatorMonitor(
-							elevatorName,
+							elevatorName, 
 							Integer.parseInt(config.get("startFloor")), 
-							this.currentDirectionByElevatorName.get(elevatorName), 
-							this.currentElevatorStatusByElevatorName.get(elevatorName), 
-							this.currentElevatorDoorStatusByElevatorName.get(elevatorName)));
+							Integer.parseInt(config.get("startFloor")), 
+							Direction.IDLE, 
+							ElevatorStatus.STOPPED, 
+							ElevatorDoorStatus.OPENED));
+
 		}
 		
 		//Initialize data structures for floors
@@ -156,17 +142,21 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		
 		//See if there are any idle elevators to service this tripRequest
 		for (String elevatorName : elevatorMonitorByElevatorName.keySet()) {
+			ElevatorMonitor elevatorMonitor = this.elevatorMonitorByElevatorName.get(elevatorName);
 			if (this.assignTripToIdleElevator(elevatorName, tripRequest)) {
 				this.consoleOutput("Trip request " + tripRequest + " was assigned to " + elevatorName + ".");
+				if (elevatorMonitor.getElevatorStatus() == ElevatorStatus.STOPPED) {
+					this.consoleOutput("Sending an Elevator 'DoorClose' event to  " + elevatorName + ".");
+					//TODO send door close
+				}
 				//TODO send lamps
 				return;
 			} 
 		}
 		
-		this.consoleOutput("Trip request " + tripRequest + " was unable to be assigned immediately. It has been added to pending requests.");
-		
 		//Add this tripRequest to the pendingTripRequests queue
 		this.pendingTripRequests.add(tripRequest);
+		this.consoleOutput("Trip request " + tripRequest + " was unable to be assigned immediately. It has been added to pending requests." + this.pendingTripRequests);
 	}
 
 	/**
@@ -181,9 +171,8 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		ElevatorMonitor elevatorMonitor = this.elevatorMonitorByElevatorName.get(elevatorName);
 		
 		//Update the scheduler and elevatorMonitor with the new floor of the elevator
-		this.currentFloorLocationByElevatorName.put(elevatorName, floorNumber);
 		elevatorMonitor.updateCurrentElevatorFloorLocation(floorNumber);
-
+	
 		//Check if this elevator needs to stop at this floor
 		if(elevatorMonitor.isStopRequired(floorNumber)) {
 			this.consoleOutput("Stop is required for " + elevatorName + " at floor " + floorNumber);
@@ -191,7 +180,10 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 			this.consoleOutput("Sending an elevator stop request to " + elevatorName);
 		} else {
 			this.consoleOutput("Stop is not required for " + elevatorName + " at floor " + floorNumber);
-			//TODO send an elevator move event ?
+			//The reason we evaluate this direction again, is because in certain circumstances, the direction may change 
+			//Example, if the elevator is going down to it's starting floor, but a trip request had been assigned to it before it reached its destination, the elevator needs to change directions
+			Direction nextDirection = elevatorMonitor.getNextElevatorDirection();
+			this.sendElevatorMoveEvent(elevatorName, nextDirection);
 		}
 				
 
@@ -212,7 +204,6 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		ElevatorMonitor elevatorMonitor = this.elevatorMonitorByElevatorName.get(elevatorName);
 		
 		//Update elevator status to Stopped
-		this.currentElevatorStatusByElevatorName.put(elevatorName, ElevatorStatus.STOPPED);
 		elevatorMonitor.updateCurrentElevatorStatus(ElevatorStatus.STOPPED);
 		
 		//The elevatorMonitor needs to be advised this stop has occurred
@@ -237,7 +228,6 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		ElevatorMonitor elevatorMonitor = this.elevatorMonitorByElevatorName.get(elevatorName);
 
 		//Update current elevator door status
-		this.currentElevatorDoorStatusByElevatorName.put(elevatorName, ElevatorDoorStatus.OPENED);
 		elevatorMonitor.updateCurrentElevatorDoorStatus(ElevatorDoorStatus.OPENED);
 		
 		//Checking pending requests?
@@ -250,11 +240,28 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		
 		//Are there still more floors to visit?
 		if (!elevatorMonitor.isEmpty()) {
-			this.consoleOutput("Sending an Elevator 'CloseDoor' event to " + elevatorName);
+			this.consoleOutput("There are more floors to visit for this elevator. Sending an Elevator 'CloseDoor' event to " + elevatorName);
 			//TODO send a close door event
 		} else {
-			this.currentDirectionByElevatorName.put(elevatorName, Direction.IDLE);
-			elevatorMonitor.updateCurrentElevatorDirection(Direction.IDLE);
+			Integer currentFloor = elevatorMonitor.getCurrentFloorLocation();
+			Integer startFloor = elevatorMonitor.getStartingFloorLocation();
+			boolean isElevatorOnStartFloor;
+			
+			if (currentFloor == startFloor) {
+				isElevatorOnStartFloor = true;
+			} else {
+				isElevatorOnStartFloor = false;
+			}
+			
+			if (isElevatorOnStartFloor) {
+				//Update direction of elevator to IDLE
+				elevatorMonitor.updateCurrentElevatorDirection(Direction.IDLE);
+				
+				this.consoleOutput("There are no available trip requests for " + elevatorName + ", and elevator is already on it's starting floor [" + startFloor + "]. Waiting for next trip request...");
+			} else {
+				this.consoleOutput("There are no available trip requests for " + elevatorName + ", returning elevator to it's starting floor [" + startFloor + "]. Sending an Elevator 'CloseDoor' event to " + elevatorName);
+				//TODO send a close door event
+			}
 		}
 	}
 	
@@ -269,18 +276,15 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		ElevatorMonitor elevatorMonitor = this.elevatorMonitorByElevatorName.get(elevatorName);
 
 		//Update current elevator door status
-		this.currentElevatorDoorStatusByElevatorName.put(elevatorName, ElevatorDoorStatus.CLOSED);
 		elevatorMonitor.updateCurrentElevatorDoorStatus(ElevatorDoorStatus.CLOSED);
 		
 		//Get the next direction for this elevator based on the elevatorMonitor
 		Direction nextDirection = elevatorMonitor.getNextElevatorDirection();
 		
 		//Update elevator current direction
-		this.currentDirectionByElevatorName.put(elevatorName, nextDirection);
 		elevatorMonitor.updateCurrentElevatorDirection(nextDirection);
 		
 		//TODO send an elevator move event in the next direction it needs to go
-		this.consoleOutput("Sending an Elevator 'MOVE " + nextDirection + "' event to " + elevatorName + ".");
 		this.sendElevatorMoveEvent(elevatorName, nextDirection);
 	}
 	
@@ -290,11 +294,14 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 	 * @param direction
 	 */
 	private void sendElevatorMoveEvent(String elevatorName, Direction direction) {
+		this.consoleOutput("Sending an Elevator 'MOVE " + direction + "' event to " + elevatorName + ".");
+		
 		ElevatorMonitor elevatorMonitor = this.elevatorMonitorByElevatorName.get(elevatorName);
 		
 		//Update elevator status to Moving
-		this.currentElevatorStatusByElevatorName.put(elevatorName, ElevatorStatus.MOVING);
 		elevatorMonitor.updateCurrentElevatorStatus(ElevatorStatus.MOVING);
+		//Update elevator direction 
+		elevatorMonitor.updateCurrentElevatorDirection(direction);
 		
 		//TODO send an actual datagram packet
 	}
@@ -383,7 +390,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 	/**
 	 * 
 	 */
-	public String toString() {
+	/*public String toString() {
 		StringBuilder sb = new StringBuilder();
 		HashSet<String> elevators = new HashSet<String>(this.portsByElevatorName.keySet());
 		
@@ -407,7 +414,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		
 		
 		return sb.toString();
-	}
+	}*/
 	
 	public static void main (String[] args) {
 		//This will return a Map of Maps. First key -> elevator Name, Value -> map of all attributes for that elevator (as per config.xml)
@@ -528,6 +535,84 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		scheduler.eventElevatorDoorOpened("E1");
 		scheduler.eventElevatorDoorClosed("E1");
 		
+		//Simulate an elevator Arrival notice for E1 (floor 4)
+		//no stop. 
+		scheduler.eventElevatorArrivalNotice("E1", 4);
+
+		//Simulate an elevator Arrival notice for E1 (floor 5)
+		//stop. 
+		scheduler.eventElevatorArrivalNotice("E1", 5);
+		scheduler.eventElevatorStopped("E1");
+		scheduler.eventElevatorDoorOpened("E1");
+		scheduler.eventElevatorDoorClosed("E1");
+		
+		//Simulate an elevator Arrival notice for E1 (floor 6)
+		//stop. 
+		scheduler.eventElevatorArrivalNotice("E1", 6);
+		scheduler.eventElevatorStopped("E1");
+		scheduler.eventElevatorDoorOpened("E1");
+		scheduler.eventElevatorDoorClosed("E1");
+		
+		//Simulate an elevator Arrival notice for E1 (floor 5)
+		//no stop. 
+		scheduler.eventElevatorArrivalNotice("E1", 5);
+		
+		//Simulate an elevator Arrival notice for E1 (floor 4)
+		//no stop. 
+		scheduler.eventElevatorArrivalNotice("E1", 4);
+		
+		//Simulate an elevator Arrival notice for E1 (floor 3)
+		//no stop. 
+		scheduler.eventElevatorArrivalNotice("E1", 3);
+		
+		//Simulate an incoming trip request
+		//Expecting it to be assigned to E1
+		scheduler.eventTripRequestReceived(4, 5, Direction.UP);
+		
+		//Simulate an elevator Arrival notice for E1 (floor 2)
+		//no stop. 
+		scheduler.eventElevatorArrivalNotice("E1", 2);
+		
+		//Simulate an elevator Arrival notice for E1 (floor 3)
+		//no stop. 
+		scheduler.eventElevatorArrivalNotice("E1", 3);
+		
+		//Simulate an elevator Arrival notice for E1 (floor 4)
+		//no stop. 
+		scheduler.eventElevatorArrivalNotice("E1", 4);
+		scheduler.eventElevatorStopped("E1");
+		scheduler.eventElevatorDoorOpened("E1");
+		scheduler.eventElevatorDoorClosed("E1");
+		
+		//Simulate an elevator Arrival notice for E1 (floor 5)
+		//no stop. 
+		scheduler.eventElevatorArrivalNotice("E1", 5);
+		scheduler.eventElevatorStopped("E1");
+		scheduler.eventElevatorDoorOpened("E1");
+		scheduler.eventElevatorDoorClosed("E1");
+		
+		//Simulate an elevator Arrival notice for E1 (floor 4)
+		//no stop. 
+		scheduler.eventElevatorArrivalNotice("E1", 4);
+		
+		//Simulate an elevator Arrival notice for E1 (floor 3)
+		//no stop. 
+		scheduler.eventElevatorArrivalNotice("E1", 3);
+		
+		//Simulate an elevator Arrival notice for E1 (floor 2)
+		//no stop. 
+		scheduler.eventElevatorArrivalNotice("E1", 2);
+		
+		//Simulate an elevator Arrival notice for E1 (floor 1)
+		//stop. 
+		scheduler.eventElevatorArrivalNotice("E1", 1);
+		scheduler.eventElevatorStopped("E1");
+		scheduler.eventElevatorDoorOpened("E1");
+		
+		//Simulate an incoming trip request
+		//Expecting it to be assigned to E1
+		scheduler.eventTripRequestReceived(2, 4, Direction.UP);
+		scheduler.eventElevatorDoorClosed("E1");
 		
 		//Spawn and start a new thread for this ElevatorSubsystem instance
 		Thread schedulerThread = new Thread(scheduler, schedulerConfiguration.get("name"));
