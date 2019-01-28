@@ -20,11 +20,7 @@ public class ElevatorMonitor {
 	private HashSet<Integer> pickupFloors;
 	private Direction queueDirection;
 	private ArrayList<TripRequest> successfullyCompletedTripRequests;
-	private Integer elevatorStartFloorLocation;
-	private Integer currentElevatorFloorLocation;
-	private Direction currentElevatorDirection;
-	private ElevatorStatus currentElevatorStatus;
-	private ElevatorDoorStatus currentElevatorDoorStatus;
+	private ElevatorState elevatorState;
 	
 	public ElevatorMonitor(String elevatorName, Integer elevatorStartFloorLocation, Integer currentElevatorFloorLocation, Direction currentElevatorDirection, ElevatorStatus currentElevatorStatus, ElevatorDoorStatus currentElevatorDoorStatus) {
 		this.elevatorName = elevatorName;
@@ -33,11 +29,12 @@ public class ElevatorMonitor {
 		this.pickupFloors = new HashSet<Integer>();
 		this.successfullyCompletedTripRequests = new ArrayList<TripRequest>();
 		this.queueDirection = Direction.IDLE;
-		this.elevatorStartFloorLocation = elevatorStartFloorLocation;
-		this.currentElevatorFloorLocation = currentElevatorFloorLocation;
-		this.currentElevatorDirection = currentElevatorDirection;
-		this.currentElevatorStatus = currentElevatorStatus;
-		this.currentElevatorDoorStatus = currentElevatorDoorStatus;
+		this.elevatorState = new ElevatorState(
+				elevatorStartFloorLocation,
+				currentElevatorFloorLocation,
+				currentElevatorDirection,
+				currentElevatorStatus,
+				currentElevatorDoorStatus);
 	}
 	
 	/**
@@ -53,7 +50,19 @@ public class ElevatorMonitor {
 	 * @param floor
 	 */
 	public void updateCurrentElevatorFloorLocation(Integer floor) {
-		this.currentElevatorFloorLocation = floor;
+		this.elevatorState.setCurrentFloor(floor);
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public Integer getCurrentFloorLocation() {
+		return this.elevatorState.getCurrentFloor();
+	}
+	
+	public Integer getStartingFloorLocation() {
+		return this.elevatorState.getStartFloor();
 	}
 	
 	/**
@@ -61,7 +70,7 @@ public class ElevatorMonitor {
 	 * @param floor
 	 */
 	public void updateCurrentElevatorDirection(Direction direction) {
-		this.currentElevatorDirection = direction;
+		this.elevatorState.setDirection(direction);
 	}
 	
 	/**
@@ -69,15 +78,23 @@ public class ElevatorMonitor {
 	 * @param status
 	 */
 	public void updateCurrentElevatorStatus(ElevatorStatus status) {
-		this.currentElevatorStatus = status;
+		this.elevatorState.setStatus(status);
 	}
 
 	/**
 	 * 
+	 * @return
+	 */
+	public ElevatorStatus getElevatorStatus() {
+		return this.elevatorState.getCurrentStatus();
+	}
+	
+	/**
+	 * 
 	 * @param status
 	 */
-	public void updateCurrentElevatorDoorStatus(ElevatorDoorStatus status) {
-		this.currentElevatorDoorStatus = status;
+	public void updateCurrentElevatorDoorStatus(ElevatorDoorStatus doorStatus) {
+		this.elevatorState.setDoorStatus(doorStatus);
 	}
 	
 	/**
@@ -85,19 +102,14 @@ public class ElevatorMonitor {
 	 * @return
 	 */
 	public Direction getNextElevatorDirection() {
-		//Iterator<TripRequest> iterator = queue.iterator();
-		//TripRequest tripRequest = null; 
 		Direction nextDirection = null;
 		
 		//If there are no more trips left, the elevator's next direction is IDLE (as far as the tripRequestQueue is concerned)
-		//if (iterator.hasNext()) {
-			//tripRequest = iterator.next();
 		//If there are no more trip requests in the queue, then determine whether the elevator needs to move to get back to its starting floor.
 		if (this.isEmpty()) {
-		//} else {
-			if (this.currentElevatorFloorLocation > this.elevatorStartFloorLocation) {
+			if (this.elevatorState.getCurrentFloor() > this.elevatorState.getStartFloor()) {
 				nextDirection = Direction.DOWN;
-			} else if (this.currentElevatorFloorLocation < this.elevatorStartFloorLocation){
+			} else if (this.elevatorState.getCurrentFloor() < this.elevatorState.getStartFloor()){
 				nextDirection = Direction.UP;
 			} else {
 				nextDirection = Direction.IDLE;
@@ -105,14 +117,14 @@ public class ElevatorMonitor {
 		} else {
 			switch (this.queueDirection) {
 				case UP:
-						if (this.currentElevatorFloorLocation > this.getLowestScheduledFloor()){
+						if (this.elevatorState.getCurrentFloor() > this.getLowestScheduledFloor()){
 							nextDirection = Direction.DOWN;
 						} else {
 							nextDirection = Direction.UP;
 						}
 					break;
 				case DOWN:
-						if (this.currentElevatorFloorLocation < this.getHighestScheduledFloor()){
+						if (this.elevatorState.getCurrentFloor() < this.getHighestScheduledFloor()){
 							nextDirection = Direction.UP;
 						} else {
 							nextDirection = Direction.DOWN;
@@ -198,27 +210,27 @@ public class ElevatorMonitor {
 			//The tripRequest must be in the same direction as the queue direction.
 			//The elevator must be moving in the same direction as the tripRequestQueue to be considered in service (as opposed to travelling in the opposite direction of the tripRequestQueue direction to service the first tripRequest)
 			// An exception to the above statement, if the currentElevatorDirection is not equal yet to the queue direction but the NEXT direction will be (this will allow an elevator to take any pending requests that start at AT LEAST at the same pickup floor and go the same direction)
-			if ((this.queueDirection == tripRequest.getDirection()) && ((this.currentElevatorDirection == this.queueDirection) || (this.getNextElevatorDirection() == this.queueDirection)) ) {
+			if ((this.queueDirection == tripRequest.getDirection()) && ((this.elevatorState.getDirection() == this.queueDirection) || (this.getNextElevatorDirection() == this.queueDirection)) ) {	
 				
 				//If the pickup floor of the request is where the elevator is, only accept the trip if the elevator is stopped and doors are still open
-				if (this.currentElevatorFloorLocation == tripRequest.getPickupFloor()) {
+				if (this.elevatorState.getCurrentFloor() == tripRequest.getPickupFloor()) {
+					
 					//If either the elevator is not stopped or the door status is not open then do not accept this trip
-					if ((this.currentElevatorStatus != ElevatorStatus.STOPPED) || (this.currentElevatorDoorStatus != ElevatorDoorStatus.OPENED)){
+					if ((this.elevatorState.getCurrentStatus() != ElevatorStatus.STOPPED) || (this.elevatorState.getDoorStatus() != ElevatorDoorStatus.OPENED)){
 						return false;
 					}
 				} else {
-					//Depending on the direction of the elevator, determine whether the elevator has already passed the pickup floor of the tripRequest
-					//switch(this.currentElevatorDirection) {
+					//Depending on the direction of the queue, determine whether the elevator has already passed the pickup floor of the tripRequest
 					switch(this.queueDirection) {
 						case UP:
 							//If this elevator is already passed the pickup floor then the elevator would have to backtrack to take this tripRequest, do not accept this trip.
-							if (this.currentElevatorFloorLocation > tripRequest.getPickupFloor()) {
+							if (this.elevatorState.getCurrentFloor() > tripRequest.getPickupFloor()) {
 								return false;
 							}
 							break;
 						case DOWN:
 							//If this elevator is already passed the pickup floor then the elevator would have to backtrack to take this tripRequest, do not accept this trip.
-							if (this.currentElevatorFloorLocation < tripRequest.getPickupFloor()) {
+							if (this.elevatorState.getCurrentFloor() < tripRequest.getPickupFloor()) {
 								return false;
 							}
 							break;
@@ -229,7 +241,7 @@ public class ElevatorMonitor {
 				queue.add(tripRequest);
 				this.destinationFloors.add(tripRequest.getDestinationFloor());
 				//If the elevator is at the pickup floor it does not need to be added to the pickupFloors queue.
-				if (this.currentElevatorFloorLocation != tripRequest.getPickupFloor()) {
+				if (this.elevatorState.getCurrentFloor() != tripRequest.getPickupFloor()) {
 					this.pickupFloors.add(tripRequest.getPickupFloor());
 				}
 				return true;
@@ -246,7 +258,7 @@ public class ElevatorMonitor {
 	public boolean isStopRequired(int floor) {
 		//If either, the floor is a registered stop AND the queue is in service (the elevator direction matches the queue direction
 		//OR, if the queue is not in service (idle), and the elevator is at it's starting floor.
-		if ((this.containsFloor(floor) && (this.currentElevatorDirection == this.queueDirection)) || ((this.queueDirection ==  Direction.IDLE) && (this.currentElevatorFloorLocation == this.elevatorStartFloorLocation))) {
+		if ((this.containsFloor(floor) && (this.elevatorState.getDirection() == this.queueDirection)) || ((this.queueDirection ==  Direction.IDLE) && (this.elevatorState.getCurrentFloor() == this.elevatorState.getStartFloor()))) {
 			return true;
 		}
 		return false;
@@ -259,20 +271,20 @@ public class ElevatorMonitor {
 		HashSet<TripRequest> completedTrips = new HashSet<TripRequest>();
 		
 		//IS this stop a destination? If so, this destination floor can be removed from the destination queue (this removes the tripRequest as well from the tripRequestQueue, marks as successfully compelted)
-		if (this.containsDestinationFloor(this.currentElevatorFloorLocation)) {
-			if (this.removeDestinationFloor(this.currentElevatorFloorLocation)) {
-				completedTrips = this.removeTripsWithDestinationFloor(this.currentElevatorFloorLocation);
+		if (this.containsDestinationFloor(this.elevatorState.getCurrentFloor())) {
+			if (this.removeDestinationFloor(this.elevatorState.getCurrentFloor())) {
+				completedTrips = this.removeTripsWithDestinationFloor(this.elevatorState.getCurrentFloor());
 			}
-			
+		
 			//Update the queue direction to IDLE if there are no more trips left in the queue
 			if (this.isEmpty()) {
 				this.queueDirection = Direction.IDLE;
-			}
-			
+			}	
 		}
+		
 		//Is this stop a pickup? IF so, this pickup Floor can be removed from the pickup queue (this does not mark a trip as successfully completed in the tripRequestQueue)
-		if (this.containsPickupFloor(this.currentElevatorFloorLocation)){
-			this.removePickupFloor(this.currentElevatorFloorLocation);
+		if (this.containsPickupFloor(this.elevatorState.getCurrentFloor())){
+			this.removePickupFloor(this.elevatorState.getCurrentFloor());
 		}
 		
 		return completedTrips;
@@ -379,33 +391,14 @@ public class ElevatorMonitor {
 	/**
 	 * 
 	 */
-	/*public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("[");
-		
-		Iterator<TripRequest> iterator = queue.iterator();
-		while (iterator.hasNext()) {
-			TripRequest tripRequest = iterator.next();
-			sb.append(tripRequest.toString());
-			if (iterator.hasNext()) {
-				sb.append(",");
-			}
-		}
-		sb.append("]");
-		return sb.toString();
-	}*/
-	
-	/**
-	 * 
-	 */
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("[");
 		sb.append("Elevator name: " + this.elevatorName + "\n");
-		sb.append("Current floor: " + this.currentElevatorFloorLocation + "\n");
-		sb.append("Current direction: " + this.currentElevatorDirection + "\n");
-		sb.append("Current elevator status: " + this.currentElevatorStatus + "\n");
-		sb.append("Current door status: " + this.currentElevatorDoorStatus + "\n");
+		sb.append("Current floor: " + this.elevatorState.getCurrentFloor() + "\n");
+		sb.append("Current direction: " + this.elevatorState.getDirection() + "\n");
+		sb.append("Current elevator status: " + this.elevatorState.getCurrentStatus() + "\n");
+		sb.append("Current door status: " + this.elevatorState.getDoorStatus() + "\n");
 		sb.append("Trip request queue: ");
 		
 		sb.append("[");
