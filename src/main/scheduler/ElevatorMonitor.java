@@ -20,18 +20,20 @@ public class ElevatorMonitor {
 	private HashSet<Integer> pickupFloors;
 	private Direction queueDirection;
 	private ArrayList<TripRequest> successfullyCompletedTripRequests;
+	private Integer elevatorStartFloorLocation;
 	private Integer currentElevatorFloorLocation;
 	private Direction currentElevatorDirection;
 	private ElevatorStatus currentElevatorStatus;
 	private ElevatorDoorStatus currentElevatorDoorStatus;
 	
-	public ElevatorMonitor(String elevatorName, Integer currentElevatorFloorLocation, Direction currentElevatorDirection, ElevatorStatus currentElevatorStatus, ElevatorDoorStatus currentElevatorDoorStatus) {
+	public ElevatorMonitor(String elevatorName, Integer elevatorStartFloorLocation, Integer currentElevatorFloorLocation, Direction currentElevatorDirection, ElevatorStatus currentElevatorStatus, ElevatorDoorStatus currentElevatorDoorStatus) {
 		this.elevatorName = elevatorName;
 		this.queue = new LinkedHashSet<TripRequest>();
 		this.destinationFloors = new HashSet<Integer>();
 		this.pickupFloors = new HashSet<Integer>();
 		this.successfullyCompletedTripRequests = new ArrayList<TripRequest>();
 		this.queueDirection = Direction.IDLE;
+		this.elevatorStartFloorLocation = elevatorStartFloorLocation;
 		this.currentElevatorFloorLocation = currentElevatorFloorLocation;
 		this.currentElevatorDirection = currentElevatorDirection;
 		this.currentElevatorStatus = currentElevatorStatus;
@@ -83,32 +85,40 @@ public class ElevatorMonitor {
 	 * @return
 	 */
 	public Direction getNextElevatorDirection() {
-		Iterator<TripRequest> iterator = queue.iterator();
-		TripRequest tripRequest = null; 
+		//Iterator<TripRequest> iterator = queue.iterator();
+		//TripRequest tripRequest = null; 
 		Direction nextDirection = null;
 		
 		//If there are no more trips left, the elevator's next direction is IDLE (as far as the tripRequestQueue is concerned)
-		if (iterator.hasNext()) {
-			tripRequest = iterator.next();
+		//if (iterator.hasNext()) {
+			//tripRequest = iterator.next();
+		//If there are no more trip requests in the queue, then determine whether the elevator needs to move to get back to its starting floor.
+		if (this.isEmpty()) {
+		//} else {
+			if (this.currentElevatorFloorLocation > this.elevatorStartFloorLocation) {
+				nextDirection = Direction.DOWN;
+			} else if (this.currentElevatorFloorLocation < this.elevatorStartFloorLocation){
+				nextDirection = Direction.UP;
+			} else {
+				nextDirection = Direction.IDLE;
+			}
 		} else {
-			return Direction.IDLE;
-		}
-		
-		switch (this.queueDirection) {
-			case UP:
-					if (this.currentElevatorFloorLocation > this.getLowestScheduledFloor()){
-						nextDirection = Direction.DOWN;
-					} else {
-						nextDirection = Direction.UP;
-					}
-				break;
-			case DOWN:
-					if (this.currentElevatorFloorLocation < this.getHighestScheduledFloor()){
-						nextDirection = Direction.UP;
-					} else {
-						nextDirection = Direction.DOWN;
-					}
-				break;
+			switch (this.queueDirection) {
+				case UP:
+						if (this.currentElevatorFloorLocation > this.getLowestScheduledFloor()){
+							nextDirection = Direction.DOWN;
+						} else {
+							nextDirection = Direction.UP;
+						}
+					break;
+				case DOWN:
+						if (this.currentElevatorFloorLocation < this.getHighestScheduledFloor()){
+							nextDirection = Direction.UP;
+						} else {
+							nextDirection = Direction.DOWN;
+						}
+					break;
+			}
 		}
 		
 		//this.currentElevatorDirection = nextDirection;
@@ -234,7 +244,9 @@ public class ElevatorMonitor {
 	 * @return
 	 */
 	public boolean isStopRequired(int floor) {
-		if (this.containsFloor(floor) && (this.currentElevatorDirection == this.queueDirection)) {
+		//If either, the floor is a registered stop AND the queue is in service (the elevator direction matches the queue direction
+		//OR, if the queue is not in service (idle), and the elevator is at it's starting floor.
+		if ((this.containsFloor(floor) && (this.currentElevatorDirection == this.queueDirection)) || ((this.queueDirection ==  Direction.IDLE) && (this.currentElevatorFloorLocation == this.elevatorStartFloorLocation))) {
 			return true;
 		}
 		return false;
