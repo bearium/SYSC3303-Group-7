@@ -126,4 +126,25 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 			System.exit(1);
 		}
 	}
+
+	public void sendRequest(){
+
+	}
+
+	public void recieveRequest(){
+
+	}
+
+	public void stopRequest(){
+
+	}
+
+	public void openDoorRequest(){
+
+	}
+
+	public void closeDoorRequest(){
+
+	}
+
 }
