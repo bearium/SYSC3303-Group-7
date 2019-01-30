@@ -96,6 +96,13 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 
 	@Override
 	public synchronized String getNextEvent() {
+		while (eventsQueue.isEmpty()) {
+			try {
+				this.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		return eventsQueue.poll();
 	}
 
@@ -106,10 +113,12 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 
 	@Override
 	public void run() {
-		System.out.println("");
+		while (true) {
+			this.handleEvent(this.getNextEvent());
+		}
 	}
 	
-	private void handleEvent() {
+	private void handleEvent(String event) {
 		//switch statement corresponding to different "event handlers"
 	}
 	
