@@ -5,13 +5,13 @@ import java.util.Date;
 public class FloorButtonRequest extends Request{
 	public Date Time;
 	public String FloorName;
-	public FloorButton ButtonPressed;
-	public CarButton DestinationFloor;
+	public int ButtonPressed;
+	public int DestinationFloor;
 	
-	public FloorButtonRequest(Date time, String FloorName, FloorButton button, CarButton destinationFloor){
+	public FloorButtonRequest(Date time, String FloorName, int floorButton, int destinationFloor){
 		this.Time = time;
 		this.FloorName = FloorName;
-		this.ButtonPressed = button;
+		this.ButtonPressed = floorButton;
 		this.DestinationFloor = destinationFloor;
 	}
 }

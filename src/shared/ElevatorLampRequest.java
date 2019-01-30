@@ -2,18 +2,19 @@ package shared;
 
 public class ElevatorLampRequest extends LampRequest {
 	String ElevatorName;
-	CarButton ElevatorButton;
+	String ElevatorButton;
 	
-	public ElevatorLampRequest(String name, CarButton button, LampAction action) {
+	public ElevatorLampRequest(String name, String button, LampAction action) {
 		super(action);
 		this.ElevatorButton = button;
 		this.ElevatorName = name;
 		// TODO Auto-generated constructor stub
 	}
-	public ElevatorLampRequest(String name, CarButton button, LampAction action) {
-		super(action);
+	public ElevatorLampRequest(String name, String button, LampStatus status) {
+		super(status);
 		this.ElevatorButton = button;
 		this.ElevatorName = name;
 		// TODO Auto-generated constructor stub
 	}
 }
+
