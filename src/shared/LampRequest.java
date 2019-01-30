@@ -10,6 +10,7 @@ public class LampRequest extends Request{
 	public LampStatus CurrentStatus;
 	public LampAction RequestAction;
 	
+	
 	/**
 	 * Elevator will create this request to inform Scheduler of current lamp status
 	 * 

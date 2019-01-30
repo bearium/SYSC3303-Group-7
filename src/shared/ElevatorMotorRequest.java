@@ -1,10 +1,10 @@
 package shared;
 
 public class ElevatorMotorRequest extends Request{
-	public enum MotorStatus {ON, OFF}
+	//public enum MotorStatus {ON, OFF}
 	public enum MotorAction {TURN_ON, TURN_OFF}
 	
-	public MotorStatus CurrentStatus;
+	//public MotorStatus CurrentStatus;
 	public MotorAction RequestAction;
 	
 	public String ElevatorName;
@@ -14,11 +14,11 @@ public class ElevatorMotorRequest extends Request{
 	 * 
 	 * @param name
 	 * @param status
-	 */
+	 *
 	public ElevatorMotorRequest(String name, MotorStatus status){
 		this.ElevatorName = name;
 		this.CurrentStatus = status;
-	}
+	}/*
 	
 	/**
 	 * Scheduler calls this to give the elevator an action

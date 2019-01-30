@@ -1,6 +1,6 @@
 package shared;
 
-import shared.FloorButton.Direction;
+import main.global.Direction;
 
 public class DirectionLampRequest extends LampRequest{
 	Direction LampDirection;

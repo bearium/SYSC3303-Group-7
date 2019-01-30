@@ -1,10 +1,10 @@
 package shared;
 
 public class ElevatorDoorRequest extends Request{
-	public enum DoorStatus {CLOSING, CLOSED, OPEN, OPENING}
+	//public enum DoorStatus {CLOSING, CLOSED, OPEN, OPENING}
 	public enum DoorAction {CLOSE, OPEN}
 	
-	public DoorStatus CurrentStatus;
+	//public DoorStatus CurrentStatus;
 	public DoorAction RequestAction;
 	
 	public String ElevatorName;
@@ -14,11 +14,12 @@ public class ElevatorDoorRequest extends Request{
 	 * 
 	 * @param name
 	 * @param status
-	 */
+
 	public ElevatorDoorRequest(String name, DoorStatus status){
 		this.ElevatorName = name;
 		this.CurrentStatus = status;
-	}
+	}	 
+	*/
 	
 	/**
 	 * Scheduler calls this to give the elevator an action
