@@ -6,10 +6,8 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
-import shared.ElevatorDoorRequest.DoorAction;
-import shared.ElevatorMotorRequest.MotorAction;
-import shared.LampRequest.LampAction;
-import shared.LampRequest.LampStatus;
+
+
 import main.global.*;
 
 
@@ -45,18 +43,15 @@ public final class Helper {
 
 	}
 
-	private static Request ParseOnType(byte[] data, byte[] rt, Integer counter) {
+	private static Request ParseOnType(byte[] data, byte[] rt, Integer counter) throws InvalidRequestException {
 		Request request = null;
 		if(Arrays.equals(rt, DirectionLampRequest.RequestType)){
 			/* Parse based on Direction Lamp Request */
 			Direction direction = (Direction) ParseEnum(data, Direction.class, counter);
 			LampStatus status = (LampStatus) ParseEnum(data, LampStatus.class, counter);
-			LampAction action = (LampAction) ParseEnum(data, LampAction.class, counter);
-			if(status != null) {
-				request = new DirectionLampRequest(direction, status);
-			} else if(action != null){
-				request = new DirectionLampRequest(direction, action);
-			}
+			//LampAction action = (LampAction) ParseEnum(data, LampAction.class, counter);
+			request = new DirectionLampRequest(direction, status);
+
 
 		} else if(Arrays.equals(rt, ElevatorArrivalRequest.RequestType)){
 			/* Parse based on Elevator Arrival Request */
@@ -66,23 +61,24 @@ public final class Helper {
 		} else if(Arrays.equals(rt, ElevatorDoorRequest.RequestType)){
 			/* Parse based on Elevator Door Request */
 			String ElevatorName = ParseString(data, counter);
-			DoorAction Action = (DoorAction) ParseEnum(data, DoorAction.class, counter);
+			ElevatorDoorStatus Action = (ElevatorDoorStatus) ParseEnum(data, ElevatorDoorStatus.class, counter);
 			request = new ElevatorDoorRequest(ElevatorName, Action);
 		} else if(Arrays.equals(rt, ElevatorLampRequest.RequestType)){
 			/* Parse based on Elevator Lamp Request */
 			String ElevatorName = ParseString(data, counter);
 			String ButtonName = ParseString(data, counter);
 			LampStatus status = (LampStatus) ParseEnum(data, LampStatus.class, counter);
-			LampAction action = (LampAction) ParseEnum(data, LampAction.class, counter);
+			//LampAction action = (LampAction) ParseEnum(data, LampAction.class, counter);
 			if(status != null) {
-				request = new ElevatorLampRequest(ElevatorName, ButtonName, action);
-			} else if(action != null){
 				request = new ElevatorLampRequest(ElevatorName, ButtonName, status);
 			}
+			//			} else if(action != null){
+			//				request = new ElevatorLampRequest(ElevatorName, ButtonName, status);
+			//			}
 		} else if(Arrays.equals(rt, ElevatorMotorRequest.RequestType)){
 			/* Parse based on DElevator Motor Request */
 			String ElevatorName = ParseString(data, counter);
-			MotorAction Action = (MotorAction) ParseEnum(data, MotorAction.class, counter);
+			Direction Action = (Direction) ParseEnum(data, Direction.class, counter);
 			request = new ElevatorMotorRequest(ElevatorName, Action);
 		} else if(Arrays.equals(rt, FloorButtonRequest.RequestType)){
 			/* Parse based on Floor Button Request */
@@ -99,25 +95,26 @@ public final class Helper {
 				e.printStackTrace();
 			}
 			request = new FloorButtonRequest(date,FloorName, Direction, DestinationFloor);
-			
+
 		} else if(Arrays.equals(rt, FloorLampRequest.RequestType)){
 			/* Parse based on Floor Lamp Request */
 			String FloorName = ParseString(data, counter);
 			LampStatus status = (LampStatus) ParseEnum(data, LampStatus.class, counter);
-			LampAction action = (LampAction) ParseEnum(data, LampAction.class, counter);
+			//LampAction action = (LampAction) ParseEnum(data, LampAction.class, counter);
 			if(status != null) {
-				request = new FloorLampRequest(FloorName, action);
-			} else if(action != null){
 				request = new FloorLampRequest(FloorName, status);
-			}
+			} /*else if(action != null){
+				request = new FloorLampRequest(FloorName, status);
+			}*/
 		} 
-			return request;
+		return request;
 	}
 
-	private static byte[] ParseType(byte[] data, Integer counter) {
+	private static byte[] ParseType(byte[] data, Integer counter) throws InvalidRequestException {
 		byte[] array = new byte[] {data[counter++], data[counter++]};
 		if(data[counter] == 0) 
 			counter++;
+		else throw Invalid();
 		return array;
 	}
 
@@ -137,9 +134,12 @@ public final class Helper {
 		return ret;
 	}
 
-	private static <T extends Enum<T>> Enum<?> ParseEnum(byte[] data, Class<T> clazz, Integer counter){
-
-		return clazz.getEnumConstants()[((int) data[counter++]) - 1];
+	private static <T extends Enum<T>> Enum<?> ParseEnum(byte[] data, Class<T> clazz, Integer counter) throws InvalidRequestException{
+		Enum<?>[] enums = clazz.getEnumConstants();
+		if(((int)data[counter++] - 1) < enums.length){
+			return enums[((int) data[counter++]) - 1];
+		}
+		else throw Invalid();
 	}
 
 
@@ -171,7 +171,7 @@ public final class Helper {
 		PopulateType(data, request, counter);
 		// Populate based on Type
 		PopulateOnType(data, request, counter);
-		
+
 		DatagramPacket packet = new DatagramPacket(data, counter);
 		return packet;
 
@@ -187,7 +187,6 @@ public final class Helper {
 			DirectionLampRequest req = (DirectionLampRequest) request;
 			PopulateEnum(data, req.LampDirection, counter);
 			PopulateEnum(data, req.CurrentStatus, counter);
-			PopulateEnum(data, req.RequestAction, counter);
 
 		} else if(request instanceof ElevatorArrivalRequest){
 			/* Elevator Arrival Request is of form 0E_NAME0FLOOR_NAME0 */
@@ -208,7 +207,6 @@ public final class Helper {
 			Populate(data, req.ElevatorName, counter);
 			Populate(data, req.ElevatorButton, counter);
 			PopulateEnum(data, req.CurrentStatus, counter);
-			PopulateEnum(data, req.RequestAction, counter);
 		} else if(request instanceof ElevatorMotorRequest){
 			/* Elevator Motor Request is of the form 0E_NAME0ACTION0 */
 			ElevatorMotorRequest req = (ElevatorMotorRequest) request;
@@ -225,7 +223,6 @@ public final class Helper {
 			FloorLampRequest req = (FloorLampRequest) request;
 			Populate(data, req.FloorName, counter);
 			PopulateEnum(data, req.CurrentStatus, counter);
-			PopulateEnum(data, req.RequestAction, counter);
 		}
 	}
 

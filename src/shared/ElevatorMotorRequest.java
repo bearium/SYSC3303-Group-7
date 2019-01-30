@@ -1,11 +1,12 @@
 package shared;
+import main.global.Direction;
 
 public class ElevatorMotorRequest extends Request{
 	//public enum MotorStatus {ON, OFF}
-	public enum MotorAction {TURN_ON, TURN_OFF}
+	//public enum MotorAction {TURN_ON, TURN_OFF}
 	
 	//public MotorStatus CurrentStatus;
-	public MotorAction RequestAction;
+	public Direction RequestAction;
 	
 	public String ElevatorName;
 	
@@ -26,7 +27,7 @@ public class ElevatorMotorRequest extends Request{
 	 * @param name
 	 * @param status
 	 */
-	public ElevatorMotorRequest(String name, MotorAction action){
+	public ElevatorMotorRequest(String name, Direction action){
 		this.ElevatorName = name;
 		this.RequestAction = action;
 	}

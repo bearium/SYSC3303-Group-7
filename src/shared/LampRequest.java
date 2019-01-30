@@ -1,14 +1,14 @@
 package shared;
-
+import main.global.LampStatus;
 
 public class LampRequest extends Request{
 	
 
-	public enum LampStatus {ON, OFF}
-	public enum LampAction {TURN_ON, TURN_OFF}
+	//public enum LampStatus {ON, OFF}
+	//public enum LampAction {TURN_ON, TURN_OFF}
 	
 	public LampStatus CurrentStatus;
-	public LampAction RequestAction;
+	//public LampAction RequestAction;
 	
 	
 	/**
@@ -26,7 +26,7 @@ public class LampRequest extends Request{
 	 * @param name
 	 * @param status
 	 */
-	public LampRequest(LampAction action){
-		this.RequestAction = action;
-	}
+//	public LampRequest(LampAction action){
+//		this.RequestAction = action;
+//	}
 }

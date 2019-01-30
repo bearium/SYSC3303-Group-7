@@ -1,12 +1,12 @@
 package shared;
-
+import main.global.ElevatorDoorStatus;
 public class ElevatorDoorRequest extends Request{
 	//public enum DoorStatus {CLOSING, CLOSED, OPEN, OPENING}
-	public enum DoorAction {CLOSE, OPEN}
+	//public enum DoorAction {CLOSE, OPEN}
 	
 	public String ElevatorName;
 	//public DoorStatus CurrentStatus;
-	public DoorAction RequestAction;
+	public ElevatorDoorStatus RequestAction;
 
 	
 	static byte[] RequestType = new byte[] {1,3};
@@ -28,7 +28,7 @@ public class ElevatorDoorRequest extends Request{
 	 * @param name
 	 * @param status
 	 */
-	public ElevatorDoorRequest(String name, DoorAction action){
+	public ElevatorDoorRequest(String name, ElevatorDoorStatus action){
 		this.ElevatorName = name;
 		this.RequestAction = action;
 	}
