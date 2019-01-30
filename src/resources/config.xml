@@ -8,5 +8,11 @@
 	<Floors>
 		<Floor name="1" port="7000"/>
 		<Floor name="2" port="7001"/>
+		<Floor name="3" port="7002"/>
+		<Floor name="4" port="7003"/>
+		<Floor name="5" port="7004"/>
+		<Floor name="6" port="7005"/>
+		<Floor name="7" port="7006"/>
+		<Floor name="8" port="7007"/>
 	</Floors>
 </Config>
