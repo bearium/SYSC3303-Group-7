@@ -4,10 +4,10 @@ public class ElevatorDoorRequest extends Request{
 	//public enum DoorStatus {CLOSING, CLOSED, OPEN, OPENING}
 	public enum DoorAction {CLOSE, OPEN}
 	
+	public String ElevatorName;
 	//public DoorStatus CurrentStatus;
 	public DoorAction RequestAction;
-	
-	public String ElevatorName;
+
 	
 	static byte[] RequestType = new byte[] {1,3};
 	
