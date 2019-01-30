@@ -2,6 +2,7 @@ package shared;
 
 public class FloorLampRequest extends LampRequest {
 	String FloorName;
+	static byte[] RequestType = new byte[] {1,7};
 	
 	public FloorLampRequest(String name, LampAction action) {
 

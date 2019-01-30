@@ -1,13 +1,14 @@
 package shared;
-
+import main.global.SystemComponent;
 public class Request {
-	public enum SystemComponent {Elevator, Scheduler, Floor, ArrivalSensor}
+
 	
 	SystemComponent Source;
 	SystemComponent Destination;
 	
 	String SourceName;
 	String DestinationName;
+	public byte[] RequestType;
 	
 	protected Request(){
 		

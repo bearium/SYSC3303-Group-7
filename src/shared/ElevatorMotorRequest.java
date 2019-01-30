@@ -9,6 +9,7 @@ public class ElevatorMotorRequest extends Request{
 	
 	public String ElevatorName;
 	
+	static byte[] RequestType = new byte[] {1,5};
 	/**
 	 * Elevator will create this request to inform Scheduler of current motor status
 	 * 

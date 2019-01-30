@@ -3,8 +3,10 @@ package shared;
 import main.global.Direction;
 
 public class DirectionLampRequest extends LampRequest{
+	
 	Direction LampDirection;
-
+	static byte[] RequestType = new byte[] {1,1};
+	
 	public DirectionLampRequest(Direction direction, LampAction action) {
 		super(action);
 		this.LampDirection = direction;
@@ -13,6 +15,7 @@ public class DirectionLampRequest extends LampRequest{
 	
 	public DirectionLampRequest(Direction direction, LampStatus status) {
 		super(status);
+		this.LampDirection = direction;
 		// TODO Auto-generated constructor stub
 	}
 }
