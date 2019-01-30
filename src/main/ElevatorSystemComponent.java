@@ -1,8 +1,10 @@
 package main;
 
+import shared.Request;
+
 public interface ElevatorSystemComponent {
 	
-	public void receiveEvent(String event);
-	public String getNextEvent();
+	public void receiveEvent(Request event);
+	public Request getNextEvent();
 	public String getName();
 }
