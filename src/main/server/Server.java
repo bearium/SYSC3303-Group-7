@@ -2,14 +2,17 @@ package main.server;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
 
 import main.ElevatorSystemComponent;
 import main.global.ElevatorSystemConfiguration;
+import main.requests.*;
 
 public class Server implements Runnable{
 
-	private DatagramSocket socket;
+	private DatagramSocket receiveSocket;
+	private DatagramSocket sendSocket;
 	private String role;
 	private ElevatorSystemComponent elevatorSystemComponent;
 	private boolean debug;
@@ -19,10 +22,50 @@ public class Server implements Runnable{
 		this.role = elevatorSystemComponent.getName() + "_server";
 		this.debug = debug;
 		try {
-			this.socket = new DatagramSocket(port);
+			//Instantiate a socket to be used for receiving packets on specific port.
+			this.receiveSocket = new DatagramSocket(port);
+			//Instantiate a socket to be used for sending and receiving packets
+			this.sendSocket = new DatagramSocket();
 		} catch (SocketException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Send a request packet.
+	 * Accepts a Request object, uses the Helper to translate this into a packet and sends it using the 'sendSocket'.
+	 * Prints details about the packet send event (Leverages printPacketEventDetails()).
+	 * Socket is not closed when send is complete.
+	 * 
+	 * @param request
+	 * @param inetAddress
+	 * @param port
+	 */
+	public void send(Request request, InetAddress inetAddress, Integer port) {
+
+		DatagramPacket packet = null;
+		try {
+			packet = Helper.CreateRequest(request);
+		} catch (InvalidRequestException e1) {
+			e1.printStackTrace();
+		}
+		
+		//Set destination of packet
+		packet.setAddress(inetAddress);
+		packet.setPort(port);
+		
+		if(this.debug) {
+			printPacketEventDetails(ElevatorSystemConfiguration.SEND_PACKET_EVENT, packet, this.sendSocket);
+		}
+		
+		//Send packet using sendSocket
+		try {
+			this.sendSocket.send(packet);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
 	}
 	
 	/**
@@ -44,7 +87,7 @@ public class Server implements Runnable{
 		return packet;
 	}
 	
-	/**D
+	/**
 	 * Receive a packet with a timeout specified.
 	 * Waits for specified timeout.
 	 * Prints details about the packet receive event (Leverages printPacketEventDetails()).
@@ -139,18 +182,28 @@ public class Server implements Runnable{
 		return sb.toString();
 	}
 	
+    public void close() {
+        receiveSocket.close();
+    }
+    
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
 		while (true) {
+
+			//Wait indefinitely to receive the next packet.
 			DatagramPacket packet = null;
 			try {
-				packet = receive(socket, 0);
+				packet = receive(receiveSocket, 0);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			
-			elevatorSystemComponent.receiveEvent(new String(packet.getData(), 0, packet.getLength()));
+			//turn the packet received into a Request and add it to the elevatorSystemComponent's queue.
+			try {
+				elevatorSystemComponent.receiveEvent(Helper.ParseRequest(packet));
+			} catch (InvalidRequestException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }

@@ -1,4 +1,4 @@
-package shared;
+package main.requests;
 
 public class MutInt {
 	private int value;
