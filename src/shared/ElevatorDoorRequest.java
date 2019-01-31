@@ -29,6 +29,7 @@ public class ElevatorDoorRequest extends Request{
 	 * @param status
 	 */
 	public ElevatorDoorRequest(String name, ElevatorDoorStatus action){
+		super.RequestType = RequestType;
 		this.ElevatorName = name;
 		this.RequestAction = action;
 	}

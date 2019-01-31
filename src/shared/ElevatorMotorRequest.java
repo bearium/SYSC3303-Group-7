@@ -28,6 +28,7 @@ public class ElevatorMotorRequest extends Request{
 	 * @param status
 	 */
 	public ElevatorMotorRequest(String name, Direction action){
+		super.RequestType = RequestType;
 		this.ElevatorName = name;
 		this.RequestAction = action;
 	}
