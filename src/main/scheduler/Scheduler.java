@@ -130,21 +130,21 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		//switch statement corresponding to different "event handlers"
 		if (event instanceof FloorButtonRequest) {
 			FloorButtonRequest request = (FloorButtonRequest) event;
-			this.eventTripRequestReceived(Integer.parseInt(request.FloorName), Integer.parseInt(request.DestinationFloor), request.Direction);
+			this.eventTripRequestReceived(Integer.parseInt(request.getFloorName()), Integer.parseInt(request.getDestinationFloor()), request.getDirection());
 		} else if (event instanceof ElevatorArrivalRequest) {
 			ElevatorArrivalRequest request = (ElevatorArrivalRequest) event;
 			//this.eventElevatorArrivalNotice(request.ElevatorName, Integer.parseInt(request.FloorName));
 		} else if (event instanceof ElevatorDoorRequest) {
 			ElevatorDoorRequest request = (ElevatorDoorRequest) event;
-			if (request.RequestAction == ElevatorDoorStatus.OPENED) {
-				this.eventElevatorDoorOpened(request.ElevatorName);
-			} else if (request.RequestAction == ElevatorDoorStatus.CLOSED) {
-				this.eventElevatorDoorClosed(request.ElevatorName);
+			if (request.getRequestAction() == ElevatorDoorStatus.OPENED) {
+				this.eventElevatorDoorOpened(request.getElevatorName());
+			} else if (request.getRequestAction() == ElevatorDoorStatus.CLOSED) {
+				this.eventElevatorDoorClosed(request.getElevatorName());
 			}
 		} else if (event instanceof ElevatorMotorRequest) {
 			ElevatorMotorRequest request = (ElevatorMotorRequest) event;
-			if (request.RequestAction == Direction.IDLE) {
-				this.eventElevatorStopped(request.ElevatorName);
+			if (request.getRequestAction() == Direction.IDLE) {
+				this.eventElevatorStopped(request.getElevatorName());
 			}
 		}
 	}
@@ -446,11 +446,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		//Instantiate the scheduler
 		Scheduler scheduler = new Scheduler(schedulerConfiguration.get("name"), Integer.parseInt(schedulerConfiguration.get("port")), elevatorConfigurations, floorConfigurations);
 
-		/*FloorButtonRequest request = new FloorButtonRequest(new Date(), "2", Direction.UP, "4"); 
-		request.setDestinationName("Scheduler");
-		request.setSourceName("Floor");
-		request.setDestination(SystemComponent.Scheduler);
-		request.setSource(SystemComponent.Floor);
+		/*FloorButtonRequest request = new FloorButtonRequest("Fake date", "2", Direction.UP, "4"); 
 		DatagramPacket packet = null;
 		try {
 			packet = Helper.CreateRequest(request);
