@@ -7,6 +7,7 @@ import java.net.SocketException;
 
 import main.ElevatorSystemComponent;
 import main.global.ElevatorSystemConfiguration;
+import main.requests.*;
 
 public class Server implements Runnable{
 
@@ -32,7 +33,7 @@ public class Server implements Runnable{
 	
 	/**
 	 * Send a request packet.
-	 * Accepts a pre formed packet. Expecting the packet to contain byte[] encoded with the event details. The packet is then updated to be sent to the specified port (and InetAddress)
+	 * Accepts a Request object, uses the Helper to translate this into a packet and sends it using the 'sendSocket'.
 	 * Prints details about the packet send event (Leverages printPacketEventDetails()).
 	 * Socket is not closed when send is complete.
 	 * 
@@ -43,8 +44,13 @@ public class Server implements Runnable{
 	 * @param port
 	 */
 	public void send(Request request, InetAddress inetAddress, int port) {
-		//TODO awaiting Mustafa's implementation
-		//DatagramPacket packet = Helper.createPacket(request);
+
+		DatagramPacket packet = null;
+		try {
+			packet = Helper.CreateRequest(request);
+		} catch (InvalidRequestException e1) {
+			e1.printStackTrace();
+		}
 		
 		//Set destination of packet
 		packet.setAddress(inetAddress);
@@ -184,8 +190,9 @@ public class Server implements Runnable{
     
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
 		while (true) {
+
+			//Wait indefinitely to receive the next packet.
 			DatagramPacket packet = null;
 			try {
 				packet = receive(receiveSocket, 0);
@@ -193,8 +200,12 @@ public class Server implements Runnable{
 				e.printStackTrace();
 			}
 			
-			//TODO awaiting mustafa's implementation
-			//elevatorSystemComponent.receiveEvent(Helper.processPacket(packet));
+			//turn the packet received into a Request and add it to the elevatorSystemComponent's queue.
+			try {
+				elevatorSystemComponent.receiveEvent(Helper.ParseRequest(packet));
+			} catch (InvalidRequestException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }

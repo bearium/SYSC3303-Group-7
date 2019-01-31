@@ -1,4 +1,4 @@
-package shared;
+package main.requests;
 
 public class ElevatorArrivalRequest extends Request {
 
