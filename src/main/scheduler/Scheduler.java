@@ -133,7 +133,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 			this.eventTripRequestReceived(Integer.parseInt(request.getFloorName()), Integer.parseInt(request.getDestinationFloor()), request.getDirection());
 		} else if (event instanceof ElevatorArrivalRequest) {
 			ElevatorArrivalRequest request = (ElevatorArrivalRequest) event;
-			//this.eventElevatorArrivalNotice(request.ElevatorName, Integer.parseInt(request.FloorName));
+			this.eventElevatorArrivalNotice(request.getElevatorName(), Integer.parseInt(request.getFloorName()));
 		} else if (event instanceof ElevatorDoorRequest) {
 			ElevatorDoorRequest request = (ElevatorDoorRequest) event;
 			if (request.getRequestAction() == ElevatorDoorStatus.OPENED) {
@@ -146,6 +146,15 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 			if (request.getRequestAction() == Direction.IDLE) {
 				this.eventElevatorStopped(request.getElevatorName());
 			}
+		}
+	}
+	
+	
+	private void sendToServer(Request request, String elevatorName) {
+		try {
+			this.server.send(request, InetAddress.getLocalHost(), this.portsByElevatorName.get(elevatorName));
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -181,19 +190,10 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 			if (this.assignTripToIdleElevator(elevatorName, tripRequest)) {
 				this.consoleOutput("Trip request " + tripRequest + " was assigned to " + elevatorName + ".");
 				if (elevatorMonitor.getElevatorStatus() == ElevatorStatus.STOPPED) {
-					this.consoleOutput("Sending an Elevator 'DoorClose' event to  " + elevatorName + ".");
-					//TODO send door close
-					ElevatorDoorRequest request = new ElevatorDoorRequest(elevatorName, ElevatorDoorStatus.CLOSED);
-					request.setDestination(SystemComponent.Elevator);
-					request.setDestinationName(elevatorName);
-					request.setSource(SystemComponent.Scheduler);
-					request.setSourceName(this.name);
-					try {
-						this.server.send(request, InetAddress.getLocalHost(), this.portsByElevatorName.get(elevatorName));
-					} catch (UnknownHostException e) {
-						e.printStackTrace();
-					}
 					
+					//Send an elevator Door Close event
+					this.consoleOutput("Sending an Elevator 'DoorClose' event to  " + elevatorName + ".");
+					this.sendToServer(new ElevatorDoorRequest(elevatorName, ElevatorDoorStatus.CLOSED), elevatorName);
 				}
 				//TODO send lamps
 				return;
@@ -222,8 +222,9 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		//Check if this elevator needs to stop at this floor
 		if(elevatorMonitor.isStopRequired(floorNumber)) {
 			this.consoleOutput("Stop is required for " + elevatorName + " at floor " + floorNumber);
-			//TODO send an elevator stop event
+
 			this.consoleOutput("Sending an elevator stop request to " + elevatorName);
+			this.sendToServer(new ElevatorMotorRequest(elevatorName, Direction.IDLE), elevatorName);
 		} else {
 			this.consoleOutput("Stop is not required for " + elevatorName + " at floor " + floorNumber);
 			//The reason we evaluate this direction again, is because in certain circumstances, the direction may change 
@@ -259,7 +260,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		}
 		
 		this.consoleOutput("Sending an Elevator 'OpenDoor' event to " + elevatorName);
-		//TODO send an elevator open door event
+		this.sendToServer(new ElevatorDoorRequest(elevatorName, ElevatorDoorStatus.OPENED), elevatorName);
 	}
 	
 	/**
@@ -287,7 +288,9 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		//Are there still more floors to visit?
 		if (!elevatorMonitor.isEmpty()) {
 			this.consoleOutput("There are more floors to visit for this elevator. Sending an Elevator 'CloseDoor' event to " + elevatorName);
-			//TODO send a close door event
+			
+			this.consoleOutput("Sending an Elevator 'DoorClose' event to  " + elevatorName + ".");
+			this.sendToServer(new ElevatorDoorRequest(elevatorName, ElevatorDoorStatus.CLOSED), elevatorName);
 		} else {
 			Integer currentFloor = elevatorMonitor.getCurrentFloorLocation();
 			Integer startFloor = elevatorMonitor.getStartingFloorLocation();
@@ -306,7 +309,9 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 				this.consoleOutput("There are no available trip requests for " + elevatorName + ", and elevator is already on it's starting floor [" + startFloor + "]. Waiting for next trip request...");
 			} else {
 				this.consoleOutput("There are no available trip requests for " + elevatorName + ", returning elevator to it's starting floor [" + startFloor + "]. Sending an Elevator 'CloseDoor' event to " + elevatorName);
-				//TODO send a close door event
+
+				this.consoleOutput("Sending an Elevator 'DoorClose' event to  " + elevatorName + ".");
+				this.sendToServer(new ElevatorDoorRequest(elevatorName, ElevatorDoorStatus.CLOSED), elevatorName);
 			}
 		}
 	}
@@ -330,7 +335,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		//Update elevator current direction
 		elevatorMonitor.updateCurrentElevatorDirection(nextDirection);
 		
-		//TODO send an elevator move event in the next direction it needs to go
+		//send an elevator move event in the next direction it needs to go
 		this.sendElevatorMoveEvent(elevatorName, nextDirection);
 	}
 	
@@ -340,8 +345,6 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 	 * @param direction
 	 */
 	private void sendElevatorMoveEvent(String elevatorName, Direction direction) {
-		this.consoleOutput("Sending an Elevator 'MOVE " + direction + "' event to " + elevatorName + ".");
-		
 		ElevatorMonitor elevatorMonitor = this.elevatorMonitorByElevatorName.get(elevatorName);
 		
 		//Update elevator status to Moving
@@ -349,7 +352,8 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		//Update elevator direction 
 		elevatorMonitor.updateCurrentElevatorDirection(direction);
 		
-		//TODO send an actual datagram packet
+		this.consoleOutput("Sending an Elevator 'MOVE " + direction + "' event to " + elevatorName + ".");
+		this.sendToServer(new ElevatorMotorRequest(elevatorName, direction), elevatorName);
 	}
 	
 	/**
@@ -446,27 +450,9 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		//Instantiate the scheduler
 		Scheduler scheduler = new Scheduler(schedulerConfiguration.get("name"), Integer.parseInt(schedulerConfiguration.get("port")), elevatorConfigurations, floorConfigurations);
 
-		/*FloorButtonRequest request = new FloorButtonRequest("Fake date", "2", Direction.UP, "4"); 
-		DatagramPacket packet = null;
-		try {
-			packet = Helper.CreateRequest(request);
-		} catch (InvalidRequestException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		Request request2 = null;
-		try {
-			request2 = Helper.ParseRequest(packet);
-		} catch (InvalidRequestException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-		//Some basic testing...
-		
 		//Simulate an incoming trip request
 		//Expecting it to be assigned to E1
-		scheduler.eventTripRequestReceived(2, 4, Direction.UP);
+		/*scheduler.eventTripRequestReceived(2, 4, Direction.UP);
 		scheduler.eventElevatorDoorClosed("E1");
 		
 		//Simulate an incoming trip request
@@ -643,7 +629,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		//Simulate an incoming trip request
 		//Expecting it to be assigned to E1
 		scheduler.eventTripRequestReceived(2, 4, Direction.UP);
-		scheduler.eventElevatorDoorClosed("E1");
+		scheduler.eventElevatorDoorClosed("E1");*/
 		
 		//Spawn and start a new thread for this ElevatorSubsystem instance
 		Thread schedulerThread = new Thread(scheduler, schedulerConfiguration.get("name"));

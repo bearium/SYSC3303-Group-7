@@ -1,6 +1,7 @@
 package main.floorSubsystem;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -100,7 +101,7 @@ public class FloorSubsystem implements Runnable, ElevatorSystemComponent {
 	private static List<FloorButtonRequest> readInputFromFile() {
 		FileReader input = null;
 		try {
-			input = new FileReader(requestsFile);
+			input = new FileReader(new File(ElevatorSystemConfiguration.class.getClassLoader().getResource(requestsFile).getFile()));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
