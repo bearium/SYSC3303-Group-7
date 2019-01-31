@@ -1,18 +1,23 @@
 package shared;
 
-import shared.FloorButton.Direction;
+import main.global.Direction;
+import main.global.LampStatus;
 
 public class DirectionLampRequest extends LampRequest{
+	
 	Direction LampDirection;
-
-	public DirectionLampRequest(Direction direction, LampAction action) {
-		super(action);
-		this.LampDirection = direction;
-		// TODO Auto-generated constructor stub
-	}
+	static byte[] RequestType = new byte[] {1,1};
+	
+//	public DirectionLampRequest(Direction direction, LampAction action) {
+//		super(action);
+//		this.LampDirection = direction;
+//		// TODO Auto-generated constructor stub
+//	}
 	
 	public DirectionLampRequest(Direction direction, LampStatus status) {
 		super(status);
+		super.RequestType = RequestType;
+		this.LampDirection = direction;
 		// TODO Auto-generated constructor stub
 	}
 }
