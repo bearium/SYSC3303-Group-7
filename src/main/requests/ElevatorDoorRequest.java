@@ -4,12 +4,12 @@ public class ElevatorDoorRequest extends Request{
 	//public enum DoorStatus {CLOSING, CLOSED, OPEN, OPENING}
 	//public enum DoorAction {CLOSE, OPEN}
 	
-	public String ElevatorName;
+	private  String ElevatorName;
 	//public DoorStatus CurrentStatus;
-	public ElevatorDoorStatus RequestAction;
+	private  ElevatorDoorStatus RequestAction;
 
 	
-	static byte[] RequestType = new byte[] {1,3};
+	private static byte[] RequestType = new byte[] {1,3};
 	
 	/**
 	 * Elevator will create this request to inform Scheduler of current motor status
@@ -33,4 +33,27 @@ public class ElevatorDoorRequest extends Request{
 		this.ElevatorName = name;
 		this.RequestAction = action;
 	}
+
+	public String getElevatorName() {
+		return ElevatorName;
+	}
+
+	public void setElevatorName(String elevatorName) {
+		ElevatorName = elevatorName;
+	}
+
+	public ElevatorDoorStatus getRequestAction() {
+		return RequestAction;
+	}
+
+	public void setRequestAction(ElevatorDoorStatus requestAction) {
+		RequestAction = requestAction;
+	}
+
+	public static byte[] getRequestType() {
+		return RequestType;
+	}
+
+	
+	
 }
