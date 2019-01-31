@@ -6,11 +6,11 @@ public class ElevatorMotorRequest extends Request{
 	//public enum MotorAction {TURN_ON, TURN_OFF}
 	
 	//public MotorStatus CurrentStatus;
-	public Direction RequestAction;
+	private  Direction RequestAction;
 	
-	public String ElevatorName;
+	private  String ElevatorName;
 	
-	static byte[] RequestType = new byte[] {1,5};
+	private static byte[] RequestType = new byte[] {1,5};
 	/**
 	 * Elevator will create this request to inform Scheduler of current motor status
 	 * 
@@ -32,4 +32,23 @@ public class ElevatorMotorRequest extends Request{
 		this.ElevatorName = name;
 		this.RequestAction = action;
 	}
+	
+	
+	public Direction getRequestAction() {
+		return RequestAction;
+	}
+	public void setRequestAction(Direction requestAction) {
+		RequestAction = requestAction;
+	}
+	public String getElevatorName() {
+		return ElevatorName;
+	}
+	public void setElevatorName(String elevatorName) {
+		ElevatorName = elevatorName;
+	}
+	public static byte[] getRequestType() {
+		return RequestType;
+	}
+
+	
 }
