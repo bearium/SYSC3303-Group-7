@@ -1,8 +1,12 @@
 package main.scheduler;
 
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -14,8 +18,9 @@ import main.global.Direction;
 import main.global.ElevatorDoorStatus;
 import main.global.ElevatorStatus;
 import main.global.ElevatorSystemConfiguration;
+import main.global.SystemComponent;
+import main.requests.*;
 import main.server.Server;
-import shared.Request;
 
 /**
  * The purpose of this class is to schedule the events required to coordinate an elevator system. 
@@ -52,7 +57,8 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		
 		//Create a server (bound to this Instance of ElevatorSubsystem) in a new thread.
 		//When this server receives requests, they will be added to the eventsQueue of THIS ElevatorSubsystem instance.
-		serverThread = new Thread(new Server(this, port, this.debug), name);
+		this.server = new Server(this, port, this.debug);
+		serverThread = new Thread(server, name);
 		serverThread.start();
 	}
 	
@@ -122,19 +128,27 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 	
 	private void handleEvent(Request event) {
 		//switch statement corresponding to different "event handlers"
-		//TODO awaiting final implementation by Mustafa
 		if (event instanceof FloorButtonRequest) {
-			
-		} else if (event instanceof ElevatorMotorRequest) {
-			
-		} else if (event instanceof FloorArrivalNotice) {
-			
+			FloorButtonRequest request = (FloorButtonRequest) event;
+			this.eventTripRequestReceived(Integer.parseInt(request.getFloorName()), Integer.parseInt(request.getDestinationFloor()), request.getDirection());
+		} else if (event instanceof ElevatorArrivalRequest) {
+			ElevatorArrivalRequest request = (ElevatorArrivalRequest) event;
+			//this.eventElevatorArrivalNotice(request.ElevatorName, Integer.parseInt(request.FloorName));
 		} else if (event instanceof ElevatorDoorRequest) {
-		
+			ElevatorDoorRequest request = (ElevatorDoorRequest) event;
+			if (request.getRequestAction() == ElevatorDoorStatus.OPENED) {
+				this.eventElevatorDoorOpened(request.getElevatorName());
+			} else if (request.getRequestAction() == ElevatorDoorStatus.CLOSED) {
+				this.eventElevatorDoorClosed(request.getElevatorName());
+			}
+		} else if (event instanceof ElevatorMotorRequest) {
+			ElevatorMotorRequest request = (ElevatorMotorRequest) event;
+			if (request.getRequestAction() == Direction.IDLE) {
+				this.eventElevatorStopped(request.getElevatorName());
+			}
 		}
 	}
 	
-
 	/**
 	 * This method attempts to assign an incoming tripRequest to one of the elevators.
 	 * The first preference is to assign the tripRequest to an in service elevator, if the trip is en route. 
@@ -169,6 +183,17 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 				if (elevatorMonitor.getElevatorStatus() == ElevatorStatus.STOPPED) {
 					this.consoleOutput("Sending an Elevator 'DoorClose' event to  " + elevatorName + ".");
 					//TODO send door close
+					ElevatorDoorRequest request = new ElevatorDoorRequest(elevatorName, ElevatorDoorStatus.CLOSED);
+					request.setDestination(SystemComponent.Elevator);
+					request.setDestinationName(elevatorName);
+					request.setSource(SystemComponent.Scheduler);
+					request.setSourceName(this.name);
+					try {
+						this.server.send(request, InetAddress.getLocalHost(), this.portsByElevatorName.get(elevatorName));
+					} catch (UnknownHostException e) {
+						e.printStackTrace();
+					}
+					
 				}
 				//TODO send lamps
 				return;
@@ -408,35 +433,6 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		System.out.println("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss.S")) + "] " + output);
 	}
 	
-	/**
-	 * 
-	 */
-	/*public String toString() {
-		StringBuilder sb = new StringBuilder();
-		HashSet<String> elevators = new HashSet<String>(this.portsByElevatorName.keySet());
-		
-		TreeSet<Integer> floors = new TreeSet<Integer>();
-		for (String floor : this.portsByFloorName.keySet()) {
-			floors.add(Integer.parseInt(floor));
-		}
-		
-		while (!floors.isEmpty()) {
-			HashSet<String> elevatorsAtThisFloor = new HashSet<String>();
-			int floor = floors.pollLast();
-			if (this.currentFloorLocationByElevatorName.containsValue(floor)) {
-				for (String elevator : elevators) {
-					if (this.currentFloorLocationByElevatorName.get(elevator) == floor) {
-						elevatorsAtThisFloor.add(elevator);
-					}
-				}
-			}
-			sb.append("floor " + floor + ": " + elevatorsAtThisFloor + "\n");
-		}
-		
-		
-		return sb.toString();
-	}*/
-	
 	public static void main (String[] args) {
 		//This will return a Map of Maps. First key -> elevator Name, Value -> map of all attributes for that elevator (as per config.xml)
 		HashMap<String, HashMap<String, String>> elevatorConfigurations = ElevatorSystemConfiguration.getAllElevatorSubsystemConfigurations();
@@ -450,8 +446,22 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		//Instantiate the scheduler
 		Scheduler scheduler = new Scheduler(schedulerConfiguration.get("name"), Integer.parseInt(schedulerConfiguration.get("port")), elevatorConfigurations, floorConfigurations);
 
-		scheduler.toString();
+		/*FloorButtonRequest request = new FloorButtonRequest("Fake date", "2", Direction.UP, "4"); 
+		DatagramPacket packet = null;
+		try {
+			packet = Helper.CreateRequest(request);
+		} catch (InvalidRequestException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
+		Request request2 = null;
+		try {
+			request2 = Helper.ParseRequest(packet);
+		} catch (InvalidRequestException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
 		//Some basic testing...
 		
 		//Simulate an incoming trip request

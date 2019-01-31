@@ -1,6 +1,6 @@
 package main;
 
-import shared.Request;
+import main.requests.Request;
 
 public interface ElevatorSystemComponent {
 	

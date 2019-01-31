@@ -1,4 +1,4 @@
-package shared;
+package main.requests;
 import main.global.Direction;
 
 public class ElevatorMotorRequest extends Request{

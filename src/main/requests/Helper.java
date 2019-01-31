@@ -1,4 +1,4 @@
-package shared;
+package main.requests;
 
 import java.net.DatagramPacket;
 import java.util.Arrays;
