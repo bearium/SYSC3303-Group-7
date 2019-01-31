@@ -146,7 +146,10 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		}
 	}
 	
-
+	private void sendEvent() {
+		
+	}
+	
 	/**
 	 * This method attempts to assign an incoming tripRequest to one of the elevators.
 	 * The first preference is to assign the tripRequest to an in service elevator, if the trip is en route. 
