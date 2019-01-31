@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import main.ElevatorSystemComponent;
+import main.elevatorSubsystem.ElevatorState;
 import main.global.ElevatorSystemConfiguration;
 import main.server.Server;
 
@@ -19,6 +20,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 	private Server server;
 	private Thread serverThread;
 	private String name;
+	private ElevatorState state;
 	private Queue<String> eventsQueue;
 	private boolean debug = false;
 	
@@ -125,14 +127,6 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 			e.printStackTrace();
 			System.exit(1);
 		}
-	}
-
-	public void sendRequest(){
-
-	}
-
-	public void recieveRequest(){
-
 	}
 
 	public void stopRequest(){
