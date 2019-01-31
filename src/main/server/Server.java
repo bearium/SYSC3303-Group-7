@@ -37,10 +37,8 @@ public class Server implements Runnable{
 	 * Prints details about the packet send event (Leverages printPacketEventDetails()).
 	 * Socket is not closed when send is complete.
 	 * 
-	 * @param msg
-	 * @param length
+	 * @param request
 	 * @param inetAddress
-	 * @param socket
 	 * @param port
 	 */
 	public void send(Request request, InetAddress inetAddress, int port) {

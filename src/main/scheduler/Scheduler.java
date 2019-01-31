@@ -130,7 +130,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 			this.eventTripRequestReceived(Integer.parseInt(request.FloorName), Integer.parseInt(request.DestinationFloor), request.Direction);
 		} else if (event instanceof ElevatorArrivalRequest) {
 			ElevatorArrivalRequest request = (ElevatorArrivalRequest) event;
-			this.eventElevatorArrivalNotice(request.ElevatorName, Integer.parseInt(request.FloorName));
+			//this.eventElevatorArrivalNotice(request.ElevatorName, Integer.parseInt(request.FloorName));
 		} else if (event instanceof ElevatorDoorRequest) {
 			ElevatorDoorRequest request = (ElevatorDoorRequest) event;
 			if (request.RequestAction == ElevatorDoorStatus.OPENED) {
