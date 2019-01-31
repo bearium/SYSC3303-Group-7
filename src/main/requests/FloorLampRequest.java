@@ -3,8 +3,8 @@ package shared;
 import main.global.LampStatus;
 
 public class FloorLampRequest extends LampRequest {
-	String FloorName;
-	static byte[] RequestType = new byte[] {1,7};
+	private String FloorName;
+	private static byte[] RequestType = new byte[] {1,7};
 	
 //	public FloorLampRequest(String name, LampAction action) {
 //
@@ -19,4 +19,16 @@ public class FloorLampRequest extends LampRequest {
 		this.FloorName = name;
 	}
 
+	public String getFloorName() {
+		return FloorName;
+	}
+
+	public void setFloorName(String floorName) {
+		FloorName = floorName;
+	}
+
+	public static byte[] getRequestType() {
+		return RequestType;
+	}
+	
 }
