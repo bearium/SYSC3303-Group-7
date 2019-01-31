@@ -1,6 +1,8 @@
 package main.scheduler;
 
 import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -55,7 +57,8 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		
 		//Create a server (bound to this Instance of ElevatorSubsystem) in a new thread.
 		//When this server receives requests, they will be added to the eventsQueue of THIS ElevatorSubsystem instance.
-		serverThread = new Thread(new Server(this, port, this.debug), name);
+		this.server = new Server(this, port, this.debug);
+		serverThread = new Thread(server, name);
 		serverThread.start();
 	}
 	
@@ -146,10 +149,6 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		}
 	}
 	
-	private void sendEvent() {
-		
-	}
-	
 	/**
 	 * This method attempts to assign an incoming tripRequest to one of the elevators.
 	 * The first preference is to assign the tripRequest to an in service elevator, if the trip is en route. 
@@ -184,6 +183,17 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 				if (elevatorMonitor.getElevatorStatus() == ElevatorStatus.STOPPED) {
 					this.consoleOutput("Sending an Elevator 'DoorClose' event to  " + elevatorName + ".");
 					//TODO send door close
+					ElevatorDoorRequest request = new ElevatorDoorRequest(elevatorName, ElevatorDoorStatus.CLOSED);
+					request.setDestination(SystemComponent.Elevator);
+					request.setDestinationName(elevatorName);
+					request.setSource(SystemComponent.Scheduler);
+					request.setSourceName(this.name);
+					try {
+						this.server.send(request, InetAddress.getLocalHost(), this.portsByElevatorName.get(elevatorName));
+					} catch (UnknownHostException e) {
+						e.printStackTrace();
+					}
+					
 				}
 				//TODO send lamps
 				return;
@@ -436,7 +446,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		//Instantiate the scheduler
 		Scheduler scheduler = new Scheduler(schedulerConfiguration.get("name"), Integer.parseInt(schedulerConfiguration.get("port")), elevatorConfigurations, floorConfigurations);
 
-		FloorButtonRequest request = new FloorButtonRequest(new Date(), "2", Direction.UP, "4"); 
+		/*FloorButtonRequest request = new FloorButtonRequest(new Date(), "2", Direction.UP, "4"); 
 		request.setDestinationName("Scheduler");
 		request.setSourceName("Floor");
 		request.setDestination(SystemComponent.Scheduler);
@@ -455,7 +465,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		} catch (InvalidRequestException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 		//Some basic testing...
 		
 		//Simulate an incoming trip request

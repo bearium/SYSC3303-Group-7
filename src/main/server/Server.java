@@ -41,7 +41,7 @@ public class Server implements Runnable{
 	 * @param inetAddress
 	 * @param port
 	 */
-	public void send(Request request, InetAddress inetAddress, int port) {
+	public void send(Request request, InetAddress inetAddress, Integer port) {
 
 		DatagramPacket packet = null;
 		try {
