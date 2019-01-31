@@ -452,7 +452,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 
 		//Simulate an incoming trip request
 		//Expecting it to be assigned to E1
-		scheduler.eventTripRequestReceived(2, 4, Direction.UP);
+		/*scheduler.eventTripRequestReceived(2, 4, Direction.UP);
 		scheduler.eventElevatorDoorClosed("E1");
 		
 		//Simulate an incoming trip request
@@ -629,7 +629,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		//Simulate an incoming trip request
 		//Expecting it to be assigned to E1
 		scheduler.eventTripRequestReceived(2, 4, Direction.UP);
-		scheduler.eventElevatorDoorClosed("E1");
+		scheduler.eventElevatorDoorClosed("E1");*/
 		
 		//Spawn and start a new thread for this ElevatorSubsystem instance
 		Thread schedulerThread = new Thread(scheduler, schedulerConfiguration.get("name"));
