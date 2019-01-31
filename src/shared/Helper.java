@@ -6,7 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
-import org.apache.commons.lang3.mutable.MutableInt;
+
 
 import main.global.*;
 
@@ -22,12 +22,11 @@ public final class Helper {
 	public static Request ParseRequest(DatagramPacket packet) throws InvalidRequestException{
 		byte[] data = packet.getData();
 		int data_length = packet.getLength();
-		//if(data.length != data_length) throw Invalid();
-		MutableInt counter = new MutableInt(0);
-		if(data[counter.intValue()] != 0){
+		if(data.length != data_length) throw Invalid();
+		Integer counter = 0;
+		if(data[counter++] != 0){
 			throw Invalid();
 		}
-		counter.increment();
 
 		SystemComponent Source = (SystemComponent) ParseEnum(data,SystemComponent.class, counter);
 		String SourceName = ParseString(data, counter);
@@ -44,7 +43,7 @@ public final class Helper {
 
 	}
 
-	private static Request ParseOnType(byte[] data, byte[] rt, MutableInt counter) throws InvalidRequestException {
+	private static Request ParseOnType(byte[] data, byte[] rt, Integer counter) throws InvalidRequestException {
 		Request request = null;
 		if(Arrays.equals(rt, DirectionLampRequest.RequestType)){
 			/* Parse based on Direction Lamp Request */
@@ -111,34 +110,34 @@ public final class Helper {
 		return request;
 	}
 
-	private static byte[] ParseType(byte[] data, MutableInt counter) throws InvalidRequestException {
-		byte[] array = new byte[] {data[counter.getAndIncrement()], data[counter.getAndIncrement()]};
-		if(data[counter.intValue()] == 0) 
-			counter.getAndIncrement();
+	private static byte[] ParseType(byte[] data, Integer counter) throws InvalidRequestException {
+		byte[] array = new byte[] {data[counter++], data[counter++]};
+		if(data[counter] == 0) 
+			counter++;
 		else throw Invalid();
 		return array;
 	}
 
-	private static String ParseString(byte[] data, MutableInt counter) {
-		System.out.println("Current counter: Parsing string: "+counter.intValue());
+	private static String ParseString(byte[] data, Integer counter) {
+
 		String ret = "";
-		if(data[counter.intValue()] != 0){
+		if(data[++counter] != 0){
 
 			//attempt to parse data
-			MutableInt temp_counter = new MutableInt(counter) ;
-			while(temp_counter.intValue() != data.length && data[temp_counter.getAndIncrement()]!=0);
-			
-			ret = new String(Arrays.copyOfRange(data, counter.intValue(),temp_counter.intValue() - 1));
-			counter.setValue(temp_counter);
+			int temp_counter = counter;
+
+			while(temp_counter != data.length && data[temp_counter++]!=0);
+
+			ret = new String(Arrays.copyOfRange(data, counter,temp_counter - 1));
+			counter = temp_counter;
 		}
 		return ret;
 	}
 
-	private static <T extends Enum<T>> Enum<?> ParseEnum(byte[] data, Class<T> clazz, MutableInt counter) throws InvalidRequestException{
-		System.out.println("Current counter: "+counter.intValue());
+	private static <T extends Enum<T>> Enum<?> ParseEnum(byte[] data, Class<T> clazz, Integer counter) throws InvalidRequestException{
 		Enum<?>[] enums = clazz.getEnumConstants();
-		if((((int)data[counter.intValue()]) - 1) < enums.length){
-			return enums[((int) data[counter.getAndAdd(2)]) - 1];
+		if(((int)data[counter++] - 1) < enums.length){
+			return enums[((int) data[counter++]) - 1];
 		}
 		else throw Invalid();
 	}
@@ -152,16 +151,14 @@ public final class Helper {
 	 * @throws InvalidRequestException 
 	 */
 	public static DatagramPacket CreateRequest(Request request) throws InvalidRequestException{
-		MutableInt counter = new MutableInt(0);
+		Integer counter = 0;
 		byte[] data = new byte[buffer_size];
 
 		/* Populate a general request */
 		// add initial 0 byte
-		data [counter.getAndIncrement()] = 0;
+		data[counter++] = 0;
 		// add Sender enum byte
-		System.out.println("Before populating: "+counter);
 		PopulateEnum(data, request.Source, counter);
-		System.out.println("After populating: "+counter);
 		// populate sender name with a string
 		String SenderName = request.SourceName;
 		Populate(data, SenderName, counter);
@@ -175,19 +172,16 @@ public final class Helper {
 		// Populate based on Type
 		PopulateOnType(data, request, counter);
 
-		DatagramPacket packet = new DatagramPacket(data, counter.intValue());
+		DatagramPacket packet = new DatagramPacket(data, counter);
 		return packet;
 
 	}
 
-	private static void PopulateEnum(byte[] data, Enum<?> E, MutableInt counter){
-		System.out.println((byte)(E.ordinal() + 1));
-		data[counter.intValue()] = (byte) (E.ordinal() + 1); //add 1 to avoid 0-ordinal values
-		counter.increment();
-		data[counter.intValue()] = 0;
-		counter.increment();
+	private static void PopulateEnum(byte[] data, Enum<?> E, Integer counter){
+		data[counter++] = (byte) (E.ordinal() + 1); //add 1 to avoid 0-ordinal values
+		data[counter++] = 0;
 	}
-	private static void PopulateOnType(byte[] data, Request request, MutableInt counter) throws InvalidRequestException {
+	private static void PopulateOnType(byte[] data, Request request, Integer counter) throws InvalidRequestException {
 		if(request instanceof DirectionLampRequest){
 			/* Direction Lamp Request is of the form 0DIR0STATUS0ACTION */
 			DirectionLampRequest req = (DirectionLampRequest) request;
@@ -238,29 +232,24 @@ public final class Helper {
 	 * @param request
 	 * @param counter
 	 */
-	public static void PopulateType(byte[] data, Request request, MutableInt counter){
+	public static void PopulateType(byte[] data, Request request, Integer counter){
 		byte[] TypeCode = request.RequestType;
-		System.out.println(Arrays.toString(data));
-		data[counter.intValue()] = TypeCode[0];
-		counter.increment();
-		data[counter.intValue()] = TypeCode[1];
-		counter.increment();
-		data[counter.intValue()] = 0;
-		counter.increment();
+		data[counter++] = TypeCode[0];
+		data[counter++] = TypeCode[1];
+		data[counter++] = 0;
 
 	}
 
-	public static void Populate(byte[] array, String array2, MutableInt pos) {
+	public static void Populate(byte[] array, String array2, Integer pos) {
 		CopyArray(array, array2.getBytes(), pos);
-		array[pos.intValue()] = 0;
-		pos.increment();
+		array[pos++] = 0;
 	}
 
-	public static void CopyArray(byte[] array, byte[] array2, MutableInt pos){
+	public static void CopyArray(byte[] array, byte[] array2, Integer pos){
 		for(int i = 0; i < array2.length; i++){
-			array[i + pos.intValue()] = array2[i];
+			array[i + pos] = array2[i];
 		}
-		pos.add(array2.length); 
+		pos += array2.length;
 
 	}
 	public static InvalidRequestException Invalid() {

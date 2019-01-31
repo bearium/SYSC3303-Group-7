@@ -16,7 +16,6 @@ public class DirectionLampRequest extends LampRequest{
 	
 	public DirectionLampRequest(Direction direction, LampStatus status) {
 		super(status);
-		super.RequestType = RequestType;
 		this.LampDirection = direction;
 		// TODO Auto-generated constructor stub
 	}
