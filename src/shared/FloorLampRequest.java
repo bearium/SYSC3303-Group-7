@@ -15,6 +15,7 @@ public class FloorLampRequest extends LampRequest {
 	public FloorLampRequest(String name, LampStatus status) {
 
 		super(status);
+		super.RequestType = RequestType;
 		this.FloorName = name;
 	}
 

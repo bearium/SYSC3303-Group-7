@@ -10,6 +10,7 @@ public class FloorButtonRequest extends Request{
 	static byte[] RequestType = new byte[] {1,6};
 	
 	public FloorButtonRequest(Date time, String FloorName, Direction Direction, String destinationFloor){
+		super.RequestType = RequestType;
 		this.Time = time;
 		this.FloorName = FloorName;
 		this.Direction = Direction;
