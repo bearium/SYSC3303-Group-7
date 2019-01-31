@@ -15,6 +15,7 @@ import main.global.ElevatorDoorStatus;
 import main.global.ElevatorStatus;
 import main.global.ElevatorSystemConfiguration;
 import main.server.Server;
+import shared.Request;
 
 /**
  * The purpose of this class is to schedule the events required to coordinate an elevator system. 
@@ -31,7 +32,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 	private String name;
 	private Server server;
 	private Thread serverThread;
-	private Queue<String> eventsQueue;
+	private Queue<Request> eventsQueue;
 	private boolean debug = false;
 	private HashMap<String, Integer> portsByElevatorName;										//key -> elevator name, value -> port number
 	private HashMap<String, Integer> portsByFloorName;											//key -> floor number, value -> port number
@@ -40,7 +41,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 	
 	public Scheduler(String name, int port, HashMap<String, HashMap<String, String>> elevatorConfiguration, HashMap<String, HashMap<String, String>> floorConfigurations) {
 		this.name = name;
-		this.eventsQueue = new LinkedList<String>();
+		this.eventsQueue = new LinkedList<Request>();
 		this.portsByElevatorName = new HashMap<String, Integer>();
 		this.portsByFloorName = new HashMap<String, Integer>();
 		this.elevatorMonitorByElevatorName = new HashMap<String, ElevatorMonitor>();
@@ -90,12 +91,20 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 	}
 	
 	@Override
-	public synchronized void receiveEvent(String event) {
-		eventsQueue.add(event);
+	public synchronized void receiveEvent(Request request) {
+		eventsQueue.add(request);
+		this.notifyAll();
 	}
 
 	@Override
-	public synchronized String getNextEvent() {
+	public synchronized Request getNextEvent() {
+		while (eventsQueue.isEmpty()) {
+			try {
+				this.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		return eventsQueue.poll();
 	}
 
@@ -106,11 +115,23 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 
 	@Override
 	public void run() {
-		System.out.println("");
+		while (true) {
+			this.handleEvent(this.getNextEvent());
+		}
 	}
 	
-	private void handleEvent() {
+	private void handleEvent(Request event) {
 		//switch statement corresponding to different "event handlers"
+		//TODO awaiting final implementation by Mustafa
+		if (event instanceof FloorButtonRequest) {
+			
+		} else if (event instanceof ElevatorMotorRequest) {
+			
+		} else if (event instanceof FloorArrivalNotice) {
+			
+		} else if (event instanceof ElevatorDoorRequest) {
+		
+		}
 	}
 	
 
