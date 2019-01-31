@@ -1,17 +1,20 @@
 package shared;
-
+import main.global.Direction;
 import java.util.Date;
 
-public class FloorButtonRequest {
+public class FloorButtonRequest extends Request{
 	public Date Time;
 	public String FloorName;
-	public FloorButton ButtonPressed;
-	public CarButton DestinationFloor;
+	public Direction Direction;
+	public String DestinationFloor;
+	static byte[] RequestType = new byte[] {1,6};
 	
-	public FloorButtonRequest(Date time, String FloorName, FloorButton button, CarButton destinationFloor){
+	public FloorButtonRequest(Date time, String FloorName, Direction Direction, String destinationFloor){
+		super.RequestType = RequestType;
 		this.Time = time;
 		this.FloorName = FloorName;
-		this.ButtonPressed = button;
+		this.Direction = Direction;
 		this.DestinationFloor = destinationFloor;
 	}
+	
 }
