@@ -1,31 +1,28 @@
 package main.requests;
 
 import main.global.LampStatus;
-
+import main.global.Direction;
 public class FloorLampRequest extends LampRequest {
-	private String FloorName;
+	private Direction Direction;
 	private static byte[] RequestType = new byte[] {1,7};
-	
-//	public FloorLampRequest(String name, LampAction action) {
-//
-//		super(action);
-//		this.FloorName = name;
-//	}
-	
-	public FloorLampRequest(String name, LampStatus status) {
+
+	public FloorLampRequest(Direction Direction, LampStatus status) {
 
 		super(status);
 		super.RequestType = RequestType;
-		this.FloorName = name;
+		this.Direction = Direction;
 	}
 
-	public String getFloorName() {
-		return FloorName;
+	
+	public Direction getDirection() {
+		return Direction;
 	}
 
-	public void setFloorName(String floorName) {
-		FloorName = floorName;
+
+	public void setDirection(Direction direction) {
+		Direction = direction;
 	}
+
 
 	public static byte[] getRequestType() {
 		return RequestType;
