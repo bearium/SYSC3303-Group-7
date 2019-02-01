@@ -1,12 +1,10 @@
 package main.scheduler;
 
-import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -14,11 +12,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import main.ElevatorSystemComponent;
-import main.global.Direction;
-import main.global.ElevatorDoorStatus;
-import main.global.ElevatorStatus;
-import main.global.ElevatorSystemConfiguration;
-import main.global.SystemComponent;
+import main.global.*;
 import main.requests.*;
 import main.server.Server;
 
