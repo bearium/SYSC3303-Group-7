@@ -101,7 +101,8 @@ public class FloorSubsystem implements Runnable, ElevatorSystemComponent {
 	private static List<FloorButtonRequest> readInputFromFile() {
 		FileReader input = null;
 		try {
-			input = new FileReader(new File(ElevatorSystemConfiguration.class.getClassLoader().getResource(requestsFile).getFile()));
+			String requestsFilePath = new File(FloorSubsystem.class.getClassLoader().getResource(requestsFile).getFile()).getAbsolutePath().replace("%20", " ");
+			input = new FileReader(requestsFilePath);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
