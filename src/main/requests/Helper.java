@@ -99,7 +99,6 @@ public final class Helper {
 		} else if(Arrays.equals(rt, ElevatorLampRequest.getRequestType())){
 			/* Parse based on Elevator Lamp Request */
 			String ElevatorName = ParseString(data, counter);
-			String ButtonName = ParseString(data, counter);
 			LampStatus status = (LampStatus) ParseEnum(data, LampStatus.class, counter);
 			//LampAction action = (LampAction) ParseEnum(data, LampAction.class, counter);
 			if(status != null) {
