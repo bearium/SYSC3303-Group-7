@@ -9,15 +9,14 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import main.ElevatorSystemComponent;
+import main.global.*;
 
 import main.floorSubsystem.FloorSubsystem;
 import main.global.Direction;
 import main.global.ElevatorDoorStatus;
 import main.global.ElevatorSystemConfiguration;
 import main.requests.*;
-import main.scheduler.Override;
 import main.server.Server;
-import main.global.ElevatorStatus;
 
 public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 	//class variables
@@ -44,6 +43,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 	
 	public synchronized void receiveEvent(Request event) {
 		eventsQueue.add(event);
+		this.notifyAll();
 	}
 
 	//goes through event queue till empty then waits till next event received
@@ -107,63 +107,66 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 
 	//toggles lamp state dependent on floor provided
 	private void handleElevatorStop(){
+		consoleOutput(this.name + ": 'STOP' action received.");
 		this.state.setDirection(Direction.IDLE);
 		this.state.setStatus(ElevatorStatus.STOPPED);
 		this.state.toggleLamp(this.state.getCurrentFloor());
 		ElevatorMotorRequest request = new ElevatorMotorRequest(this.name, Direction.IDLE);
-		consoleOutput("Sending stop confirmation.");
+		consoleOutput(this.name + ": Sending 'STOP' confirmation to Scheduler. Stopped at " + this.state.getCurrentFloor() + ".");
 		this.sendToServer(request);
 	}
 
-
-
 	private void handleElevatorMoveUP(){
-		if (this.state.getDoorStatus() != ElevatorDoorStatus.OPENED) {
-			this.state.setDirection(Direction.UP);
-			this.state.setStatus(ElevatorStatus.MOVING);
-			consoleOutput("Simulating Travel Time");
-			try {
-				Thread.sleep(5000);
-			} catch (java.lang.InterruptedException e) {
-				e.printStackTrace();
-			}
-			this.state.setCurrentFloor(this.state.getCurrentFloor() + 1);
-			ElevatorArrivalRequest request = new ElevatorArrivalRequest(this.name, Integer.toString(this.state.getCurrentFloor()));
-			this.sendToServer(request);
-		}
-	}
-
-	private void handleElevatorMoveDown() {
-		if (this.state.getDoorStatus() != ElevatorDoorStatus.OPENED) {
-			this.state.setDirection(Direction.DOWN);
-			this.state.setStatus(ElevatorStatus.MOVING);
-			consoleOutput("Simulating Travel Time");
-			try {
-				Thread.sleep(5000);
-			} catch (java.lang.InterruptedException e) {
-				e.printStackTrace();
-			}
-			this.state.setCurrentFloor(this.state.getCurrentFloor() - 1);
-			ElevatorArrivalRequest request = new ElevatorArrivalRequest(this.name, Integer.toString(this.state.getCurrentFloor()));
-			this.sendToServer(request);
-		}
-	}
-
-	private void handleElevatorOpenDoor(){
-		this.state.setDoorStatus(ElevatorDoorStatus.OPENED);
-		consoleOutput("Doors Opened, Travelers Loading in");
+		consoleOutput(this.name + ": 'MOVE UP' action received. Currently on " + this.state.getCurrentFloor() + ".");
+		this.state.setDirection(Direction.UP);
+		this.state.setStatus(ElevatorStatus.MOVING);
+		consoleOutput(this.name + ": Simulating Travel Time...");
 		try {
 			Thread.sleep(5000);
 		} catch (java.lang.InterruptedException e) {
 			e.printStackTrace();
 		}
+		this.state.setCurrentFloor(this.state.getCurrentFloor()+1);
+		consoleOutput(this.name + ": Arrived to " + this.state.getCurrentFloor() + ". Sending arrival notice to Scheduler.");
+		ElevatorArrivalRequest request = new ElevatorArrivalRequest(this.name, Integer.toString(this.state.getCurrentFloor()));
+		this.sendToServer(request);
+	}
+
+	private void handleElevatorMoveDown(){
+		consoleOutput(this.name + ": 'MOVE DOWN' action received. Currently on " + this.state.getCurrentFloor() + ".");
+		this.state.setDirection(Direction.DOWN);
+		this.state.setStatus(ElevatorStatus.MOVING);
+		consoleOutput(this.name + ": Simulating Travel Time...");
+		try {
+			Thread.sleep(5000);
+		} catch (java.lang.InterruptedException e) {
+			e.printStackTrace();
+		}
+		this.state.setCurrentFloor(this.state.getCurrentFloor()-1);
+		consoleOutput(this.name + ": Arrived to " + this.state.getCurrentFloor() + ". Sending arrival notice to Scheduler.");
+		ElevatorArrivalRequest request = new ElevatorArrivalRequest(this.name, Integer.toString(this.state.getCurrentFloor()));
+		this.sendToServer(request);
+	}
+
+	private void handleElevatorOpenDoor(){
+		consoleOutput(this.name + ": 'DOOR OPEN' action received.");
+		this.state.setDoorStatus(ElevatorDoorStatus.OPENED);
+		consoleOutput(this.name + ": Doors Opened.");
+		try {
+			Thread.sleep(5000);
+		} catch (java.lang.InterruptedException e) {
+			e.printStackTrace();
+		}
+		consoleOutput(this.name + ": Sending 'DOOR OPEN' confirmation to Scheduler.");
 		ElevatorDoorRequest request = new ElevatorDoorRequest(this.name, ElevatorDoorStatus.OPENED);
 		this.sendToServer(request);
 	}
 
 	private void handleElevatorCloseDoor(){
+		consoleOutput(this.name + ": 'DOOR CLOSE' action received.");
 		this.state.setDoorStatus(ElevatorDoorStatus.CLOSED);
-		consoleOutput("Doors closed, Ready to travel");
+		consoleOutput(this.name + ": Doors closed, Ready to travel...");
+		consoleOutput(this.name + ": Sending 'DOOR CLOSE' confirmation to Scheduler.");
 		ElevatorDoorRequest request = new ElevatorDoorRequest(this.name, ElevatorDoorStatus.CLOSED);
 		this.sendToServer(request);
 	}
@@ -181,7 +184,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 		System.out.println("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss.S")) + "] " + output);
 	}
 
-	public static void main(String[] args){
+	public static void main (String[] args){
 		//This will return a Map of Maps. First key -> elevator Name, Value -> map of all attributes for that elevator (as per config.xml)
 		HashMap<String, HashMap<String, String>> elevatorConfigurations = ElevatorSystemConfiguration.getAllElevatorSubsystemConfigurations();
 

@@ -257,9 +257,12 @@ public class ElevatorMonitor {
 	 * @return
 	 */
 	public boolean isStopRequired(int floor) {
-		//If either, the floor is a registered stop AND the queue is in service (the elevator direction matches the queue direction
+		//If either, the floor is a registered stop AND the queue is in service (the elevator direction matches the queue direction)
 		//OR, if the queue is not in service (idle), and the elevator is at it's starting floor.
-		if ((this.containsFloor(floor) && (this.elevatorState.getDirection() == this.queueDirection)) || ((this.queueDirection ==  Direction.IDLE) && (this.elevatorState.getCurrentFloor() == this.elevatorState.getStartFloor()))) {
+		//OR, if the floor is a pickup floor and the elevator's 
+		if ((this.containsFloor(floor) && (this.elevatorState.getDirection() == this.queueDirection)) 
+				|| ((this.queueDirection ==  Direction.IDLE) && (this.elevatorState.getCurrentFloor() == this.elevatorState.getStartFloor()))
+				|| (this.containsPickupFloor(floor) && (this.elevatorState.getDirection() != this.queueDirection))) {
 			return true;
 		}
 		return false;
