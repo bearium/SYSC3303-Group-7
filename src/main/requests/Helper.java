@@ -103,7 +103,7 @@ public final class Helper {
 			LampStatus status = (LampStatus) ParseEnum(data, LampStatus.class, counter);
 			//LampAction action = (LampAction) ParseEnum(data, LampAction.class, counter);
 			if(status != null) {
-				request = new ElevatorLampRequest(ElevatorName, ButtonName, status);
+				request = new ElevatorLampRequest(ElevatorName, status);
 			}
 			//			} else if(action != null){
 			//				request = new ElevatorLampRequest(ElevatorName, ButtonName, status);
@@ -262,7 +262,6 @@ public final class Helper {
 		} else if(request instanceof ElevatorLampRequest){
 			/* Elevator Lamp Request is of the form 0E_NAME0E_BUTTON0STATUS0ACTION */
 			ElevatorLampRequest req = (ElevatorLampRequest) request;
-			Populate(data, req.getElevatorName(), counter);
 			Populate(data, req.getElevatorButton(), counter);
 			PopulateEnum(data, req.getCurrentStatus(), counter);
 		} else if(request instanceof ElevatorMotorRequest){
