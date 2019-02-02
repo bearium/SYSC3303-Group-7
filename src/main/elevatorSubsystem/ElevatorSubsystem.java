@@ -9,11 +9,6 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import main.ElevatorSystemComponent;
-
-import main.floorSubsystem.FloorSubsystem;
-import main.global.Direction;
-import main.global.ElevatorDoorStatus;
-import main.global.ElevatorSystemConfiguration;
 import main.global.*;
 import main.requests.*;
 import main.server.Server;
@@ -78,7 +73,6 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 			this.sendToServer(request);
 		} else if (event instanceof ElevatorDoorRequest) {
 			ElevatorDoorRequest request = (ElevatorDoorRequest) event;
-
 			if (request.getRequestAction() == ElevatorDoorStatus.OPENED) {
 				this.consoleOutput(RequestEvent.RECEIVED, "Scheduler", "Open elevator doors.");
 				this. handleElevatorOpenDoor();
@@ -156,6 +150,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 			ElevatorArrivalRequest request = new ElevatorArrivalRequest(this.name, Integer.toString(this.state.getCurrentFloor()));
 			this.sendToServer(request);
 		}
+
 	}
 
 	private void handleElevatorOpenDoor(){
