@@ -7,7 +7,7 @@ TO IMPORT THE PROJECT INTO ECLIPSE
 	- Select 'Import' menu item
 	- Under 'General' select 'Projects From File System or Archive File'
 	- Select 'Archive...'
-	- Locate '91L1G7_Project_Iteration1.zip' as Import source.
+	- Locate 'L1G7_Project_Iteration1.zip' as Import source.
 	- Click 'Finish'
 3. From within the project
 	- Run Scheduler.java
