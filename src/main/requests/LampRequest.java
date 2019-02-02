@@ -1,4 +1,4 @@
-package shared;
+package main.requests;
 import main.global.LampStatus;
 
 public class LampRequest extends Request{
@@ -7,7 +7,7 @@ public class LampRequest extends Request{
 	//public enum LampStatus {ON, OFF}
 	//public enum LampAction {TURN_ON, TURN_OFF}
 	
-	public LampStatus CurrentStatus;
+	private LampStatus CurrentStatus;
 	//public LampAction RequestAction;
 	
 	
@@ -19,6 +19,16 @@ public class LampRequest extends Request{
 	 */
 	public LampRequest(LampStatus status){
 		this.CurrentStatus = status;
+	}
+
+
+	public LampStatus getCurrentStatus() {
+		return CurrentStatus;
+	}
+
+
+	public void setCurrentStatus(LampStatus currentStatus) {
+		CurrentStatus = currentStatus;
 	}
 	
 	/**

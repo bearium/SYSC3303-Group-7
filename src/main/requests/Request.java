@@ -1,4 +1,4 @@
-package shared;
+package main.requests;
 import main.global.SystemComponent;
 public class Request {
 

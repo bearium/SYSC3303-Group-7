@@ -1,4 +1,4 @@
-package shared;
+package main.requests;
 import main.global.ElevatorDoorStatus;
 public class ElevatorDoorRequest extends Request{
 	//public enum DoorStatus {CLOSING, CLOSED, OPEN, OPENING}

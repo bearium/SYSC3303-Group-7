@@ -1,4 +1,4 @@
-package shared;
+package main.requests;
 
 import java.net.DatagramPacket;
 import java.util.Arrays;
@@ -99,11 +99,10 @@ public final class Helper {
 		} else if(Arrays.equals(rt, ElevatorLampRequest.getRequestType())){
 			/* Parse based on Elevator Lamp Request */
 			String ElevatorName = ParseString(data, counter);
-			String ButtonName = ParseString(data, counter);
 			LampStatus status = (LampStatus) ParseEnum(data, LampStatus.class, counter);
 			//LampAction action = (LampAction) ParseEnum(data, LampAction.class, counter);
 			if(status != null) {
-				request = new ElevatorLampRequest(ElevatorName, ButtonName, status);
+				request = new ElevatorLampRequest(ElevatorName, status);
 			}
 			//			} else if(action != null){
 			//				request = new ElevatorLampRequest(ElevatorName, ButtonName, status);
@@ -123,11 +122,11 @@ public final class Helper {
 
 		} else if(Arrays.equals(rt, FloorLampRequest.getRequestType())){
 			/* Parse based on Floor Lamp Request */
-			String FloorName = ParseString(data, counter);
+			Direction Direction = (Direction) ParseEnum(data, Direction.class, counter);
 			LampStatus status = (LampStatus) ParseEnum(data, LampStatus.class, counter);
 			//LampAction action = (LampAction) ParseEnum(data, LampAction.class, counter);
 			if(status != null) {
-				request = new FloorLampRequest(FloorName, status);
+				request = new FloorLampRequest(Direction, status);
 			} /*else if(action != null){
 				request = new FloorLampRequest(FloorName, status);
 			}*/
@@ -244,7 +243,11 @@ public final class Helper {
 			/* Direction Lamp Request is of the form 0DIR0STATUS0ACTION */
 			DirectionLampRequest req = (DirectionLampRequest) request;
 			PopulateEnum(data, req.getLampDirection(), counter);
+<<<<<<< HEAD
 			PopulateEnum(data, req.CurrentStatus, counter);
+=======
+			PopulateEnum(data, req.getCurrentStatus(), counter);
+>>>>>>> refs/remotes/origin/master
 
 		} else if(request instanceof ElevatorArrivalRequest){
 			/* Elevator Arrival Request is of form 0E_NAME0FLOOR_NAME0 */
@@ -262,9 +265,14 @@ public final class Helper {
 		} else if(request instanceof ElevatorLampRequest){
 			/* Elevator Lamp Request is of the form 0E_NAME0E_BUTTON0STATUS0ACTION */
 			ElevatorLampRequest req = (ElevatorLampRequest) request;
+<<<<<<< HEAD
 			Populate(data, req.getElevatorName(), counter);
 			Populate(data, req.getElevatorButton(), counter);
 			PopulateEnum(data, req.CurrentStatus, counter);
+=======
+			Populate(data, req.getElevatorButton(), counter);
+			PopulateEnum(data, req.getCurrentStatus(), counter);
+>>>>>>> refs/remotes/origin/master
 		} else if(request instanceof ElevatorMotorRequest){
 			/* Elevator Motor Request is of the form 0E_NAME0ACTION0 */
 			ElevatorMotorRequest req = (ElevatorMotorRequest) request;
@@ -279,8 +287,13 @@ public final class Helper {
 			Populate(data, req.getDestinationFloor(), counter);
 		} else if(request instanceof FloorLampRequest){
 			FloorLampRequest req = (FloorLampRequest) request;
+<<<<<<< HEAD
 			Populate(data, req.getFloorName(), counter);
 			PopulateEnum(data, req.CurrentStatus, counter);
+=======
+			PopulateEnum(data, req.getDirection(), counter);
+			PopulateEnum(data, req.getCurrentStatus(), counter);
+>>>>>>> refs/remotes/origin/master
 		}
 	}
 
