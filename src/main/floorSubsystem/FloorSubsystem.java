@@ -36,6 +36,7 @@ import main.server.*;
  */
 public class FloorSubsystem implements Runnable, ElevatorSystemComponent {
 
+
     private Server server;
     private String name;
     private Queue<Request> requestsQueue;                                   //Queue of requests to be sent
@@ -93,6 +94,7 @@ public class FloorSubsystem implements Runnable, ElevatorSystemComponent {
         return requestsQueue.poll();
     }
 
+
     /**
      * Get the name of this floor
      *
@@ -118,6 +120,7 @@ public class FloorSubsystem implements Runnable, ElevatorSystemComponent {
                 return Direction.IDLE;
         }
     }
+
 
     /**
      * Turns floors up/down button lamps on/off
@@ -177,6 +180,7 @@ public class FloorSubsystem implements Runnable, ElevatorSystemComponent {
                 String floorName = info[1];
                 Direction direction = getDirectionFromString(info[2]);
                 String destinationFloor = info[3];
+
 
                 //Create floor button request with retrieved data, and add to ongoing list
                 FloorButtonRequest currRequest = new FloorButtonRequest(time, floorName, direction, destinationFloor);
@@ -261,6 +265,7 @@ public class FloorSubsystem implements Runnable, ElevatorSystemComponent {
             Thread floorSubsystemThread = new Thread(floorSubsystem, floorName);
             floorSubsystemThread.start();
         }
+
 
         List<FloorButtonRequest> requests = readInputFromFile();    //Retrieve all requests from input file
 
