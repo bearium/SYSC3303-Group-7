@@ -29,193 +29,210 @@ import main.server.*;
 public class FloorSubsystem implements Runnable, ElevatorSystemComponent {
 
 	/*
-	 * Constructor for floor
+     * Constructor for floor
 	 * 
 	 * @param Request - will take in data from request
 	 */
 
-	private Server server;
-	private Thread serverThread;
-	private String name;
-	private Queue<Request> requestsQueue;
-	private int schedulerPort;
-	private boolean debug = false;
-	private static String requestsFile = "resources/requests.txt";
+    private Server server;
+    private Thread serverThread;
+    private String name;
+    private Queue<Request> requestsQueue;
+    private int schedulerPort;
+    private boolean debug = false;
+    private static String requestsFile = "resources/requests.txt";
+    private LampStatus buttonLamp_UP;
+    private LampStatus buttonLamp_DOWN;
 
-	public FloorSubsystem(String name, int port, int schedulerPort) {
-		this.name = name;
-		this.requestsQueue = new LinkedList<Request>();
-		this.schedulerPort = schedulerPort;
+    public FloorSubsystem(String name, int port, int schedulerPort) {
+        this.name = name;
+        this.requestsQueue = new LinkedList<Request>();
+        this.schedulerPort = schedulerPort;
+        this.buttonLamp_UP = LampStatus.OFF;
+        this.buttonLamp_DOWN = LampStatus.OFF;
 
-		// Create a server (bound to this Instance of FloorSubsystem) in a new thread.
-		// When this server receives requests, they will be added to the requestsQueue of this FloorSubsystem instance.
-		server = new Server(this, port, this.debug);
-		serverThread = new Thread(server, name);
-		serverThread.start();
-	}
+        // Create a server (bound to this Instance of FloorSubsystem) in a new thread.
+        // When this server receives requests, they will be added to the requestsQueue of this FloorSubsystem instance.
+        server = new Server(this, port, this.debug);
+        serverThread = new Thread(server, name);
+        serverThread.start();
+    }
 
-	public synchronized void receiveEvent(Request event) {
-		requestsQueue.add(event);
-		this.notifyAll();
-	}
+    public synchronized void receiveEvent(Request event) {
+        requestsQueue.add(event);
+        this.notifyAll();
+    }
 
-	public synchronized Request getNextEvent() {
-		while (requestsQueue.isEmpty()) {
-			try {
-				this.wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		return requestsQueue.poll();
-	}
+    public synchronized Request getNextEvent() {
+        while (requestsQueue.isEmpty()) {
+            try {
+                this.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return requestsQueue.poll();
+    }
 
-	public String getName() {
-		return this.name;
-	}
+    public String getName() {
+        return this.name;
+    }
 
-	private static Direction getDirection(String s) {
-		switch (s.toLowerCase()) {
-		case "up":
-			return Direction.UP;
-		case "down":
-			return Direction.DOWN;
-		default:
-			return Direction.IDLE;
-		}
-	}
+    private static Direction getDirectionFromString(String s) {
+        switch (s.toLowerCase()) {
+            case "up":
+                return Direction.UP;
+            case "down":
+                return Direction.DOWN;
+            default:
+                return Direction.IDLE;
+        }
+    }
 
-	private static Date convertTime(String s) {
-		DateFormat format = new SimpleDateFormat("hh:mm:ss.SSS", Locale.ENGLISH);
-		try {
-			return format.parse(s);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+    private void toggleFloorLamp(Direction direction, LampStatus lampStatus) {
+        consoleOutput("Floor " + this.getName() + ": Turning " + direction.toString() + " button lamp " + lampStatus.toString() + ".");
+        if (direction == Direction.UP)
+            buttonLamp_UP = lampStatus;
+        else if (direction == Direction.DOWN)
+            buttonLamp_DOWN = lampStatus;
+    }
 
-	private static List<FloorButtonRequest> readInputFromFile() {
-		FileReader input = null;
-		try {
-			String requestsFilePath = new File(FloorSubsystem.class.getClassLoader().getResource(requestsFile).getFile()).getAbsolutePath().replace("%20", " ");
-			input = new FileReader(requestsFilePath);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+    private static Date convertTime(String s) {
+        DateFormat format = new SimpleDateFormat("hh:mm:ss.SSS", Locale.ENGLISH);
+        try {
+            return format.parse(s);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-		BufferedReader bufRead = new BufferedReader(input);
-		String myLine = null;
+    private static List<FloorButtonRequest> readInputFromFile() {
+        FileReader input = null;
+        try {
+            String requestsFilePath = new File(FloorSubsystem.class.getClassLoader().getResource(requestsFile).getFile()).getAbsolutePath().replace("%20", " ");
+            input = new FileReader(requestsFilePath);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
 
-		List<FloorButtonRequest> requests = new LinkedList<FloorButtonRequest>();
+        BufferedReader bufRead = new BufferedReader(input);
+        String myLine = null;
 
-		try {
-			while ((myLine = bufRead.readLine()) != null) {
-				String[] info = myLine.split(" ");
+        List<FloorButtonRequest> requests = new LinkedList<FloorButtonRequest>();
 
-				String time = info[0];
-				String floorName = info[1];
-				Direction direction = getDirection(info[2]);
-				String destinationFloor = info[3];
+        try {
+            while ((myLine = bufRead.readLine()) != null) {
+                String[] info = myLine.split(" ");
 
-				FloorButtonRequest currRequest = new FloorButtonRequest(time, floorName, direction, destinationFloor);
-				requests.add(currRequest);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+                String time = info[0];
+                String floorName = info[1];
+                Direction direction = getDirectionFromString(info[2]);
+                String destinationFloor = info[3];
 
-		return requests;
-	}
+                FloorButtonRequest currRequest = new FloorButtonRequest(time, floorName, direction, destinationFloor);
+                requests.add(currRequest);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-	@Override
-	public void run() {
-		while (true) {
-			this.handleEvent(this.getNextEvent());
-		}
-	}
-	
-	private void handleEvent(Request event) {
-		//switch statement corresponding to different "event handlers"
-		if (event instanceof FloorButtonRequest) {
-			FloorButtonRequest request = (FloorButtonRequest) event;
-			try {
-				this.server.send(request, InetAddress.getLocalHost(), schedulerPort);
-				consoleOutput("Sending floor trip request.");
-			} catch (UnknownHostException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	private static void consoleOutput(String output) {
-		System.out.println("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss.S")) + "] " + output);
-	}
+        return requests;
+    }
 
-	public static void main(String[] args) {
-		List<FloorSubsystem> floors = new LinkedList<FloorSubsystem>();
-		
-		//This will return a Map of all attributes for the Scheduler (as per config.xml)
-		HashMap<String, String> schedulerConfiguration = ElevatorSystemConfiguration.getSchedulerConfiguration();
+    @Override
+    public void run() {
+        while (true) {
+            this.handleEvent(this.getNextEvent());
+        }
+    }
 
-		// This will return a Map of Maps. First key -> floor Name, Value -> map of
-		// all attributes for that floor (as per config.xml)
-		HashMap<String, HashMap<String, String>> floorConfigurations = ElevatorSystemConfiguration
-				.getAllFloorSubsytemConfigurations();
+    private void handleEvent(Request event) {
+        //switch statement corresponding to different "event handlers"
+        if (event instanceof FloorButtonRequest) {
+            FloorButtonRequest request = (FloorButtonRequest) event;
+            try {
+                this.server.send(request, InetAddress.getLocalHost(), schedulerPort);
+                consoleOutput("Floor " + this.getName() + ": Floor trip request sent.");
+                toggleFloorLamp(request.getDirection(), LampStatus.ON);
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+        } else if (event instanceof FloorLampRequest) {
+            consoleOutput("Floor " + this.getName() + ": An elevator has arrived for pickup.");
+            FloorLampRequest request = (FloorLampRequest) event;
+            toggleFloorLamp(request.getDirection(), LampStatus.OFF);
+        }
+    }
 
-		// Iterate through each floor and create an instance of an floorSubsystem
-		for (String floorName : floorConfigurations.keySet()) {
-			// Get the configuration for this particular 'floorName'
-			HashMap<String, String> floorConfiguration = floorConfigurations.get(floorName);
+    private static void consoleOutput(String output) {
+        System.out.println("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss.S")) + "] " + output);
+    }
 
-			// Create an instance of floorSubsystem for this 'floorName'
-			FloorSubsystem floorSubsystem = new FloorSubsystem(floorName,
-					Integer.parseInt(floorConfiguration.get("port")), Integer.parseInt(schedulerConfiguration.get("port")));
-			floors.add(floorSubsystem);
+    public static void main(String[] args) {
+        List<FloorSubsystem> floors = new LinkedList<FloorSubsystem>();
 
-			// Spawn and start a new thread for this floorSubsystem instance
-			Thread floorSubsystemThread = new Thread(floorSubsystem, floorName);
-			floorSubsystemThread.start();
-		}
+        //This will return a Map of all attributes for the Scheduler (as per config.xml)
+        HashMap<String, String> schedulerConfiguration = ElevatorSystemConfiguration.getSchedulerConfiguration();
 
-		List<FloorButtonRequest> requests = readInputFromFile();
+        // This will return a Map of Maps. First key -> floor Name, Value -> map of
+        // all attributes for that floor (as per config.xml)
+        HashMap<String, HashMap<String, String>> floorConfigurations = ElevatorSystemConfiguration
+                .getAllFloorSubsytemConfigurations();
 
-		Collections.sort(requests, new Comparator<FloorButtonRequest>() {
-			@Override
-			public int compare(FloorButtonRequest r1, FloorButtonRequest r2) {
-				Date r1Time = convertTime(r1.getTime());
-				Date r2Time = convertTime(r2.getTime());
-				
-				if (r1Time.after(r2Time))
-					return 1;
-				else if (r1Time.before(r2Time))
-					return -1;
-				else
-					return 0;
-			}
-		});
+        // Iterate through each floor and create an instance of an floorSubsystem
+        for (String floorName : floorConfigurations.keySet()) {
+            // Get the configuration for this particular 'floorName'
+            HashMap<String, String> floorConfiguration = floorConfigurations.get(floorName);
 
-		long lastTime = 0;
+            // Create an instance of floorSubsystem for this 'floorName'
+            FloorSubsystem floorSubsystem = new FloorSubsystem(floorName,
+                    Integer.parseInt(floorConfiguration.get("port")), Integer.parseInt(schedulerConfiguration.get("port")));
+            floors.add(floorSubsystem);
 
-		for (FloorButtonRequest currRequest : requests) {
-			
-			for (FloorSubsystem currFloor : floors) {
-				if (currFloor.getName().equalsIgnoreCase(currRequest.getFloorName())) {
-					long currReqTime = (convertTime(currRequest.getTime())).getTime();
-					
-					if (lastTime != 0) {
-						long timeDiff = currReqTime - lastTime;
-						try {
-							Thread.sleep(timeDiff);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-					consoleOutput("Request details // Time:" + currRequest.getTime() + "  Floor Name: " + currRequest.getFloorName() + "  Direction: " + currRequest.getDirection() + "  Dest Floor: " + currRequest.getDestinationFloor());
-					currFloor.receiveEvent(currRequest);
-					lastTime = currReqTime;
-				}
-			}
-		}
-	}
+            // Spawn and start a new thread for this floorSubsystem instance
+            Thread floorSubsystemThread = new Thread(floorSubsystem, floorName);
+            floorSubsystemThread.start();
+        }
+
+        List<FloorButtonRequest> requests = readInputFromFile();
+
+        Collections.sort(requests, new Comparator<FloorButtonRequest>() {
+            @Override
+            public int compare(FloorButtonRequest r1, FloorButtonRequest r2) {
+                Date r1Time = convertTime(r1.getTime());
+                Date r2Time = convertTime(r2.getTime());
+
+                if (r1Time.after(r2Time))
+                    return 1;
+                else if (r1Time.before(r2Time))
+                    return -1;
+                else
+                    return 0;
+            }
+        });
+
+        long lastTime = 0;
+
+        for (FloorButtonRequest currRequest : requests) {
+
+            for (FloorSubsystem currFloor : floors) {
+                if (currFloor.getName().equalsIgnoreCase(currRequest.getFloorName())) {
+                    long currReqTime = (convertTime(currRequest.getTime())).getTime();
+
+                    if (lastTime != 0) {
+                        long timeDiff = currReqTime - lastTime;
+                        try {
+                            Thread.sleep(timeDiff);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    consoleOutput("Request details // Time:" + currRequest.getTime() + "  Floor Name: " + currRequest.getFloorName() + "  Direction: " + currRequest.getDirection() + "  Dest Floor: " + currRequest.getDestinationFloor());
+                    currFloor.receiveEvent(currRequest);
+                    lastTime = currReqTime;
+                }
+            }
+        }
+    }
 }
