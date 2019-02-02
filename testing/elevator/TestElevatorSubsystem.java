@@ -64,7 +64,7 @@ public class TestElevatorSubsystem {
 		
 		}
 	
-	@Test
+	@Test//testing send and receive
 	public void testPacketSnR(){
 		try {
 			//Send to Elevator 1

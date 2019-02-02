@@ -7,7 +7,8 @@ public class TestHelper {
 	
 	@Before
 	public void setup(){
-		//instantiate every request subtype (including invalid request and null)
+		DirectionLampRequest dlr = new DirectionLampRequest;
+		
 	}
 	
 	
