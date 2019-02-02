@@ -97,20 +97,20 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 		}
 		else if (event instanceof ElevatorLampRequest) {
 			ElevatorLampRequest request = (ElevatorLampRequest) event;
-			toggleLamp(Integer.parseInt(request.getElevatorButton()));
+			toggleLamp(Integer.parseInt(request.getElevatorButton()), true);
 		}
 	}
 
 	//toggles lamp state dependent on floor provided
-	private void toggleLamp(int floor){
-		this.state.toggleLamp(floor);
+	private void toggleLamp(int floor, Boolean b){
+		this.state.toggleLamp(floor, b);
 	}
 
 	//toggles lamp state dependent on floor provided
 	private void handleElevatorStop(){
 		this.state.setDirection(Direction.IDLE);
 		this.state.setStatus(ElevatorStatus.STOPPED);
-		this.state.toggleLamp(this.state.getCurrentFloor());
+		this.state.toggleLamp(this.state.getCurrentFloor(), false);
 		ElevatorMotorRequest request = new ElevatorMotorRequest(this.name, Direction.IDLE);
 		this.consoleOutput(RequestEvent.SENT, "Scheduler", "Stopped at " + this.state.getCurrentFloor() + ".");
 		this.sendToServer(request);
