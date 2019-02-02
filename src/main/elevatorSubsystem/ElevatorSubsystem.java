@@ -19,7 +19,7 @@ import main.server.Server;
 import main.global.ElevatorStatus;
 
 public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
-
+	//class variables
 	private Server server;
 	private Thread serverThread;
 	private String name;
@@ -45,6 +45,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 		eventsQueue.add(event);
 	}
 
+	//goes through event queue till empty then waits till next event received
 	public synchronized Request getNextEvent() {
 		while (eventsQueue.isEmpty()) {
 			try {
@@ -60,6 +61,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 		return this.name;
 	}
 
+	//thread run
 	@Override
 	public void run() {
 		while (true) {
@@ -97,11 +99,12 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 			toggleLamp(Integer.parseInt(request.getElevatorButton()));
 		}
 	}
-
+	//toggles lamp state dependent on floor provided
 	private void toggleLamp(int floor){
 		this.state.toggleLamp(floor);
 	}
 
+	//toggles lamp state dependent on floor provided
 	private void handleElevatorStop(){
 		this.state.setDirection(Direction.IDLE);
 		this.state.setStatus(ElevatorStatus.STOPPED);
