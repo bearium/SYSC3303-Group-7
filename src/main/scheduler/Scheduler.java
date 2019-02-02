@@ -78,7 +78,8 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 							Integer.parseInt(config.get("startFloor")), 
 							Direction.IDLE, 
 							ElevatorStatus.STOPPED, 
-							ElevatorDoorStatus.OPENED));
+							ElevatorDoorStatus.OPENED,
+							floorConfigurations.size()));
 
 		}
 		
