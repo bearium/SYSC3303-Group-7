@@ -9,6 +9,11 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import main.ElevatorSystemComponent;
+
+import main.floorSubsystem.FloorSubsystem;
+import main.global.Direction;
+import main.global.ElevatorDoorStatus;
+import main.global.ElevatorSystemConfiguration;
 import main.global.*;
 
 import main.floorSubsystem.FloorSubsystem;
@@ -113,6 +118,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 	}
 
 	//toggles lamp state dependent on floor provided
+
 	private void handleElevatorStop(){
 		this.state.setDirection(Direction.IDLE);
 		this.state.setStatus(ElevatorStatus.STOPPED);
