@@ -1,4 +1,4 @@
-L1G7 - SYSC 3303 Term Project. - Iteration 1
+SYSC 3303 Term Project. L1G7 s- Iteration 1
 
 TO IMPORT THE PROJECT INTO ECLIPSE
 1. Import project from archive file into Eclipse
