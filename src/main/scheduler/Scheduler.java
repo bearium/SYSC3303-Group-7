@@ -192,7 +192,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 				
 				//TODO remove this in iteration 2 - as the elevator will manage its own floor buttons.
 				//Send event to elevator to light floor button for new destination. 
-				this.sendToServer(new ElevatorLampRequest(elevatorName, String.valueOf(destinationFloorNumber), LampStatus.ON), this.portsByElevatorName.get(elevatorName));
+				this.sendToServer(new ElevatorLampRequest(String.valueOf(destinationFloorNumber), LampStatus.ON), this.portsByElevatorName.get(elevatorName));
 				return;
 			} 
 		}
@@ -206,7 +206,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 				
 				//TODO remove this in iteration 2 - as the elevator will manage its own floor buttons.
 				//Send event to elevator to light floor button for new destination. 
-				this.sendToServer(new ElevatorLampRequest(elevatorName, String.valueOf(destinationFloorNumber), LampStatus.ON), this.portsByElevatorName.get(elevatorName));
+				this.sendToServer(new ElevatorLampRequest(String.valueOf(destinationFloorNumber), LampStatus.ON), this.portsByElevatorName.get(elevatorName));
 				
 				if (elevatorMonitor.getElevatorStatus() == ElevatorStatus.STOPPED) {
 					
@@ -246,10 +246,10 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 
 			//Check if this floor is a pickup, if so, send a message to the floor to turn off the floor direction lamp
 			if (elevatorMonitor.isPickupFloor(floorNumber)) {
-				this.consoleOutput("Sending request to turn off floor direction lamp to " + floorNumber + " as " + elevatorName + " has arrived.");
-				//TODO send floorLampRequest when its completed.
-				//Send event to floor to light floor direction lamp 
-
+				//Send event to floor to turn off floor direction lamp send the direction of the elevator's queue, this would correspond to the correct light to turn off
+				Direction queueDirection = elevatorMonitor.getQueueDirection();
+				this.consoleOutput("Sending request to turn off floor direction lamp " + queueDirection + " to " + floorNumber + " as " + elevatorName + " has arrived.");
+				this.sendToServer(new FloorLampRequest(queueDirection, LampStatus.OFF), this.portsByFloorName.get(String.valueOf(floorNumber)));
 			}
 			this.consoleOutput("Sending an elevator stop request to " + elevatorName);
 			this.sendToServer(new ElevatorMotorRequest(elevatorName, Direction.IDLE), this.portsByElevatorName.get(elevatorName));
