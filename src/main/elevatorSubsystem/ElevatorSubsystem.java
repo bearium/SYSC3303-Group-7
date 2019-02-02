@@ -94,9 +94,9 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 				this.consoleOutput(RequestEvent.RECEIVED, "Scheduler", "Move elevator down.");
 				this.handleElevatorMoveDown();
 			}
-		}
-		else if (event instanceof ElevatorLampRequest) {
+		} else if (event instanceof ElevatorLampRequest) {
 			ElevatorLampRequest request = (ElevatorLampRequest) event;
+			this.consoleOutput(RequestEvent.RECEIVED, "Scheduler", "Turn on floor " + request.getElevatorButton() + " button lamp.");
 			toggleLamp(Integer.parseInt(request.getElevatorButton()), true);
 		}
 	}
@@ -110,6 +110,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 	private void handleElevatorStop(){
 		this.state.setDirection(Direction.IDLE);
 		this.state.setStatus(ElevatorStatus.STOPPED);
+		this.consoleOutput("Turn off floor " + this.state.getCurrentFloor() + " button lamp if on.");
 		this.state.toggleLamp(this.state.getCurrentFloor(), false);
 		ElevatorMotorRequest request = new ElevatorMotorRequest(this.name, Direction.IDLE);
 		this.consoleOutput(RequestEvent.SENT, "Scheduler", "Stopped at " + this.state.getCurrentFloor() + ".");
@@ -154,21 +155,13 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 	}
 
 	private void handleElevatorOpenDoor(){
-		consoleOutput(this.name + ": 'DOOR OPEN' action received.");
 		this.state.setDoorStatus(ElevatorDoorStatus.OPENED);
-		consoleOutput(this.name + ": Doors Opened.");
-		try {
-			Thread.sleep(5000);
-		} catch (java.lang.InterruptedException e) {
-			e.printStackTrace();
-		}
 		this.consoleOutput(RequestEvent.SENT, "Scheduler",  "Doors are opened.");
 		ElevatorDoorRequest request = new ElevatorDoorRequest(this.name, ElevatorDoorStatus.OPENED);
 		this.sendToServer(request);
 	}
 
 	private void handleElevatorCloseDoor(){
-		consoleOutput(this.name + ": 'DOOR CLOSE' action received.");
 		this.state.setDoorStatus(ElevatorDoorStatus.CLOSED);
 		this.consoleOutput(RequestEvent.SENT, "Scheduler", "Doors are closed.");
 		ElevatorDoorRequest request = new ElevatorDoorRequest(this.name, ElevatorDoorStatus.CLOSED);
