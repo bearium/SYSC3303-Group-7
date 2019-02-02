@@ -122,6 +122,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 		this.sendToServer(request);
 	}
 
+
 	private void handleElevatorMoveUP(){
 		this.state.setDirection(Direction.UP);
 		this.state.setStatus(ElevatorStatus.MOVING);
