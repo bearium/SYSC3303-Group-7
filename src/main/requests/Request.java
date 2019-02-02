@@ -1,45 +1,79 @@
 package main.requests;
-import main.global.SystemComponent;
 public class Request {
 
+	/**
+	 * The name of the source of the request
+	 */
+	String Source;
 	
-	SystemComponent Source;
-	SystemComponent Destination;
+	/**
+	 * The name of the destination of the request
+	 */
+	String Destination;
 	
-	String SourceName;
-	String DestinationName;
-	public byte[] RequestType;
+	/**
+	 * Type of request for parsing purposes
+	 */
+	private byte[] RequestType;
+	
 	
 	protected Request(){
 		
 	}
-	protected Request(SystemComponent Source, SystemComponent Destination){
-		
-	}
 	
-	public SystemComponent getSource() {
+	/**
+	 * Create a request with given source and destination names
+	 * @param source
+	 * @param destination
+	 */
+	protected Request(String source, String destination){
+		this.Destination = destination;
+		this.Source = source;
+	}
+
+	/**
+	 * {@link Request#Source}
+	 */
+	public String getSource() {
 		return Source;
 	}
-	public void setSource(SystemComponent source) {
-		Source = source;
+	
+	/**
+	 * {@link Request#Source}
+	 */
+	public void setSource(String sourceName) {
+		Source = sourceName;
 	}
-	public SystemComponent getDestination() {
+	
+	/**
+	 * {@link Request#Destination}
+	 */
+	public String getDestination() {
 		return Destination;
 	}
-	public void setDestination(SystemComponent destination) {
-		Destination = destination;
+	
+	/**
+	 * {@link Request#Destination}
+	 */
+	public void setDestination(String destinationName) {
+		Destination = destinationName;
 	}
-	public String getSourceName() {
-		return SourceName;
+	
+	/**
+	 * Sets this class's request type to the given request type
+	 * @param RequestType
+	 */
+	protected void setRequestType(byte[] RequestType){
+		RequestType = new byte[]{RequestType[0],RequestType[1]};
+		this.RequestType = RequestType;
 	}
-	public void setSourceName(String sourceName) {
-		SourceName = sourceName;
-	}
-	public String getDestinationName() {
-		return DestinationName;
-	}
-	public void setDestinationName(String destinationName) {
-		DestinationName = destinationName;
+	
+	/**
+	 * Get type of the general request
+	 * @return
+	 */
+	public byte[] IGetRequestType(){
+		return this.RequestType;
 	}
 	
 }

@@ -7,12 +7,39 @@ import main.global.*;
 
 
 public final class Helper {
-	public static final int buffer_size = 1024;
+	
+	public static final int buffer_size = 1024; // Max information to be contained in a datagram packet
+	
 	/**
-	 * Parses a request class from a datagram packet
-	 * @param packet
-	 * @return
-	 * @throws InvalidRequestException
+	 * Creates a datagram packet from a request class
+	 * @param request Request create a packet for
+	 * @return Datagram packet containing the data, ready to send (does not contain host or port)
+	 * @throws InvalidRequestException  In case the request contains null information, it will be invalid
+	 */
+	public static DatagramPacket CreateRequest(Request request) throws InvalidRequestException{
+		MutInt counter = new MutInt(0);
+		byte[] data = new byte[buffer_size];
+
+		/* Populate a general request */
+		// add initial 0 byte
+		data [counter.getAndIncrement()] = 0;
+		// populate optional params
+		PopulateSourceDest(data, request, counter);
+		// Populate type
+		PopulateType(data, request, counter);
+		// Populate based on Type
+		PopulateOnType(data, request, counter);
+
+		DatagramPacket packet = new DatagramPacket(data, counter.intValue());
+		return packet;
+
+	}
+	
+	/**
+	 * Parses a request class from a datagram packet's data
+	 * @param packet packet with data to parse
+	 * @return a generic Request object. Can be checked using instanceof to find the corresponding request
+	 * @throws InvalidRequestException The data in the array was corrupt and could not fit parse criteria
 	 */
 	public static Request ParseRequest(DatagramPacket packet) throws InvalidRequestException{
 		byte[] data = packet.getData();
@@ -20,7 +47,7 @@ public final class Helper {
 		//if(data.length != data_length) throw Invalid();
 		MutInt counter = new MutInt(0);
 		if(data[counter.getAndIncrement()] != 0){
-			throw Invalid();
+			throw Invalid("Could not parse data. Invalid request.");
 		}
 
 		String[] SrcDests = ParseSrcDest(data, counter);
@@ -28,51 +55,35 @@ public final class Helper {
 
 		byte[] RequestType = ParseType(data, counter);
 		Request request = ParseOnType(data, RequestType, counter);
-
 		IncludeParams(SrcDests, request);
-
-
-
 		return request;
-
 	}
 
 	private static void IncludeParams(String[] arr, Request request) {
 		if(arr[0] != "")
-			request.Source = SystemComponent.valueOf(arr[0]);
+			request.Source = arr[0];
 		if(arr[1] != "")
-			request.SourceName = arr[1];
-		if(arr[2] != "")
-			request.Destination = SystemComponent.valueOf(arr[2]);
-		if(arr[3] != "")
-			request.DestinationName = arr[3];
+			request.Destination = arr[1];
 	}
 
 	private static String[] ParseSrcDest(byte[] data, MutInt counter) throws InvalidRequestException {
-		boolean IncludeSrc = RTF(data[counter.getAndAdd(2)]),
-				IncludeSrcName = RTF(data[counter.getAndAdd(2)]),
-				IncludeDest = RTF(data[counter.getAndAdd(2)]),
+		boolean IncludeSrcName = RTF(data[counter.getAndAdd(2)]),
 				IncludeDestName = RTF(data[counter.getAndAdd(2)]);
 
-		String Source = "";
+
 		String SourceName = "";
-		String Destination = "";
 		String DestinationName = "";
 
-		if(IncludeSrc){
-			Source = ParseEnum(data,SystemComponent.class, counter).toString();
-		}
+
 		if(IncludeSrcName){
 			SourceName = ParseString(data, counter);
 		}
-		if(IncludeDest){
-			Destination = ParseEnum(data,SystemComponent.class, counter).toString();
-		}
+
 		if(IncludeDestName){
 			DestinationName = ParseString(data, counter);
 		}
-		
-		String[] res = new String[] {Source, SourceName,Destination, DestinationName};
+
+		String[] res = new String[] {SourceName, DestinationName};
 		return res;
 	}
 
@@ -82,7 +93,6 @@ public final class Helper {
 			/* Parse based on Direction Lamp Request */
 			Direction direction = (Direction) ParseEnum(data, Direction.class, counter);
 			LampStatus status = (LampStatus) ParseEnum(data, LampStatus.class, counter);
-			//LampAction action = (LampAction) ParseEnum(data, LampAction.class, counter);
 			request = new DirectionLampRequest(direction, status);
 
 
@@ -100,13 +110,8 @@ public final class Helper {
 			/* Parse based on Elevator Lamp Request */
 			String ElevatorName = ParseString(data, counter);
 			LampStatus status = (LampStatus) ParseEnum(data, LampStatus.class, counter);
-			//LampAction action = (LampAction) ParseEnum(data, LampAction.class, counter);
-			if(status != null) {
-				request = new ElevatorLampRequest(ElevatorName, status);
-			}
-			//			} else if(action != null){
-			//				request = new ElevatorLampRequest(ElevatorName, ButtonName, status);
-			//			}
+			request = new ElevatorLampRequest(ElevatorName, status);
+
 		} else if(Arrays.equals(rt, ElevatorMotorRequest.getRequestType())){
 			/* Parse based on DElevator Motor Request */
 			String ElevatorName = ParseString(data, counter);
@@ -124,12 +129,7 @@ public final class Helper {
 			/* Parse based on Floor Lamp Request */
 			Direction Direction = (Direction) ParseEnum(data, Direction.class, counter);
 			LampStatus status = (LampStatus) ParseEnum(data, LampStatus.class, counter);
-			//LampAction action = (LampAction) ParseEnum(data, LampAction.class, counter);
-			if(status != null) {
-				request = new FloorLampRequest(Direction, status);
-			} /*else if(action != null){
-				request = new FloorLampRequest(FloorName, status);
-			}*/
+			request = new FloorLampRequest(Direction, status);
 		} 
 		return request;
 	}
@@ -138,7 +138,7 @@ public final class Helper {
 		byte[] array = new byte[] {data[counter.getAndIncrement()], data[counter.getAndIncrement()]};
 		if(data[counter.intValue()] == 0) 
 			counter.getAndIncrement();
-		else throw Invalid();
+		else throw Invalid("Could not parse type of request. Data was invalid.");
 		return array;
 	}
 
@@ -161,62 +161,30 @@ public final class Helper {
 		if((((int)data[counter.intValue()]) - 1) < enums.length){
 			return enums[((int) data[counter.getAndAdd(2)]) - 1];
 		}
-		else throw Invalid();
+		else throw Invalid("Could not parse Enum; Invalid data or Enum does not exist.");
 	}
 
 
 
-	/**
-	 * Creates a datagram packet from a request class
-	 * @param request
-	 * @return
-	 * @throws InvalidRequestException 
-	 */
-	public static DatagramPacket CreateRequest(Request request) throws InvalidRequestException{
-		MutInt counter = new MutInt(0);
-		byte[] data = new byte[buffer_size];
-
-		/* Populate a general request */
-		// add initial 0 byte
-		data [counter.getAndIncrement()] = 0;
-		// populate optional params
-		PopulateSourceDest(data, request, counter);
-		// Populate type
-		PopulateType(data, request, counter);
-		// Populate based on Type
-		PopulateOnType(data, request, counter);
-
-		DatagramPacket packet = new DatagramPacket(data, counter.intValue());
-		return packet;
-
-	}
+	
 
 	private static void PopulateSourceDest(byte[] data, Request request, MutInt counter) {
 
-		boolean IncludeSrc = request.Source != null, 
-				IncludeSrcName = request.SourceName != null && !request.SourceName.isEmpty() ,
-				IncludeDest = request.Destination != null,
-				IncludeDestName = request.DestinationName != null && !request.DestinationName.isEmpty();
+		boolean IncludeSrcName = request.Source != null && !request.Source.isEmpty() ,
+				IncludeDestName = request.Destination != null && !request.Destination.isEmpty();
 
-		Populate(data, TF(IncludeSrc), counter);
 		Populate(data, TF(IncludeSrcName), counter);
-		Populate(data, TF(IncludeDest), counter);
 		Populate(data, TF(IncludeDestName), counter);
 
-		if(IncludeSrc)
-			// add Sender enum byte
-			PopulateEnum(data, request.Source, counter);
+
 		// populate sender name with a string
 		if(IncludeSrcName){
-			String SenderName = request.SourceName;
+			String SenderName = request.Source;
 			Populate(data, SenderName, counter);
 		}
-		// Receiving end population
-		if(IncludeDest)
-			PopulateEnum(data, request.Destination, counter);
 		// Populate Receiver name
 		if(IncludeDestName){
-			String ReceiverName = request.DestinationName;
+			String ReceiverName = request.Destination;
 			Populate(data, ReceiverName, counter);
 		}
 	}
@@ -232,12 +200,10 @@ public final class Helper {
 	}
 
 	private static void PopulateEnum(byte[] data, Enum<?> E, MutInt counter){
-		data[counter.intValue()] = (byte) (E.ordinal() + 1); //add 1 to avoid 0-ordinal values
-		counter.increment();
-		data[counter.intValue()] = 0;
-		counter.increment();
+		data[counter.getAndIncrement()] = (byte) (E.ordinal() + 1); //add 1 to avoid 0-ordinal values
+		data[counter.getAndIncrement()] = 0;
 	}
-	
+
 	private static void PopulateOnType(byte[] data, Request request, MutInt counter) throws InvalidRequestException {
 		if(request instanceof DirectionLampRequest){
 			/* Direction Lamp Request is of the form 0DIR0STATUS0ACTION */
@@ -254,8 +220,8 @@ public final class Helper {
 		} else if(request instanceof ElevatorDoorRequest){
 			/* Elevator Door Request is of form 0E_NAME0ACTION0*/
 			ElevatorDoorRequest req = (ElevatorDoorRequest) request;
-			if(req.getRequestAction() == null || req.getElevatorName() == null)
-				throw Invalid();
+			if(req.getRequestAction() == null)
+				throw Invalid("The request's action is null. Could not populate.");
 			Populate(data, req.getElevatorName(), counter);
 			PopulateEnum(data, req.getRequestAction(), counter);
 		} else if(request instanceof ElevatorLampRequest){
@@ -276,6 +242,7 @@ public final class Helper {
 			PopulateEnum(data, req.getDirection(), counter);
 			Populate(data, req.getDestinationFloor(), counter);
 		} else if(request instanceof FloorLampRequest){
+			/* Floor Button Request is of the form 0DIRECTION0ACTION */
 			FloorLampRequest req = (FloorLampRequest) request;
 			PopulateEnum(data, req.getDirection(), counter);
 			PopulateEnum(data, req.getCurrentStatus(), counter);
@@ -289,20 +256,16 @@ public final class Helper {
 	 * @param counter
 	 */
 	private static void PopulateType(byte[] data, Request request, MutInt counter){
-		byte[] TypeCode = request.RequestType;
-		data[counter.intValue()] = TypeCode[0];
-		counter.increment();
-		data[counter.intValue()] = TypeCode[1];
-		counter.increment();
-		data[counter.intValue()] = 0;
-		counter.increment();
+		byte[] TypeCode = request.IGetRequestType();
+		data[counter.getAndIncrement()] = TypeCode[0];
+		data[counter.getAndIncrement()] = TypeCode[1];
+		data[counter.getAndIncrement()] = 0;
 
 	}
 
 	private static void Populate(byte[] array, String array2, MutInt pos) {
 		CopyArray(array, array2.getBytes(), pos);
-		array[pos.intValue()] = 0;
-		pos.increment();
+		array[pos.getAndIncrement()] = 0;
 	}
 
 	private static void CopyArray(byte[] array, byte[] array2, MutInt pos){
@@ -310,9 +273,9 @@ public final class Helper {
 			array[i + pos.intValue()] = array2[i];
 		}
 		pos.add(array2.length); 
-
 	}
-	private static InvalidRequestException Invalid() {
-		return new InvalidRequestException();
+
+	private static InvalidRequestException Invalid(String message) {
+		return new InvalidRequestException(message);
 	}
 }
