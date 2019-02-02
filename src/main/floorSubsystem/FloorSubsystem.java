@@ -90,7 +90,7 @@ public class FloorSubsystem implements Runnable, ElevatorSystemComponent {
     }
 
     private void toggleFloorLamp(Direction direction, LampStatus lampStatus) {
-        consoleOutput("Floor " + this.getName() + ": Turning " + direction.toString() + " button lamp " + lampStatus.toString() + ".");
+        this.consoleOutput("Turning " + direction.toString() + " button lamp " + lampStatus.toString() + ".");
         if (direction == Direction.UP)
             buttonLamp_UP = lampStatus;
         else if (direction == Direction.DOWN)
@@ -153,22 +153,30 @@ public class FloorSubsystem implements Runnable, ElevatorSystemComponent {
             FloorButtonRequest request = (FloorButtonRequest) event;
             try {
                 this.server.send(request, InetAddress.getLocalHost(), schedulerPort);
-                consoleOutput("Floor " + this.getName() + ": Floor trip request sent.");
+                this.consoleOutput(RequestEvent.RECEIVED, this.name, "Floor trip request.");
                 toggleFloorLamp(request.getDirection(), LampStatus.ON);
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             }
         } else if (event instanceof FloorLampRequest) {
-            consoleOutput("Floor " + this.getName() + ": An elevator has arrived for pickup.");
             FloorLampRequest request = (FloorLampRequest) event;
+            this.consoleOutput(RequestEvent.RECEIVED, "Scheduler" , "Shut off " + request.getDirection() + " direction lamp.");
             toggleFloorLamp(request.getDirection(), LampStatus.OFF);
         }
     }
 
-    private static void consoleOutput(String output) {
-        System.out.println("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss.S")) + "] " + output);
-    }
-
+    private void consoleOutput(String output) {
+		System.out.println("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss.S")) + "] Floor " + this.name + " : " + output);
+	}
+	
+	private void consoleOutput(RequestEvent event, String target, String output) {
+		if (event.equals(RequestEvent.SENT)) {
+			System.out.println("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss.S")) + "] Floor " + this.name + " : [EVENT SENT TO " + target + "] " + output);
+		} else if (event.equals(RequestEvent.RECEIVED)) {
+			System.out.println("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss.S")) + "] Floor " + this.name + " : [EVENT RECEIVED FROM " + target + "] " + output);
+		}
+	}
+	
     public static void main(String[] args) {
         List<FloorSubsystem> floors = new LinkedList<FloorSubsystem>();
 
@@ -228,7 +236,7 @@ public class FloorSubsystem implements Runnable, ElevatorSystemComponent {
                             e.printStackTrace();
                         }
                     }
-                    consoleOutput("Request details // Time:" + currRequest.getTime() + "  Floor Name: " + currRequest.getFloorName() + "  Direction: " + currRequest.getDirection() + "  Dest Floor: " + currRequest.getDestinationFloor());
+                    System.out.println("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss.S")) + "] Request details // Time:" + currRequest.getTime() + "  Floor Name: " + currRequest.getFloorName() + "  Direction: " + currRequest.getDirection() + "  Dest Floor: " + currRequest.getDestinationFloor());
                     currFloor.receiveEvent(currRequest);
                     lastTime = currReqTime;
                 }
