@@ -115,6 +115,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 	}
 
 
+
 	private void handleElevatorMoveUP(){
 		if (this.state.getDoorStatus() != ElevatorDoorStatus.OPENED) {
 			this.state.setDirection(Direction.UP);
