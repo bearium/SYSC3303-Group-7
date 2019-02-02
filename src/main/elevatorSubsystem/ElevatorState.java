@@ -76,8 +76,8 @@ public class ElevatorState {
 		return maxFloor;
 	}
 
-	public void toggleLamp(Integer floor) {
-		lamps.put(floor, !lamps.get(floor));
+	public void toggleLamp(Integer floor, Boolean b) {
+		lamps.put(floor, b);
 	}
 
 }
