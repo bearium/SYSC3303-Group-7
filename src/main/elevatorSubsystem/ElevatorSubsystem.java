@@ -114,6 +114,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 		this.sendToServer(request);
 	}
 
+
 	private void handleElevatorMoveUP(){
 		if (this.state.getDoorStatus() != ElevatorDoorStatus.OPENED) {
 			this.state.setDirection(Direction.UP);
