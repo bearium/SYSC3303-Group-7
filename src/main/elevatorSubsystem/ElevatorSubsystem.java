@@ -123,6 +123,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 	}
 
 
+
 	private void handleElevatorMoveUP(){
 		this.state.setDirection(Direction.UP);
 		this.state.setStatus(ElevatorStatus.MOVING);
