@@ -74,24 +74,30 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 		//switch statement corresponding to different "event handlers"
 		if (event instanceof ElevatorArrivalRequest) {
 			ElevatorArrivalRequest request = (ElevatorArrivalRequest) event;
-				this.sendToServer(request);
-				consoleOutput("Sending arrival notice.");
+			this.consoleOutput("Sending arrival notice.");
+			this.sendToServer(request);
 		} else if (event instanceof ElevatorDoorRequest) {
 			ElevatorDoorRequest request = (ElevatorDoorRequest) event;
+
 			if (request.getRequestAction() == ElevatorDoorStatus.OPENED) {
+				this.consoleOutput(RequestEvent.RECEIVED, "Scheduler", "Open elevator doors.");
 				this. handleElevatorOpenDoor();
 			} else if (request.getRequestAction() == ElevatorDoorStatus.CLOSED) {
+				this.consoleOutput(RequestEvent.RECEIVED, "Scheduler", "Close elevator doors.");
 				this.handleElevatorCloseDoor();
 			}
 		} else if (event instanceof ElevatorMotorRequest) {
 			ElevatorMotorRequest request = (ElevatorMotorRequest) event;
 			if (request.getRequestAction() == Direction.IDLE) {
+				this.consoleOutput(RequestEvent.RECEIVED, "Scheduler", "Stop elevator.");
 				this.handleElevatorStop();
 			}
 			else if (request.getRequestAction() == Direction.UP) {
+				this.consoleOutput(RequestEvent.RECEIVED, "Scheduler", "Move elevator up.");
 				this.handleElevatorMoveUP();
 			}
 			else if (request.getRequestAction() == Direction.DOWN) {
+				this.consoleOutput(RequestEvent.RECEIVED, "Scheduler", "Move elevator down.");
 				this.handleElevatorMoveDown();
 			}
 		}
@@ -100,6 +106,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 			toggleLamp(Integer.parseInt(request.getElevatorButton()));
 		}
 	}
+
 	//toggles lamp state dependent on floor provided
 	private void toggleLamp(int floor){
 		this.state.toggleLamp(floor);
@@ -107,43 +114,40 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 
 	//toggles lamp state dependent on floor provided
 	private void handleElevatorStop(){
-		consoleOutput(this.name + ": 'STOP' action received.");
 		this.state.setDirection(Direction.IDLE);
 		this.state.setStatus(ElevatorStatus.STOPPED);
 		this.state.toggleLamp(this.state.getCurrentFloor());
 		ElevatorMotorRequest request = new ElevatorMotorRequest(this.name, Direction.IDLE);
-		consoleOutput(this.name + ": Sending 'STOP' confirmation to Scheduler. Stopped at " + this.state.getCurrentFloor() + ".");
+		this.consoleOutput(RequestEvent.SENT, "Scheduler", "Stopped at " + this.state.getCurrentFloor() + ".");
 		this.sendToServer(request);
 	}
 
 	private void handleElevatorMoveUP(){
-		consoleOutput(this.name + ": 'MOVE UP' action received. Currently on " + this.state.getCurrentFloor() + ".");
 		this.state.setDirection(Direction.UP);
 		this.state.setStatus(ElevatorStatus.MOVING);
-		consoleOutput(this.name + ": Simulating Travel Time...");
+		this.consoleOutput("Elevator motor set to move up. Simulating travel time...");
 		try {
 			Thread.sleep(5000);
 		} catch (java.lang.InterruptedException e) {
 			e.printStackTrace();
 		}
 		this.state.setCurrentFloor(this.state.getCurrentFloor()+1);
-		consoleOutput(this.name + ": Arrived to " + this.state.getCurrentFloor() + ". Sending arrival notice to Scheduler.");
+		this.consoleOutput(RequestEvent.SENT, "Scheduler", "Arriving at floor " + this.state.getCurrentFloor() + ".");
 		ElevatorArrivalRequest request = new ElevatorArrivalRequest(this.name, Integer.toString(this.state.getCurrentFloor()));
 		this.sendToServer(request);
 	}
 
 	private void handleElevatorMoveDown(){
-		consoleOutput(this.name + ": 'MOVE DOWN' action received. Currently on " + this.state.getCurrentFloor() + ".");
 		this.state.setDirection(Direction.DOWN);
 		this.state.setStatus(ElevatorStatus.MOVING);
-		consoleOutput(this.name + ": Simulating Travel Time...");
+		this.consoleOutput("Elevator motor set to move down. Simulating travel time...");
 		try {
 			Thread.sleep(5000);
 		} catch (java.lang.InterruptedException e) {
 			e.printStackTrace();
 		}
 		this.state.setCurrentFloor(this.state.getCurrentFloor()-1);
-		consoleOutput(this.name + ": Arrived to " + this.state.getCurrentFloor() + ". Sending arrival notice to Scheduler.");
+		this.consoleOutput(RequestEvent.SENT, "Scheduler", "Arriving at floor " + this.state.getCurrentFloor() + ".");
 		ElevatorArrivalRequest request = new ElevatorArrivalRequest(this.name, Integer.toString(this.state.getCurrentFloor()));
 		this.sendToServer(request);
 	}
@@ -157,7 +161,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 		} catch (java.lang.InterruptedException e) {
 			e.printStackTrace();
 		}
-		consoleOutput(this.name + ": Sending 'DOOR OPEN' confirmation to Scheduler.");
+		this.consoleOutput(RequestEvent.SENT, "Scheduler",  "Doors are opened.");
 		ElevatorDoorRequest request = new ElevatorDoorRequest(this.name, ElevatorDoorStatus.OPENED);
 		this.sendToServer(request);
 	}
@@ -165,8 +169,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 	private void handleElevatorCloseDoor(){
 		consoleOutput(this.name + ": 'DOOR CLOSE' action received.");
 		this.state.setDoorStatus(ElevatorDoorStatus.CLOSED);
-		consoleOutput(this.name + ": Doors closed, Ready to travel...");
-		consoleOutput(this.name + ": Sending 'DOOR CLOSE' confirmation to Scheduler.");
+		this.consoleOutput(RequestEvent.SENT, "Scheduler", "Doors are closed.");
 		ElevatorDoorRequest request = new ElevatorDoorRequest(this.name, ElevatorDoorStatus.CLOSED);
 		this.sendToServer(request);
 	}
@@ -180,8 +183,16 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 		}
 	}
 
-	private static void consoleOutput(String output) {
-		System.out.println("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss.S")) + "] " + output);
+	private void consoleOutput(String output) {
+		System.out.println("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss.S")) + "] " + this.name + " : " + output);
+	}
+
+	private void consoleOutput(RequestEvent event, String target, String output) {
+		if (event.equals(RequestEvent.SENT)) {
+			System.out.println("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss.S")) + "] " + this.name + " : [EVENT SENT TO " + target + "] " + output);
+		} else if (event.equals(RequestEvent.RECEIVED)) {
+			System.out.println("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss.S")) + "] " + this.name + " : [EVENT RECEIVED FROM " + target + "] " + output);
+		}
 	}
 
 	public static void main (String[] args){

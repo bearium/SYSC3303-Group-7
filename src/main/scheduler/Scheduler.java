@@ -137,12 +137,18 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		//switch statement corresponding to different "event handlers"
 		if (event instanceof FloorButtonRequest) {
 			FloorButtonRequest request = (FloorButtonRequest) event;
+			
+			this.consoleOutput(RequestEvent.RECEIVED, request.getFloorName(), "Trip request from floor " + request.getFloorName() + " to " + request.getDestinationFloor() + ".");
 			this.eventTripRequestReceived(Integer.parseInt(request.getFloorName()), Integer.parseInt(request.getDestinationFloor()), request.getDirection());
 		} else if (event instanceof ElevatorArrivalRequest) {
 			ElevatorArrivalRequest request = (ElevatorArrivalRequest) event;
+			
+			this.consoleOutput(RequestEvent.RECEIVED, request.getElevatorName(), "Elevator arrival notice at floor " + request.getFloorName() + ".");
 			this.eventElevatorArrivalNotice(request.getElevatorName(), Integer.parseInt(request.getFloorName()));
 		} else if (event instanceof ElevatorDoorRequest) {
 			ElevatorDoorRequest request = (ElevatorDoorRequest) event;
+			
+			this.consoleOutput(RequestEvent.RECEIVED, request.getElevatorName(), "Elevator door is " + request.getRequestAction() + ".");
 			if (request.getRequestAction() == ElevatorDoorStatus.OPENED) {
 				this.eventElevatorDoorOpened(request.getElevatorName());
 			} else if (request.getRequestAction() == ElevatorDoorStatus.CLOSED) {
@@ -150,8 +156,12 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 			}
 		} else if (event instanceof ElevatorMotorRequest) {
 			ElevatorMotorRequest request = (ElevatorMotorRequest) event;
+
 			if (request.getRequestAction() == Direction.IDLE) {
+				this.consoleOutput(RequestEvent.RECEIVED, request.getElevatorName(), "Elevator has stopped.");
 				this.eventElevatorStopped(request.getElevatorName());
+			} else {
+				this.consoleOutput(RequestEvent.RECEIVED, request.getElevatorName(), "Elevator is moving " + request.getRequestAction() + ".");
 			}
 		}
 	}
@@ -180,8 +190,6 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 	 * @param direction
 	 */
 	private void eventTripRequestReceived(int pickupFloorNumber, int destinationFloorNumber, Direction direction) {
-		this.consoleOutput("Trip request received from floor " + pickupFloorNumber + " to " + destinationFloorNumber + ".");
-		
 		//Create a TripRequest object
 		TripRequest tripRequest = new TripRequest(pickupFloorNumber, destinationFloorNumber);
 		
@@ -211,7 +219,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 				if (elevatorMonitor.getElevatorStatus() == ElevatorStatus.STOPPED) {
 					
 					//Send an elevator Door Close event
-					this.consoleOutput("Sending an Elevator 'DoorClose' event to  " + elevatorName + ".");
+					this.consoleOutput(RequestEvent.SENT, elevatorName, "Close elevator door.");
 					this.sendToServer(new ElevatorDoorRequest(elevatorName, ElevatorDoorStatus.CLOSED), this.portsByElevatorName.get(elevatorName));
 				}
 				return;
@@ -220,7 +228,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		
 		//Add this tripRequest to the pendingTripRequests queue
 		this.pendingTripRequests.add(tripRequest);
-		this.consoleOutput("Trip request " + tripRequest + " was unable to be assigned immediately. It has been added to pending requests." + this.pendingTripRequests);
+		this.consoleOutput("Trip request " + tripRequest + " was unable to be assigned immediately. It has been added to pending requests " + this.pendingTripRequests + ".");
 	}
 
 	/**
@@ -232,8 +240,6 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 	 * @param floorNumber
 	 */
 	private void eventElevatorArrivalNotice(String elevatorName, int floorNumber) {
-		this.consoleOutput("Arrival notification received from " + elevatorName + " at floor " + floorNumber);
-		
 		//Get the elevatorMonitor for this elevator
 		ElevatorMonitor elevatorMonitor = this.elevatorMonitorByElevatorName.get(elevatorName);
 		
@@ -248,10 +254,10 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 			if (elevatorMonitor.isPickupFloor(floorNumber)) {
 				//Send event to floor to turn off floor direction lamp send the direction of the elevator's queue, this would correspond to the correct light to turn off
 				Direction queueDirection = elevatorMonitor.getQueueDirection();
-				this.consoleOutput("Sending request to turn off floor direction lamp " + queueDirection + " to " + floorNumber + " as " + elevatorName + " has arrived.");
+				this.consoleOutput(RequestEvent.SENT, "FLOOR " + floorNumber, "Turn off " + queueDirection + " direction lamp as " + elevatorName + " has arrived.");
 				this.sendToServer(new FloorLampRequest(queueDirection, LampStatus.OFF), this.portsByFloorName.get(String.valueOf(floorNumber)));
 			}
-			this.consoleOutput("Sending an elevator stop request to " + elevatorName);
+			this.consoleOutput(RequestEvent.SENT, elevatorName, "Stop elevator.");
 			this.sendToServer(new ElevatorMotorRequest(elevatorName, Direction.IDLE), this.portsByElevatorName.get(elevatorName));
 		} else {
 			this.consoleOutput("Stop is not required for " + elevatorName + " at floor " + floorNumber);
@@ -273,8 +279,6 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 	 * @param elevatorName
 	 */
 	private void eventElevatorStopped(String elevatorName) {
-		this.consoleOutput("Confirmation received that " + elevatorName + " has stopped.");
-		
 		//Get elevatorMonitor for the elevator.
 		ElevatorMonitor elevatorMonitor = this.elevatorMonitorByElevatorName.get(elevatorName);
 		
@@ -287,7 +291,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 			this.consoleOutput("The following trips have been completed at this stop by " + elevatorName + ":" + completedTrips);
 		}
 		
-		this.consoleOutput("Sending an Elevator 'OpenDoor' event to " + elevatorName);
+		this.consoleOutput(RequestEvent.SENT, elevatorName, "Open elevator door.");
 		this.sendToServer(new ElevatorDoorRequest(elevatorName, ElevatorDoorStatus.OPENED), this.portsByElevatorName.get(elevatorName));
 	}
 	
@@ -297,7 +301,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 	 * @param elevatorName
 	 */
 	private void eventElevatorDoorOpened(String elevatorName) {
-		this.consoleOutput("Confirmation received that " + elevatorName + " has opened its doors.");
+		//this.consoleOutput("Confirmation received that " + elevatorName + " has opened its doors.");
 		
 		//Get elevatorMonitor for the elevator.
 		ElevatorMonitor elevatorMonitor = this.elevatorMonitorByElevatorName.get(elevatorName);
@@ -315,9 +319,9 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		
 		//Are there still more floors to visit?
 		if (!elevatorMonitor.isEmpty()) {
-			this.consoleOutput("There are more floors to visit for this elevator. Sending an Elevator 'CloseDoor' event to " + elevatorName);
+			this.consoleOutput("There are more floors to visit for this elevator " + elevatorName);
 			
-			this.consoleOutput("Sending an Elevator 'DoorClose' event to  " + elevatorName + ".");
+			this.consoleOutput(RequestEvent.SENT, elevatorName, "Close elevator door.");
 			this.sendToServer(new ElevatorDoorRequest(elevatorName, ElevatorDoorStatus.CLOSED), this.portsByElevatorName.get(elevatorName));
 		} else {
 			Integer currentFloor = elevatorMonitor.getElevatorFloorLocation();
@@ -336,9 +340,9 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 				
 				this.consoleOutput("There are no available trip requests for " + elevatorName + ", and elevator is already on it's starting floor [" + startFloor + "]. Waiting for next trip request...");
 			} else {
-				this.consoleOutput("There are no available trip requests for " + elevatorName + ", returning elevator to it's starting floor [" + startFloor + "]. Sending an Elevator 'CloseDoor' event to " + elevatorName);
+				this.consoleOutput("There are no available trip requests for " + elevatorName + ", elevator should return to it's starting floor [" + startFloor + "]");
 
-				this.consoleOutput("Sending an Elevator 'DoorClose' event to  " + elevatorName + ".");
+				this.consoleOutput(RequestEvent.SENT, elevatorName, "Close elevator door.");
 				this.sendToServer(new ElevatorDoorRequest(elevatorName, ElevatorDoorStatus.CLOSED), this.portsByElevatorName.get(elevatorName));
 			}
 		}
@@ -349,7 +353,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 	 * @param elevatorName
 	 */
 	private void eventElevatorDoorClosed(String elevatorName) {
-		this.consoleOutput("Confirmation received that " + elevatorName + " has closed its doors.");
+		//this.consoleOutput("Confirmation received that " + elevatorName + " has closed its doors.");
 		
 		//Get the elevatorMonitor for this elevator
 		ElevatorMonitor elevatorMonitor = this.elevatorMonitorByElevatorName.get(elevatorName);
@@ -380,7 +384,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		//Update elevator direction 
 		elevatorMonitor.updateElevatorDirection(direction);
 		
-		this.consoleOutput("Sending an Elevator 'MOVE " + direction + "' event to " + elevatorName + ".");
+		this.consoleOutput(RequestEvent.SENT, elevatorName, "Move elevator " + direction + ".");
 		this.sendToServer(new ElevatorMotorRequest(elevatorName, direction), this.portsByElevatorName.get(elevatorName));
 	}
 	
@@ -463,7 +467,15 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 	 * @param output
 	 */
 	private void consoleOutput(String output) {
-		System.out.println("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss.S")) + "] " + output);
+		System.out.println("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss.S")) + "] " + this.name + " : " + output);
+	}
+	
+	private void consoleOutput(RequestEvent event, String target, String output) {
+		if (event.equals(RequestEvent.SENT)) {
+			System.out.println("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss.S")) + "] " + this.name + " : [EVENT SENT TO " + target + "] " + output);
+		} else if (event.equals(RequestEvent.RECEIVED)) {
+			System.out.println("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss.S")) + "] " + this.name + " : [EVENT RECEIVED FROM " + target + "] " + output);
+		}
 	}
 	
 	public static void main (String[] args) {
