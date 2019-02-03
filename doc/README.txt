@@ -9,10 +9,10 @@ TO IMPORT THE PROJECT INTO ECLIPSE
 	- Select 'Archive...'
 	- Locate 'L1G7_Project_Iteration1.zip' as Import source.
 	- Click 'Finish'
-3. From within the project
-	- Run Scheduler.java
-	- Run ElevatorSubsystem.java
-	- Run FloorSubsystem.java
+3. From within the project "SYSC3303-Group-7"
+	- Run Scheduler.java (located src > main > scheduler)
+	- Run ElevatorSubsystem.java (located src > main > elevatorSubsystem)
+	- Run FloorSubsystem.java (located src > main > floorSubsystem)
 
 FILE EXPLANATIONS (Main files)
 There are 3 files that are necessary to run the elevator system.
