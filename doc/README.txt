@@ -1,4 +1,4 @@
-SYSC 3303 Term Project. L1G7 s- Iteration 1
+SYSC 3303 Term Project. L1G7 - Iteration 1
 
 TO IMPORT THE PROJECT INTO ECLIPSE
 1. Import project from archive file into Eclipse
@@ -14,7 +14,7 @@ TO IMPORT THE PROJECT INTO ECLIPSE
 	- Run ElevatorSubsystem.java
 	- Run FloorSubsystem.java
 
-Main file explanation
+FILE EXPLANATIONS (Main files)
 There are 3 files that are necessary to run the elevator system.
 	- ElevatorSubsystem.java
 		- When run from main(), this will instantiate all elevators in separate threads as defined in the config.xml file. Each elevator thread waits for an event from the Scheduler to trigger an action.
@@ -22,3 +22,13 @@ There are 3 files that are necessary to run the elevator system.
 		- When run from main(), this will instantiate all floors in separate threads as defined in the config.xml file. Then the requests.txt file is parsed, each request defined in this file is sent to the corresponding floor (the main method controls the timing of each request such that each request is sent relative in time to the preceding request). When each floor receives a trip request from the main() method, it will send this to the Scheduler. This simulates a trip request coming from each floor.
 	- Scheduler.java
 		- When run from main(), this will instantiate the scheduler as defined in the config.xml file. The scheduler will then wait to receive and process requests.
+
+
+All Diagrams are located in the 'doc' folder
+
+BREAKDOWN OF RESPONSIBILITIES for Iteration 1
+Dillon Claremont - Scheduler + related classes & State Diagram
+Thomas Bryk - FloorSubsystem + related classes
+Jacob Martin - ElevatorSubsystem + related classes
+Mustafa Abdulmajeed - Request system
+Gordon Macdonald - Test framework + UML documentation
