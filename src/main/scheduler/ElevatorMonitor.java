@@ -23,7 +23,7 @@ public class ElevatorMonitor {
 	private ArrayList<TripRequest> successfullyCompletedTripRequests;
 	private ElevatorState elevatorState;
 	
-	public ElevatorMonitor(String elevatorName, Integer elevatorStartFloorLocation, Integer currentElevatorFloorLocation, Direction currentElevatorDirection, ElevatorStatus currentElevatorStatus, ElevatorDoorStatus currentElevatorDoorStatus) {
+	public ElevatorMonitor(String elevatorName, Integer elevatorStartFloorLocation, Integer currentElevatorFloorLocation, Direction currentElevatorDirection, ElevatorStatus currentElevatorStatus, ElevatorDoorStatus currentElevatorDoorStatus, Integer totalNumberOfFloors) {
 		this.elevatorName = elevatorName;
 		this.queue = new LinkedHashSet<TripRequest>();
 		this.destinationFloors = new HashSet<Integer>();
@@ -35,7 +35,8 @@ public class ElevatorMonitor {
 				currentElevatorFloorLocation,
 				currentElevatorDirection,
 				currentElevatorStatus,
-				currentElevatorDoorStatus);
+				currentElevatorDoorStatus,
+				totalNumberOfFloors);
 	}
 	
 	/**

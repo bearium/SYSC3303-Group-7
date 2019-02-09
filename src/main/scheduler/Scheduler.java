@@ -78,7 +78,8 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 							Integer.parseInt(config.get("startFloor")), 
 							Direction.IDLE, 
 							ElevatorStatus.STOPPED, 
-							ElevatorDoorStatus.OPENED));
+							ElevatorDoorStatus.OPENED,
+							floorConfigurations.size()));
 
 		}
 		
@@ -463,13 +464,19 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 	}
 	
 	/**
-	 * 
+	 * Print to console in a specific format.
 	 * @param output
 	 */
 	private void consoleOutput(String output) {
 		System.out.println("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss.S")) + "] " + this.name + " : " + output);
 	}
 	
+	/**
+	 * Print to console a send/receive event in a specific format.
+	 * @param event
+	 * @param target
+	 * @param output
+	 */
 	private void consoleOutput(RequestEvent event, String target, String output) {
 		if (event.equals(RequestEvent.SENT)) {
 			System.out.println("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss.S")) + "] " + this.name + " : [EVENT SENT TO " + target + "] " + output);

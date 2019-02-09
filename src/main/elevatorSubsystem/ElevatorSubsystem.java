@@ -14,7 +14,7 @@ import main.requests.*;
 import main.server.Server;
 
 public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
-
+	//class variables
 	private Server server;
 	private Thread serverThread;
 	private String name;
@@ -23,10 +23,10 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 	private boolean debug = false;
 	private int schedulerPort;
 	
-	public ElevatorSubsystem(String name, int port, int startFloor, int schedulerPort){
+	public ElevatorSubsystem(String name, int port, int startFloor, int schedulerPort, int maxFloor){
 		this.name = name;
 		this.eventsQueue = new LinkedList<Request>();
-		this.state = new ElevatorState(startFloor,startFloor, Direction.IDLE, ElevatorStatus.STOPPED, ElevatorDoorStatus.OPENED);
+		this.state = new ElevatorState(startFloor,startFloor, Direction.IDLE, ElevatorStatus.STOPPED, ElevatorDoorStatus.OPENED, maxFloor);
 		this.schedulerPort = schedulerPort;
 
 		//Create a server (bound to this Instance of ElevatorSubsystem) in a new thread.
@@ -41,6 +41,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 		this.notifyAll();
 	}
 
+	//goes through event queue till empty then waits till next event received
 	public synchronized Request getNextEvent() {
 		while (eventsQueue.isEmpty()) {
 			try {
@@ -56,6 +57,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 		return this.name;
 	}
 
+	//thread run
 	@Override
 	public void run() {
 		while (true) {
@@ -71,7 +73,6 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 			this.sendToServer(request);
 		} else if (event instanceof ElevatorDoorRequest) {
 			ElevatorDoorRequest request = (ElevatorDoorRequest) event;
-			
 			if (request.getRequestAction() == ElevatorDoorStatus.OPENED) {
 				this.consoleOutput(RequestEvent.RECEIVED, "Scheduler", "Open elevator doors.");
 				this. handleElevatorOpenDoor();
@@ -93,54 +94,68 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 				this.consoleOutput(RequestEvent.RECEIVED, "Scheduler", "Move elevator down.");
 				this.handleElevatorMoveDown();
 			}
+		} else if (event instanceof ElevatorLampRequest) {
+			ElevatorLampRequest request = (ElevatorLampRequest) event;
+			this.consoleOutput(RequestEvent.RECEIVED, "Scheduler", "Turn on floor " + request.getElevatorButton() + " button lamp.");
+			toggleLamp(Integer.parseInt(request.getElevatorButton()), true);
 		}
 	}
-	
+
+	//toggles lamp state dependent on floor provided
+	private void toggleLamp(int floor, Boolean b){
+		this.state.toggleLamp(floor, b);
+	}
+
+	//toggles lamp state dependent on floor provided
 	private void handleElevatorStop(){
 		this.state.setDirection(Direction.IDLE);
 		this.state.setStatus(ElevatorStatus.STOPPED);
+		this.consoleOutput("Turn off floor " + this.state.getCurrentFloor() + " button lamp if on.");
+		this.state.toggleLamp(this.state.getCurrentFloor(), false);
 		ElevatorMotorRequest request = new ElevatorMotorRequest(this.name, Direction.IDLE);
 		this.consoleOutput(RequestEvent.SENT, "Scheduler", "Stopped at " + this.state.getCurrentFloor() + ".");
 		this.sendToServer(request);
 	}
 
+
+
 	private void handleElevatorMoveUP(){
-		this.state.setDirection(Direction.UP);
-		this.state.setStatus(ElevatorStatus.MOVING);
-		this.consoleOutput("Elevator motor set to move up. Simulating travel time...");
-		try {
-			Thread.sleep(5000);
-		} catch (java.lang.InterruptedException e) {
-			e.printStackTrace();
+		if(this.state.getDoorStatus() != ElevatorDoorStatus.OPENED) {
+			this.state.setDirection(Direction.UP);
+			this.state.setStatus(ElevatorStatus.MOVING);
+			this.consoleOutput("Elevator motor set to move up. Simulating travel time...");
+			try {
+				Thread.sleep(5000);
+			} catch (java.lang.InterruptedException e) {
+				e.printStackTrace();
+			}
+			this.state.setCurrentFloor(this.state.getCurrentFloor() + 1);
+			this.consoleOutput(RequestEvent.SENT, "Scheduler", "Arriving at floor " + this.state.getCurrentFloor() + ".");
+			ElevatorArrivalRequest request = new ElevatorArrivalRequest(this.name, Integer.toString(this.state.getCurrentFloor()));
+			this.sendToServer(request);
 		}
-		this.state.setCurrentFloor(this.state.getCurrentFloor()+1);
-		this.consoleOutput(RequestEvent.SENT, "Scheduler", "Arriving at floor " + this.state.getCurrentFloor() + ".");
-		ElevatorArrivalRequest request = new ElevatorArrivalRequest(this.name, Integer.toString(this.state.getCurrentFloor()));
-		this.sendToServer(request);
 	}
 
 	private void handleElevatorMoveDown(){
-		this.state.setDirection(Direction.DOWN);
-		this.state.setStatus(ElevatorStatus.MOVING);
-		this.consoleOutput("Elevator motor set to move down. Simulating travel time...");
-		try {
-			Thread.sleep(5000);
-		} catch (java.lang.InterruptedException e) {
-			e.printStackTrace();
+		if(this.state.getDoorStatus() != ElevatorDoorStatus.OPENED) {
+			this.state.setDirection(Direction.DOWN);
+			this.state.setStatus(ElevatorStatus.MOVING);
+			this.consoleOutput("Elevator motor set to move down. Simulating travel time...");
+			try {
+				Thread.sleep(5000);
+			} catch (java.lang.InterruptedException e) {
+				e.printStackTrace();
+			}
+			this.state.setCurrentFloor(this.state.getCurrentFloor() - 1);
+			this.consoleOutput(RequestEvent.SENT, "Scheduler", "Arriving at floor " + this.state.getCurrentFloor() + ".");
+			ElevatorArrivalRequest request = new ElevatorArrivalRequest(this.name, Integer.toString(this.state.getCurrentFloor()));
+			this.sendToServer(request);
 		}
-		this.state.setCurrentFloor(this.state.getCurrentFloor()-1);
-		this.consoleOutput(RequestEvent.SENT, "Scheduler", "Arriving at floor " + this.state.getCurrentFloor() + ".");
-		ElevatorArrivalRequest request = new ElevatorArrivalRequest(this.name, Integer.toString(this.state.getCurrentFloor()));
-		this.sendToServer(request);
+
 	}
 
 	private void handleElevatorOpenDoor(){
 		this.state.setDoorStatus(ElevatorDoorStatus.OPENED);
-		try {
-			Thread.sleep(5000);
-		} catch (java.lang.InterruptedException e) {
-			e.printStackTrace();
-		}
 		this.consoleOutput(RequestEvent.SENT, "Scheduler",  "Doors are opened.");
 		ElevatorDoorRequest request = new ElevatorDoorRequest(this.name, ElevatorDoorStatus.OPENED);
 		this.sendToServer(request);
@@ -165,7 +180,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 	private void consoleOutput(String output) {
 		System.out.println("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss.S")) + "] " + this.name + " : " + output);
 	}
-	
+
 	private void consoleOutput(RequestEvent event, String target, String output) {
 		if (event.equals(RequestEvent.SENT)) {
 			System.out.println("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss.S")) + "] " + this.name + " : [EVENT SENT TO " + target + "] " + output);
@@ -173,13 +188,22 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 			System.out.println("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss.S")) + "] " + this.name + " : [EVENT RECEIVED FROM " + target + "] " + output);
 		}
 	}
-	
+
 	public static void main (String[] args){
 		//This will return a Map of Maps. First key -> elevator Name, Value -> map of all attributes for that elevator (as per config.xml)
 		HashMap<String, HashMap<String, String>> elevatorConfigurations = ElevatorSystemConfiguration.getAllElevatorSubsystemConfigurations();
 
 		//This will return a Map of all attributes for the Scheduler (as per config.xml)
 		HashMap<String, String> schedulerConfiguration = ElevatorSystemConfiguration.getSchedulerConfiguration();
+
+		HashMap<String, HashMap<String, String>> floorConfigurations = ElevatorSystemConfiguration
+				.getAllFloorSubsytemConfigurations();
+
+		int tempfloor = 0;
+		for (String floorName : floorConfigurations.keySet()) {
+			// find amount of floors
+			tempfloor+= tempfloor;
+		}
 
 		//Iterate through each elevator and create an instance of an ElevatorSubsystem
 		for (String elevatorName : elevatorConfigurations.keySet()) {
@@ -188,7 +212,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 			
 			//Create an instance of ElevatorSubsystem for this 'elevatorName'
 			ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem(elevatorName, Integer.parseInt(elevatorConfiguration.get("port")),
-					Integer.parseInt(elevatorConfiguration.get("startFloor")), Integer.parseInt(schedulerConfiguration.get("port")));
+					Integer.parseInt(elevatorConfiguration.get("startFloor")), Integer.parseInt(schedulerConfiguration.get("port")),tempfloor);
 			
 			//Spawn and start a new thread for this ElevatorSubsystem instance
 			Thread elevatorSubsystemThread = new Thread(elevatorSubsystem, elevatorName);
