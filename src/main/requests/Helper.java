@@ -100,7 +100,8 @@ public final class Helper {
 			/* Parse based on Elevator Arrival Request */
 			String ElevatorName = ParseString(data, counter);
 			String FloorName = ParseString(data, counter);
-			request = new ElevatorArrivalRequest(ElevatorName, FloorName);
+			Direction dir = (Direction) ParseEnum(data,Direction.class, counter);
+			request = new ElevatorArrivalRequest(ElevatorName, FloorName, dir);
 		} else if(Arrays.equals(rt, ElevatorDoorRequest.getRequestType())){
 			/* Parse based on Elevator Door Request */
 			String ElevatorName = ParseString(data, counter);
@@ -122,14 +123,21 @@ public final class Helper {
 			String DateString = ParseString(data, counter);
 			String FloorName = ParseString(data, counter);
 			Direction Direction = (Direction) ParseEnum(data, Direction.class, counter);
-			String DestinationFloor = ParseString(data, counter);
-			request = new FloorButtonRequest(DateString,FloorName, Direction, DestinationFloor);
+			request = new FloorButtonRequest(DateString,FloorName, Direction);
 
 		} else if(Arrays.equals(rt, FloorLampRequest.getRequestType())){
 			/* Parse based on Floor Lamp Request */
 			Direction Direction = (Direction) ParseEnum(data, Direction.class, counter);
 			LampStatus status = (LampStatus) ParseEnum(data, LampStatus.class, counter);
 			request = new FloorLampRequest(Direction, status);
+		} else if(Arrays.equals(rt, ElevatorDestinationRequest.getRequestType())){
+			/* Parse based on Elevator Destination Request */
+			String Floor = ParseString(data, counter);
+			request = new ElevatorDestinationRequest(Floor);
+		} else if(Arrays.equals(rt, ElevatorWaitRequest.getRequestType())){
+			/* Parse based on Elevator Wait Request */
+			/** No fields necessary to parse **/
+			request = new ElevatorWaitRequest();
 		} 
 		return request;
 	}
@@ -209,7 +217,6 @@ public final class Helper {
 			/* Direction Lamp Request is of the form 0DIR0STATUS0ACTION */
 			DirectionLampRequest req = (DirectionLampRequest) request;
 			PopulateEnum(data, req.getLampDirection(), counter);
-
 			PopulateEnum(data, req.getCurrentStatus(), counter);
 
 		} else if(request instanceof ElevatorArrivalRequest){
@@ -217,6 +224,7 @@ public final class Helper {
 			ElevatorArrivalRequest req = (ElevatorArrivalRequest) request;
 			Populate(data, req.getElevatorName(), counter);
 			Populate(data, req.getFloorName(), counter);
+			PopulateEnum(data, req.getDirection(), counter);
 
 		} else if(request instanceof ElevatorDoorRequest){
 			/* Elevator Door Request is of form 0E_NAME0ACTION0*/
@@ -242,13 +250,19 @@ public final class Helper {
 			Populate(data, req.getTime(), counter);
 			Populate(data, req.getFloorName(), counter);
 			PopulateEnum(data, req.getDirection(), counter);
-			Populate(data, req.getDestinationFloor(), counter);
 		} else if(request instanceof FloorLampRequest){
-			/* Floor Button Request is of the form 0DIRECTION0ACTION */
+			/* Floor Button Request is of the form 0DIRECTION0ACTION0 */
 			FloorLampRequest req = (FloorLampRequest) request;
-
 			PopulateEnum(data, req.getDirection(), counter);
 			PopulateEnum(data, req.getCurrentStatus(), counter);
+		} else if(request instanceof ElevatorDestinationRequest){
+			/* Floor Button Request is of the form 0FLOOR0 */
+			ElevatorDestinationRequest req = (ElevatorDestinationRequest) request;
+			Populate(data, req.getFloorName(), counter);
+		} else if(request instanceof ElevatorWaitRequest){
+			/* Floor Button Request is of the form 0DIRECTION0ACTION0 */
+			/** No fields necessary to populate **/
+			//ElevatorWaitRequest req = (ElevatorWaitRequest) request;
 		}
 	}
 

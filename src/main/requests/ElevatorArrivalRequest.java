@@ -1,4 +1,5 @@
 package main.requests;
+import main.global.Direction;
 
 public class ElevatorArrivalRequest extends Request {
 
@@ -13,19 +14,25 @@ public class ElevatorArrivalRequest extends Request {
 	private String FloorName;
 	
 	/**
+	 * Direction the elevator is currently moving in
+	 */
+	private Direction Direction;
+	
+	/**
 	 * Type of request for parsing purposes
 	 */
 	private static byte[] RequestType = new byte[] {1,2};
 	
 	/**
 	 * Create a request for an elevator's arrival at a floor
-	 * @param Elevator {@link ElevatorArrivalRequest#ElevatorName}
-	 * @param Floor {@link ElevatorArrivalRequest#FloorName}
+	 * @param elevator {@link ElevatorArrivalRequest#ElevatorName}
+	 * @param floor {@link ElevatorArrivalRequest#FloorName}
 	 */
-	public ElevatorArrivalRequest(String Elevator, String Floor){
+	public ElevatorArrivalRequest(String elevator, String floor, Direction direction){
 		this.setRequestType(RequestType);
-		this.ElevatorName = Elevator;
-		this.FloorName = Floor;
+		this.setElevatorName(elevator);
+		this.setFloorName(floor); 
+		this.setDirection(direction);
 	}
 	
 	/**
@@ -61,6 +68,20 @@ public class ElevatorArrivalRequest extends Request {
 	 */
 	public static byte[] getRequestType() {
 		return RequestType;
+	}
+
+	/**
+	 * {@link ElevatorArrivalRequest#Direction}
+	 */
+	public Direction getDirection() {
+		return Direction;
+	}
+
+	/**
+	 * {@link ElevatorArrivalRequest#Direction}
+	 */
+	public void setDirection(Direction direction) {
+		Direction = direction;
 	}
 
 }

@@ -3,9 +3,6 @@ package main.requests;
 import main.global.LampStatus;
 
 public class ElevatorLampRequest extends LampRequest {
-
-	private String ElevatorButton;
-	private static byte[] RequestType = new byte[] {1,4};
 	
 	/**
 	 * The name of the floor button in the elevator
