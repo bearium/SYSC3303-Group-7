@@ -26,6 +26,7 @@ public class ElevatorLampRequest extends LampRequest {
 		// TODO Auto-generated constructor stub
 	}
 
+
 	/**
 	 * {@link ElevatorLampRequest#ElevatorButton}
 	 * @return

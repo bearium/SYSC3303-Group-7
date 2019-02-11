@@ -19,11 +19,6 @@ public class FloorButtonRequest extends Request{
 	private  Direction Direction;
 	
 	/**
-	 * The passenger's destination floor
-	 */
-	private  String DestinationFloor;
-	
-	/**
 	 * Type of request for parsing purposes
 	 */
 	private static byte[] RequestType = new byte[] {1,6};
@@ -35,12 +30,11 @@ public class FloorButtonRequest extends Request{
 	 * @param Direction {@link FloorButtonRequest#Direction}
 	 * @param destinationFloor {@link FloorButtonRequest#DestinationFloor}
 	 */
-	public FloorButtonRequest(String time, String FloorName, Direction Direction, String destinationFloor){
+	public FloorButtonRequest(String time, String FloorName, Direction Direction){
 		this.setRequestType(RequestType);
 		this.Time = time;
 		this.FloorName = FloorName;
 		this.Direction = Direction;
-		this.DestinationFloor = destinationFloor;
 	}
 
 	/**
@@ -85,19 +79,6 @@ public class FloorButtonRequest extends Request{
 		Direction = direction;
 	}
 
-	/**
-	 * {@link FloorButtonRequest#DestinationFloor}
-	 */
-	public String getDestinationFloor() {
-		return DestinationFloor;
-	}
-
-	/**
-	 * {@link FloorButtonRequest#DestinationFloor}
-	 */
-	public void setDestinationFloor(String destinationFloor) {
-		DestinationFloor = destinationFloor;
-	}
 
 	/**
 	 * {@link FloorButtonRequest#RequestType}

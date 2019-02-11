@@ -3,7 +3,7 @@ package main.requests;
 import main.global.LampStatus;
 import main.global.Direction;
 public class FloorLampRequest extends LampRequest {
-	
+
 	/**
 	 * Direction of the floor's button to light up
 	 */
@@ -20,7 +20,6 @@ public class FloorLampRequest extends LampRequest {
 	 * @param status {@link LampRequest#getCurrentStatus()}
 	 */
 	public FloorLampRequest(Direction Direction, LampStatus status) {
-
 		super(status);
 		this.setRequestType(RequestType);
 		this.Direction = Direction;
