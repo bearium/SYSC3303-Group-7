@@ -61,9 +61,9 @@ public final class Helper {
 
 	private static void IncludeParams(String[] arr, Request request) {
 		if(arr[0] != "")
-			request.Source = arr[0];
+			request.Sender = arr[0];
 		if(arr[1] != "")
-			request.Destination = arr[1];
+			request.Receiver = arr[1];
 	}
 
 	private static String[] ParseSrcDest(byte[] data, MutInt counter) throws InvalidRequestException {
@@ -178,8 +178,8 @@ public final class Helper {
 
 	private static void PopulateSourceDest(byte[] data, Request request, MutInt counter) {
 
-		boolean IncludeSrcName = request.Source != null && !request.Source.isEmpty() ,
-				IncludeDestName = request.Destination != null && !request.Destination.isEmpty();
+		boolean IncludeSrcName = request.Sender != null && !request.Sender.isEmpty() ,
+				IncludeDestName = request.Receiver != null && !request.Receiver.isEmpty();
 
 		Populate(data, TF(IncludeSrcName), counter);
 		Populate(data, TF(IncludeDestName), counter);
@@ -187,12 +187,12 @@ public final class Helper {
 
 		// populate sender name with a string
 		if(IncludeSrcName){
-			String SenderName = request.Source;
+			String SenderName = request.Sender;
 			Populate(data, SenderName, counter);
 		}
 		// Populate Receiver name
 		if(IncludeDestName){
-			String ReceiverName = request.Destination;
+			String ReceiverName = request.Receiver;
 			Populate(data, ReceiverName, counter);
 		}
 	}

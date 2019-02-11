@@ -2,14 +2,14 @@ package main.requests;
 public class Request {
 
 	/**
-	 * The name of the source of the request
-	 */
-	String Source;
-	
-	/**
 	 * The name of the destination of the request
 	 */
-	String Destination;
+	String Receiver;
+	
+	/**
+	 * The name of the source of the request
+	 */
+	String Sender;
 	
 	/**
 	 * Type of request for parsing purposes
@@ -27,36 +27,36 @@ public class Request {
 	 * @param destination
 	 */
 	protected Request(String source, String destination){
-		this.Destination = destination;
-		this.Source = source;
+		this.Sender = source;
+		this.Receiver = destination;
 	}
 
 	/**
-	 * {@link Request#Source}
+	 * {@link Request#Receiver}
 	 */
 	public String getSource() {
-		return Source;
+		return Receiver;
 	}
 	
 	/**
-	 * {@link Request#Source}
+	 * {@link Request#Receiver}
 	 */
 	public void setSource(String sourceName) {
-		Source = sourceName;
+		Receiver = sourceName;
 	}
 	
 	/**
-	 * {@link Request#Destination}
+	 * {@link Request#Sender}
 	 */
-	public String getDestination() {
-		return Destination;
+	public String getSender() {
+		return Sender;
 	}
 	
 	/**
-	 * {@link Request#Destination}
+	 * {@link Request#Sender}
 	 */
-	public void setDestination(String destinationName) {
-		Destination = destinationName;
+	public void setSender(String destinationName) {
+		Sender = destinationName;
 	}
 	
 	/**
