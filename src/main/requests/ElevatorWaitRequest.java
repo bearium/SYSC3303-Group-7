@@ -5,7 +5,7 @@ public class ElevatorWaitRequest extends Request {
 	/**
 	 * Type of request for parsing purposes
 	 */
-	private static byte[] RequestType = new byte[] {1,3};
+	private static byte[] RequestType = new byte[] {1,9};
 
 
 	/**

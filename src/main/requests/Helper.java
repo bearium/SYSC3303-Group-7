@@ -132,8 +132,10 @@ public final class Helper {
 			request = new FloorLampRequest(Direction, status);
 		} else if(Arrays.equals(rt, ElevatorDestinationRequest.getRequestType())){
 			/* Parse based on Elevator Destination Request */
-			String Floor = ParseString(data, counter);
-			request = new ElevatorDestinationRequest(Floor);
+			String PickupFloor = ParseString(data, counter);
+			String DestFloor = ParseString(data, counter);
+			String ElevatorName = ParseString(data, counter);
+			request = new ElevatorDestinationRequest(PickupFloor,DestFloor,ElevatorName);
 		} else if(Arrays.equals(rt, ElevatorWaitRequest.getRequestType())){
 			/* Parse based on Elevator Wait Request */
 			/** No fields necessary to parse **/
@@ -258,7 +260,10 @@ public final class Helper {
 		} else if(request instanceof ElevatorDestinationRequest){
 			/* Floor Button Request is of the form 0FLOOR0 */
 			ElevatorDestinationRequest req = (ElevatorDestinationRequest) request;
-			Populate(data, req.getFloorName(), counter);
+			Populate(data, req.getPickupFloor(), counter);
+			Populate(data, req.getDestinationFloor(), counter);
+			Populate(data, req.getElevatorName(), counter);
+			
 		} else if(request instanceof ElevatorWaitRequest){
 			/* Floor Button Request is of the form 0DIRECTION0ACTION0 */
 			/** No fields necessary to populate **/
