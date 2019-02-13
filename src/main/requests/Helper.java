@@ -138,8 +138,8 @@ public final class Helper {
 			request = new ElevatorDestinationRequest(PickupFloor,DestFloor,ElevatorName);
 		} else if(Arrays.equals(rt, ElevatorWaitRequest.getRequestType())){
 			/* Parse based on Elevator Wait Request */
-			/** No fields necessary to parse **/
-			request = new ElevatorWaitRequest();
+			String elevatorName = ParseString(data, counter);
+			request = new ElevatorWaitRequest(elevatorName);
 		} 
 		return request;
 	}
@@ -265,8 +265,8 @@ public final class Helper {
 			Populate(data, req.getElevatorName(), counter);
 		} else if(request instanceof ElevatorWaitRequest){
 			/* Floor Button Request is of the form 0DIRECTION0ACTION0 */
-			/** No fields necessary to populate **/
-			//ElevatorWaitRequest req = (ElevatorWaitRequest) request;
+			ElevatorWaitRequest req = (ElevatorWaitRequest) request;
+			Populate(data, req.getElevatorName(), counter);
 		}
 	}
 
