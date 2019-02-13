@@ -20,6 +20,7 @@ public class ElevatorDestinationRequest extends Request {
 	/**
 	 * Type of request for parsing purposes
 	 */
+
 	private static byte[] RequestType = new byte[] {1,8};
 
 

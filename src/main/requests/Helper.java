@@ -263,7 +263,6 @@ public final class Helper {
 			Populate(data, req.getPickupFloor(), counter);
 			Populate(data, req.getDestinationFloor(), counter);
 			Populate(data, req.getElevatorName(), counter);
-			
 		} else if(request instanceof ElevatorWaitRequest){
 			/* Floor Button Request is of the form 0DIRECTION0ACTION0 */
 			/** No fields necessary to populate **/
