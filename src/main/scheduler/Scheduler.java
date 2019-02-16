@@ -278,22 +278,21 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 							currentElevatorIsMoreFavourable = true;
 						}
 					} else {
-						//If the current elevator being evaluated is IDLE and has an estimated pickup time that is less than the current closest elevator's pickup time
-						//And the difference between the two elevator's pickup time is greater than the 
-						if (Math.abs(closestElevatorTime - estimatedElevatorPickupTime) >= closestElevatorTime){
+						//Always favour an in service elevator if possible. 
+						//if (Math.abs(closestElevatorTime - estimatedElevatorPickupTime) >= closestElevatorTime){
 							currentElevatorIsMoreFavourable = true;
-						}
+						//}
 					}
 				//In the case where the closestElevator is IDLE
 				} else {
 					//In the case where the current elevator being evaluated is in-service
 					if (elevatorMonitor.getNextElevatorDirection() == Direction.IDLE) {
-
-						//If the current elevator being evaluated is in-service and has an estimated pickup time that is less than or equal to the current closest elevator's pickup time
+						//Always favour in service elevator
+						/*//If the current elevator being evaluated is in-service and has an estimated pickup time that is less than or equal to the current closest elevator's pickup time
 						//then this elevator is more favourable for this trip request than the current closestElevator
 						if ((estimatedElevatorPickupTime <= closestElevatorTime) && (Math.abs(closestElevatorTime - estimatedElevatorPickupTime) >= estimatedElevatorPickupTime)) {
 							currentElevatorIsMoreFavourable = true;
-						}
+						}*/
 					} else {
 						//If the current elevator being evaluated is IDLE and has a quicker estimated pickup time
 						//then this elevator is more favourable for this trip request than the current closestElevator
