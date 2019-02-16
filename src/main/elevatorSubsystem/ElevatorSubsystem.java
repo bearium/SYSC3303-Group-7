@@ -199,11 +199,12 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 		} catch (java.lang.InterruptedException e) {
 			e.printStackTrace();
 		}
+		//creates temp queue
 		Queue<Request> tmp = new LinkedList<Request>();
 		int size = this.eventsQueue.size();
-
+		//loop through entire queue
 		for (int count = 0; count < size; count++) {
-			Request head = eventsQueue.poll();
+			Request head = eventsQueue.poll();// check to see if head is A destination request
 			if (head instanceof ElevatorDestinationRequest){
 				eventsQueue.offer(head);
 				this.destinationRequestFlag=true;
@@ -211,9 +212,9 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 			else {
 				tmp.offer(head);
 			}
-		}
+		} //arrange queue so that destination requests are at the front
 		eventsQueue.addAll(tmp);
-		if(!this.destinationRequestFlag){
+		if(!this.destinationRequestFlag){ // send event if no more destination requests
 			ElevatorWaitRequest request = new ElevatorWaitRequest(this.name);
 			this.sendToServer(request);
 		}
@@ -224,16 +225,13 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 		this.consoleOutput(RequestEvent.SENT, "Scheduler", "Destination request to " + request.getDestinationFloor());
 		this.sendToServer(request);
 		boolean tempflag = false;
-		int size = this.eventsQueue.size();
 		if(this.destinationRequestFlag) {
-			//for (int count = 0; count < size; count++) {
 			//This works because the collection has been ordered to ensure all ElevatorDestinationRequests to the front
 			Request head = eventsQueue.peek();
 			if (!(head instanceof ElevatorDestinationRequest)) {
 				tempflag = true;
 			}
-			//}
-			if (tempflag) {
+			if (tempflag) { // if no more destination requests send wait event
 				ElevatorWaitRequest sendRequest = new ElevatorWaitRequest(this.name);
 				this.consoleOutput(RequestEvent.SENT, "Scheduler", "Wait complete.");
 				this.sendToServer(sendRequest);
