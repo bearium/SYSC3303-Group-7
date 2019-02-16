@@ -2,7 +2,7 @@
 <Config>
 	<Scheduler name="Scheduler" port="8000"/>
 	<Elevators>
-		<Elevator name="E1" inetAddress="localhost" port="6000" startFloor="1" timeBetweenFloors="5000"/>
+		<Elevator name="E1" inetAddress="localhost" port="9000" startFloor="1" timeBetweenFloors="5000" passangerWaitTime="5000" doorOperationTime="2000"/>
 	</Elevators>
 	<Floors>
 		<Floor name="1" port="7000"/>
