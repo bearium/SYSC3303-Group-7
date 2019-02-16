@@ -30,7 +30,5 @@
 		<Floor name="20" port="7019"/>
 		<Floor name="21" port="7020"/>
 		<Floor name="22" port="7021"/>
-		<Floor name="23" port="7022"/>
-		<Floor name="24" port="7023"/>	
 	</Floors>
 </Config>

@@ -221,6 +221,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 
 	private void handleDestinationRequest(ElevatorDestinationRequest request){
 		this.toggleLamp(Integer.parseInt(request.getDestinationFloor()), true);
+		this.consoleOutput(RequestEvent.SENT, "Scheduler", "Destination request to " + request.getDestinationFloor());
 		this.sendToServer(request);
 		boolean tempflag = false;
 		int size = this.eventsQueue.size();
