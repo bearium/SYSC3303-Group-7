@@ -1,4 +1,4 @@
-SYSC 3303 Term Project. L1G7 - Iteration 1
+SYSC 3303 Term Project. L1G7 - Iteration 2
 
 TO IMPORT THE PROJECT INTO ECLIPSE
 1. Import project from archive file into Eclipse
@@ -7,7 +7,7 @@ TO IMPORT THE PROJECT INTO ECLIPSE
 	- Select 'Import' menu item
 	- Under 'General' select 'Projects From File System or Archive File'
 	- Select 'Archive...'
-	- Locate 'L1G7_Project_Iteration1.zip' as Import source.
+	- Locate 'L1G7_Project_Iteration2.zip' as Import source.
 	- Click 'Finish'
 3. From within the project "SYSC3303-Group-7"
 	- Run Scheduler.java (located src > main > scheduler)
@@ -26,9 +26,17 @@ There are 3 files that are necessary to run the elevator system.
 
 All Diagrams are located in the 'doc' folder
 
+BREAKDOWN OF RESPONSIBILITIES for Iteration 2
+Dillon Claremont - Update Scheduler to support destination requests directly from elevator, Diagrams.
+Thomas Bryk - Update FloorSubsystem to send destination requests to arriving elevators
+Jacob Martin - Update ElevatorSubsystem to receive destination requests from FloorSubsystem and send to Scheduler
+Mustafa Abdulmajeed - Update Request system with new requests and necessary modifications
+Gordon Macdonald - 
+
 BREAKDOWN OF RESPONSIBILITIES for Iteration 1
 Dillon Claremont - Scheduler + related classes & State Diagram
 Thomas Bryk - FloorSubsystem + related classes
 Jacob Martin - ElevatorSubsystem + related classes
 Mustafa Abdulmajeed - Request system
 Gordon Macdonald - Test framework + UML documentation
+
