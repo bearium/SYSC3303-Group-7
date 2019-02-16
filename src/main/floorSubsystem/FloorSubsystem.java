@@ -272,15 +272,15 @@ public class FloorSubsystem implements Runnable, ElevatorSystemComponent {
                 ElevatorDestinationRequest currER = new ElevatorDestinationRequest(this.getName(), currFloorButtonRequest.getDestinationFloor(), request.getElevatorName());    //Create elevator destination request based on data from the queue
                 this.consoleOutput(RequestEvent.SENT, request.getElevatorName(), "Destination request to floor " + currFloorButtonRequest.getDestinationFloor());
                 sendToServer(currER, this.portsByElevatorName.get(request.getElevatorName()));    //Send the request to the elevator arriving
-                upQueue.remove(currFloorButtonRequest); //Remove request from queue, since it's been sent
             }
+            upQueue.clear(); //Clear requests from queue, since they've been sent
         } else if (request.getDirection() == Direction.DOWN) {    //If elevator will be going down
             for (FloorButtonRequest currFloorButtonRequest : downQueue){    //Loop through the queue of trip requests going down
                 ElevatorDestinationRequest currER = new ElevatorDestinationRequest(this.getName(), currFloorButtonRequest.getDestinationFloor(), request.getElevatorName());    //Create elevator destination request based on data from the queue
                 this.consoleOutput(RequestEvent.SENT, request.getElevatorName(), "Destination request to floor" + currFloorButtonRequest.getDestinationFloor());
                 sendToServer(currER, this.portsByElevatorName.get(request.getElevatorName()));    //Send the request to the elevator arriving
-                downQueue.remove(currFloorButtonRequest);   //Remove request from queue, since it's been sent
             }
+            downQueue.clear();   //Clear requests from queue, since they've been sent
         }
     }
 
