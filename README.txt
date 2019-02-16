@@ -31,7 +31,7 @@ Dillon Claremont - Update Scheduler to support destination requests directly fro
 Thomas Bryk - Update FloorSubsystem to send destination requests to arriving elevators
 Jacob Martin - Update ElevatorSubsystem to receive destination requests from FloorSubsystem and send to Scheduler
 Mustafa Abdulmajeed - Update Request system with new requests and necessary modifications
-Gordon Macdonald - 
+Gordon Macdonald - Test Framework, Diagrams, UML documentation
 
 BREAKDOWN OF RESPONSIBILITIES for Iteration 1
 Dillon Claremont - Scheduler + related classes & State Diagram
