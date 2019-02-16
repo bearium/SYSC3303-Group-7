@@ -125,6 +125,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 
 	@Override
 	public void run() {
+		this.consoleOutput("Scheduler is online. Waiting for a trip request...");
 		while (true) {
 			this.handleEvent(this.getNextEvent());
 		}
@@ -139,7 +140,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		if (event instanceof FloorButtonRequest) {
 			FloorButtonRequest request = (FloorButtonRequest) event;
 			
-			this.consoleOutput(RequestEvent.RECEIVED, request.getFloorName(), "Trip request from floor " + request.getFloorName() + " in direction " + request.getDirection() + ".");
+			this.consoleOutput(RequestEvent.RECEIVED, "Floor " + request.getFloorName(), "Trip request from floor " + request.getFloorName() + " in direction " + request.getDirection() + ".");
 			this.eventTripRequestReceived(Integer.parseInt(request.getFloorName()), request.getDirection());
 		} else if (event instanceof ElevatorArrivalRequest) {
 			ElevatorArrivalRequest request = (ElevatorArrivalRequest) event;
@@ -406,7 +407,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		}
 		
 		//Send notice to floor that elevator has stopped and doors are open
-		this.consoleOutput(RequestEvent.SENT, String.valueOf(elevatorMonitor.getElevatorFloorLocation()), "Elevator " + elevatorName + " has arrived and doors are opened.");
+		this.consoleOutput(RequestEvent.SENT, "Floor " + String.valueOf(elevatorMonitor.getElevatorFloorLocation()), "Elevator " + elevatorName + " has arrived and doors are opened.");
 		this.sendToServer(new ElevatorArrivalRequest(elevatorName, String.valueOf(elevatorMonitor.getElevatorFloorLocation()), elevatorMonitor.getQueueDirection()), this.portsByFloorName.get(String.valueOf(elevatorMonitor.getElevatorFloorLocation())));
 	
 		//Send a wait at floor command to the elevator - this is to simulate both passengers leaving and entering the elevator
@@ -433,7 +434,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 			this.sendToServer(new ElevatorWaitRequest(elevatorName), this.portsByElevatorName.get(elevatorName));
 		
 		//Are there still more floors to visit? If so then send an ElevatorDoorRequest to close it's doors.
-		} else if (!elevatorMonitor.isEmpty()) {
+		} else if (!elevatorMonitor.isTripQueueEmpty()) {
 			this.consoleOutput("There are more floors to visit for this elevator " + elevatorName);
 			
 			this.consoleOutput(RequestEvent.SENT, elevatorName, "Close elevator door.");
@@ -516,7 +517,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		HashSet<TripRequest> assignedPendingRequests = new HashSet<TripRequest>();
 		
 		//If the elevator has no trips in its queue's, then it should take the first pending request
-		if (elevatorMonitor.isEmpty()) {
+		if (elevatorMonitor.isTripQueueEmpty()) {
 			TripRequest firstPriorityPendingRequest = this.pendingTripRequests.get(0);
 			if (elevatorMonitor.addTripRequest(firstPriorityPendingRequest)) {
 				assignedPendingRequests.add(firstPriorityPendingRequest);
@@ -571,7 +572,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		//Instantiate the scheduler
 		Scheduler scheduler = new Scheduler(schedulerConfiguration.get("name"), Integer.parseInt(schedulerConfiguration.get("port")), elevatorConfigurations, floorConfigurations);
 		
-		scheduler.eventTripRequestReceived(1, Direction.UP);
+		/*scheduler.eventTripRequestReceived(1, Direction.UP);
 		scheduler.eventElevatorWaitComplete("E1");
 		scheduler.eventElevatorDestinationRequest("E1", 1, 7);
 		scheduler.eventElevatorWaitComplete("E1");
@@ -634,7 +635,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		scheduler.eventElevatorDoorOpened("E1");
 		scheduler.eventElevatorWaitComplete("E1");
 		scheduler.eventTripRequestReceived(15, Direction.UP);
-		scheduler.eventTripRequestReceived(16, Direction.UP);
+		scheduler.eventTripRequestReceived(16, Direction.UP);*/
 		//Spawn and start a new thread for this Scheduler
 		Thread schedulerThread = new Thread(scheduler, schedulerConfiguration.get("name"));
 		schedulerThread.start();

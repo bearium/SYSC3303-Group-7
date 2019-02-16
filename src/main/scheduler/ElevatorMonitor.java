@@ -137,8 +137,8 @@ public class ElevatorMonitor {
 	 */
 	public Integer estimatePickupTime(TripRequest tripRequest) {
 		int averageTravelTimePerFloor = 5;
-		int averageTimePerStop = 10;
-		if (this.isEmpty()) {
+		int averageTimePerStop = 9;
+		if (this.isTripQueueEmpty()) {
 			return (Math.abs(this.elevatorState.getCurrentFloor() - tripRequest.getPickupFloor()) * averageTravelTimePerFloor);
 		} else if (this.isTripEnRoute(tripRequest)){
 			int interimStops = 0;
@@ -172,8 +172,9 @@ public class ElevatorMonitor {
 	 * Returns whether the pickup and destination queues are both empty, if either is not empty, returns false.
 	 * @return
 	 */
-	public boolean isEmpty() {
-		if (this.pickupFloors.isEmpty() && this.destinationFloors.isEmpty()) {
+	public boolean isTripQueueEmpty() {
+		//if (this.pickupFloors.isEmpty() && this.destinationFloors.isEmpty() && this.queue.isEmpty()) {
+		if (this.queue.isEmpty()) {
 			return true;
 		}
 		return false;
@@ -228,7 +229,7 @@ public class ElevatorMonitor {
 		
 		//If there are no more trips left, the elevator's next direction is IDLE (as far as the tripRequestQueue is concerned)
 		//If there are no more trip requests in the queue, then determine whether the elevator needs to move to get back to its starting floor.
-		if (this.isEmpty()) {
+		if (this.isTripQueueEmpty()) {
 			if (this.elevatorState.getCurrentFloor() > this.elevatorState.getStartFloor()) {
 				nextDirection = Direction.DOWN;
 			} else if (this.elevatorState.getCurrentFloor() < this.elevatorState.getStartFloor()){
@@ -237,21 +238,28 @@ public class ElevatorMonitor {
 				nextDirection = Direction.IDLE;
 			}
 		} else {
-			switch (this.queueDirection) {
-				case UP:
-						if (this.elevatorState.getCurrentFloor() > this.getLowestScheduledFloor()){
-							nextDirection = Direction.DOWN;
-						} else {
-							nextDirection = Direction.UP;
-						}
-					break;
-				case DOWN:
-						if (this.elevatorState.getCurrentFloor() < this.getHighestScheduledFloor()){
-							nextDirection = Direction.UP;
-						} else {
-							nextDirection = Direction.DOWN;
-						}
-					break;
+			if (!this.pickupFloors.isEmpty() || !this.destinationFloors.isEmpty()) {
+				switch (this.queueDirection) {
+					case UP:
+							//This would be true of the elevator is traveling (in opposite direction) to the start of the queue
+							if (this.elevatorState.getCurrentFloor() > this.getLowestScheduledFloor()){
+								nextDirection = Direction.DOWN;
+							} else {
+								nextDirection = Direction.UP;
+							}
+						break;
+					case DOWN:
+							//This would be true if the elevator is traveling (in opposite direction) to the start of the queue
+							if (this.elevatorState.getCurrentFloor() < this.getHighestScheduledFloor()){
+								nextDirection = Direction.UP;
+							} else {
+								nextDirection = Direction.DOWN;
+							}
+						break;
+				}
+			} else {
+				//Since the trip request queue is not empty, and there are no pickupfloors or destination floors in queue, we must be stopped at a pickup floor, next direction is the queue direction
+				nextDirection = this.queueDirection;
 			}
 		}
 		
@@ -266,7 +274,11 @@ public class ElevatorMonitor {
 		HashSet<Integer> allStops = new HashSet<Integer>();
 		allStops.addAll(pickupFloors);
 		allStops.addAll(destinationFloors);
-
+		
+		if (allStops.isEmpty()) {
+			return null;
+		}
+		
 		Iterator<Integer> iterator = allStops.iterator();
 		Integer currentHighestFloor = iterator.next();
 		while (iterator.hasNext()) {
@@ -287,6 +299,10 @@ public class ElevatorMonitor {
 		HashSet<Integer> allStops = new HashSet<Integer>();
 		allStops.addAll(pickupFloors);
 		allStops.addAll(destinationFloors);
+		
+		if (allStops.isEmpty()) {
+			return null;
+		}
 		
 		Iterator<Integer> iterator = allStops.iterator();
 		Integer currentLowestFloor = iterator.next();
@@ -356,7 +372,7 @@ public class ElevatorMonitor {
 	 * @return
 	 */
 	public boolean addTripRequest(TripRequest tripRequest) {
-		if (this.isEmpty()) {
+		if (this.isTripQueueEmpty()) {
 			return this.addFirstTripRequest(tripRequest);
 		} else {
 			return this.addEnRouteTripRequest(tripRequest);
@@ -411,7 +427,7 @@ public class ElevatorMonitor {
 	 * @return
 	 */
 	private boolean addFirstTripRequest(TripRequest tripRequest) {
-		if (this.isEmpty()) {
+		if (this.isTripQueueEmpty()) {
 			queue.add(tripRequest);
 			this.queueDirection = tripRequest.getDirection();
 			if (this.elevatorState.getCurrentFloor() != tripRequest.getPickupFloor()) {
@@ -433,7 +449,7 @@ public class ElevatorMonitor {
 	 * @return
 	 */
 	private boolean addEnRouteTripRequest(TripRequest tripRequest) {
-		if (!this.isEmpty() && (this.isTripEnRoute(tripRequest))) {
+		if (!this.isTripQueueEmpty() && (this.isTripEnRoute(tripRequest))) {
 			//The trip is accepted.
 			queue.add(tripRequest);
 			
@@ -461,7 +477,7 @@ public class ElevatorMonitor {
 			}
 		
 			//Update the queue direction to IDLE if there are no more trips left in the queue
-			if (this.isEmpty()) {
+			if (this.isTripQueueEmpty()) {
 				this.queueDirection = Direction.IDLE;
 			}	
 		}

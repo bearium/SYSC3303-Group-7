@@ -18,6 +18,7 @@ public class ElevatorWaitRequest extends Request {
 	 */
 	public ElevatorWaitRequest(String elevatorName){
 		this.setRequestType(RequestType);
+		this.setElevatorName(elevatorName);
 	}
 
 	
