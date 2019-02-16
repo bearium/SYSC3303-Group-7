@@ -123,7 +123,8 @@ public final class Helper {
 			String DateString = ParseString(data, counter);
 			String FloorName = ParseString(data, counter);
 			Direction Direction = (Direction) ParseEnum(data, Direction.class, counter);
-			request = new FloorButtonRequest(DateString,FloorName, Direction);
+			String Destination = ParseString(data, counter);
+			request = new FloorButtonRequest(DateString,FloorName, Direction, Destination);
 
 		} else if(Arrays.equals(rt, FloorLampRequest.getRequestType())){
 			/* Parse based on Floor Lamp Request */
@@ -155,7 +156,11 @@ public final class Helper {
 	private static String ParseString(byte[] data, MutInt counter) {
 		String ret = "";
 		if(data[counter.intValue()] != 0){
-
+			System.out.println("data: "+data[counter.intValue()]);
+			if(data[counter.intValue()] == (byte) -1){
+				counter.add(2);
+				return ret;
+			}
 			//attempt to parse data
 			MutInt temp_counter = new MutInt(counter) ;
 			while(temp_counter.intValue() != data.length && data[temp_counter.getAndIncrement()]!=0);
@@ -252,6 +257,7 @@ public final class Helper {
 			Populate(data, req.getTime(), counter);
 			Populate(data, req.getFloorName(), counter);
 			PopulateEnum(data, req.getDirection(), counter);
+			Populate(data, req.getDestinationFloor(), counter);
 		} else if(request instanceof FloorLampRequest){
 			/* Floor Button Request is of the form 0DIRECTION0ACTION0 */
 			FloorLampRequest req = (FloorLampRequest) request;
@@ -285,7 +291,12 @@ public final class Helper {
 	}
 
 	private static void Populate(byte[] array, String array2, MutInt pos) {
-		CopyArray(array, array2.getBytes(), pos);
+		if(array2 == null) {
+			array[pos.getAndIncrement()] = (byte) -1;
+		}
+		else {
+			CopyArray(array, array2.getBytes(), pos);
+		}
 		array[pos.getAndIncrement()] = 0;
 	}
 
