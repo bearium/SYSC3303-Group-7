@@ -33,6 +33,13 @@ public class TestHelper {
 		
 		//verify output of parse
 		assertEquals("Datagram creation and parsing experienced data loss", dirLR, helper.ParseRequest());
+		assertEquals("Datagram creation and parsing experienced data loss", elAR, helper.ParseRequest());
+		assertEquals("Datagram creation and parsing experienced data loss", elDR, helper.ParseRequest());
+		assertEquals("Datagram creation and parsing experienced data loss", elLR, helper.ParseRequest());
+		assertEquals("Datagram creation and parsing experienced data loss", elMR, helper.ParseRequest());
+		assertEquals("Datagram creation and parsing experienced data loss", flBR, helper.ParseRequest());
+		assertEquals("Datagram creation and parsing experienced data loss", flLR, helper.ParseRequest());
+		
 		
 	}
 	
