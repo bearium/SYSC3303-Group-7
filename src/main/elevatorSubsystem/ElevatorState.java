@@ -80,4 +80,9 @@ public class ElevatorState {
 		lamps.put(floor, b);
 	}
 
+	public HashMap<Integer, Boolean> getLamps() {
+		// TODO Auto-generated method stub
+		return lamps;
+	}
+
 }
