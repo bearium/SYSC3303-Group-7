@@ -1,6 +1,6 @@
 package main.requests;
 import main.global.Direction;
-
+import main.global.Fault;
 public class FloorButtonRequest extends Request{
 	
 	/**
@@ -24,6 +24,11 @@ public class FloorButtonRequest extends Request{
 	private String DestinationFloor;
 	
 	/**
+	 * Fault in elevator, Optional
+	 */
+	private Fault Fault;
+	
+	/**
 	 * Type of request for parsing purposes
 	 */
 	private static byte[] RequestType = new byte[] {1,6};
@@ -33,7 +38,6 @@ public class FloorButtonRequest extends Request{
 	 * @param time {@link FloorButtonRequest#Time}
 	 * @param FloorName {@link FloorButtonRequest#FloorName}
 	 * @param Direction {@link FloorButtonRequest#Direction}
-	 * @param destination 
 	 * @param destinationFloor {@link FloorButtonRequest#DestinationFloor}
 	 */
 	public FloorButtonRequest(String time, String FloorName, Direction Direction, String destination){
@@ -42,6 +46,12 @@ public class FloorButtonRequest extends Request{
 		this.FloorName = FloorName;
 		this.Direction = Direction;
 		this.setDestinationFloor(destination);
+		
+	}
+	
+	public FloorButtonRequest(String time, String FloorName, Direction Direction, String destination, Fault fault){
+		this(time, FloorName, Direction, destination);
+		this.setFault(fault);
 	}
 
 	/**
@@ -86,8 +96,6 @@ public class FloorButtonRequest extends Request{
 		Direction = direction;
 	}
 
-
-	
 	/**
 	 * @return the destinationFloor
 	 */
@@ -109,6 +117,19 @@ public class FloorButtonRequest extends Request{
 		return RequestType;
 	}
 
+	/**
+	 * {@link FloorButtonRequest#Fault}
+	 */
+	public Fault getFault() {
+		return Fault;
+	}
+	
+	/**
+	 * {@link FloorButtonRequest#Fault}
+	 */
+	public void setFault(Fault fault) {
+		Fault = fault;
+	}
 	
 	
 }
