@@ -209,7 +209,7 @@ public class FloorSubsystem implements Runnable, ElevatorSystemComponent {
 
 
                 //Create floor button request with retrieved data, and add to ongoing list
-                FloorButtonRequest currRequest = new FloorButtonRequest(time, floorName, direction, destinationFloor, null);
+                FloorButtonRequest currRequest = new FloorButtonRequest(time, floorName, direction, destinationFloor);
                 requests.add(currRequest);
             }
         } catch (IOException e) {
