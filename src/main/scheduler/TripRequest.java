@@ -10,18 +10,17 @@ public class TripRequest {
 	private int pickupFloor;
 	private int destinationFloor;
 	private Direction direction;
+	private boolean hasDestination;
 	
-	public TripRequest(int pickupFloor, int destinationFloor) {
+	public TripRequest(int pickupFloor, Direction direction) {
 		this.pickupFloor = pickupFloor;
-		this.destinationFloor = destinationFloor;
-		
-		if (destinationFloor > pickupFloor) {
-			this.direction = Direction.UP;
-		} else {
-			this.direction = Direction.DOWN;
-		}
+		this.hasDestination = false;
+		this.direction = direction;
 	}
 	
+	public boolean hasDestination() {
+		return this.hasDestination;
+	}
 	/**
 	 * Get the pickup floor.
 	 * @return
@@ -36,6 +35,15 @@ public class TripRequest {
 	 */
 	public int getDestinationFloor() {
 		return this.destinationFloor;
+	}
+	
+	/**
+	 * Set the destination floor.
+	 * @param destinationFloor
+	 */
+	public void setDestinationFloor(int destinationFloor) {
+		this.destinationFloor = destinationFloor;
+		this.hasDestination = true;
 	}
 	
 	/**
@@ -67,9 +75,15 @@ public class TripRequest {
 		sb.append("(");
 		sb.append(this.pickupFloor);
 		sb.append(",");
-		sb.append(this.destinationFloor);
+		sb.append(this.direction);
+		sb.append(",");
+		if (this.hasDestination) {
+			sb.append(this.destinationFloor);
+		} else {
+			sb.append("?");
+		}
 		sb.append(")");
-		
+
 		return sb.toString();
 	}
 }

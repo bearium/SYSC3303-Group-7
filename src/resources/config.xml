@@ -2,7 +2,10 @@
 <Config>
 	<Scheduler name="Scheduler" port="8000"/>
 	<Elevators>
-		<Elevator name="E1" inetAddress="localhost" port="6000" startFloor="1" timeBetweenFloors="5000"/>
+		<Elevator name="E1" inetAddress="localhost" port="9000" startFloor="1" timeBetweenFloors="5000" passengerWaitTime="5000" doorOperationTime="2000"/>
+		<Elevator name="E2" inetAddress="localhost" port="9001" startFloor="1" timeBetweenFloors="5000" passengerWaitTime="5000" doorOperationTime="2000"/>
+		<Elevator name="E3" inetAddress="localhost" port="9002" startFloor="1" timeBetweenFloors="5000" passengerWaitTime="5000" doorOperationTime="2000"/>
+		<Elevator name="E4" inetAddress="localhost" port="9003" startFloor="1" timeBetweenFloors="5000" passengerWaitTime="5000" doorOperationTime="2000"/>
 	</Elevators>
 	<Floors>
 		<Floor name="1" port="7000"/>
@@ -13,5 +16,19 @@
 		<Floor name="6" port="7005"/>
 		<Floor name="7" port="7006"/>
 		<Floor name="8" port="7007"/>
+		<Floor name="9" port="7008"/>
+		<Floor name="10" port="7009"/>
+		<Floor name="11" port="7010"/>
+		<Floor name="12" port="7011"/>
+		<Floor name="13" port="7012"/>
+		<Floor name="14" port="7013"/>
+		<Floor name="15" port="7014"/>
+		<Floor name="16" port="7015"/>
+		<Floor name="17" port="7016"/>
+		<Floor name="18" port="7017"/>
+		<Floor name="19" port="7018"/>
+		<Floor name="20" port="7019"/>
+		<Floor name="21" port="7020"/>
+		<Floor name="22" port="7021"/>
 	</Floors>
 </Config>
