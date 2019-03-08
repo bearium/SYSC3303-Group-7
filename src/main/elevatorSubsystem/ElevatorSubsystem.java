@@ -19,7 +19,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 	private Thread serverThread;
 	private String name;
 	private int travelTime;
-	private int passangerTime;
+	private int passengerTime;
 	private int doorTime;
 	private ElevatorState state;
 	private Queue<Request> eventsQueue;
@@ -27,10 +27,10 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 	private int schedulerPort;
 	private boolean destinationRequestFlag = false;
 	
-	public ElevatorSubsystem(String name, int port, int startFloor, int schedulerPort, int maxFloor, int travelTime, int passangerTime, int doorTime){
+	public ElevatorSubsystem(String name, int port, int startFloor, int schedulerPort, int maxFloor, int travelTime, int passengerTime, int doorTime){
 		this.name = name;
 		this.travelTime = travelTime;
-		this.passangerTime = passangerTime;
+		this.passengerTime = passengerTime;
 		this.doorTime = doorTime;
 		this.eventsQueue = new LinkedList<Request>();
 		this.state = new ElevatorState(startFloor,startFloor, Direction.IDLE, ElevatorStatus.STOPPED, ElevatorDoorStatus.OPENED, maxFloor);
@@ -67,6 +67,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 	//thread run
 	@Override
 	public void run() {
+		this.consoleOutput(this.name + " is online. Waiting for a command from Scheduler...");
 		while (true) {
 			this.handleEvent(this.getNextEvent());
 		}
@@ -103,12 +104,12 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 			}
 		} else if (event instanceof ElevatorDestinationRequest) {
 			ElevatorDestinationRequest request = (ElevatorDestinationRequest) event;
-			this.consoleOutput(RequestEvent.RECEIVED, "floor", "destination request to:" + request.getDestinationFloor());
+			this.consoleOutput(RequestEvent.RECEIVED, "Floor " + request.getPickupFloor() , "Destination request to floor " + request.getDestinationFloor());
 			this.handleDestinationRequest(request);
 		}
 		else if (event instanceof ElevatorWaitRequest) {
 			this.consoleOutput(RequestEvent.RECEIVED, "Scheduler", "Waiting For Passengers");
-			this.handleWaitForPassangers();
+			this.handleWaitForPassengers();
 		}
 	}
 
@@ -191,18 +192,19 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 		this.sendToServer(request);
 	}
 
-	private void handleWaitForPassangers(){
-		this.consoleOutput("Elevator Waiting while loading passengers...");
+	private void handleWaitForPassengers(){
+		this.consoleOutput("Elevator Waiting while loading/unloading passengers...");
 		try {
-			Thread.sleep(this.passangerTime);
+			Thread.sleep(this.passengerTime);
 		} catch (java.lang.InterruptedException e) {
 			e.printStackTrace();
 		}
+		//creates temp queue
 		Queue<Request> tmp = new LinkedList<Request>();
 		int size = this.eventsQueue.size();
-
+		//loop through entire queue
 		for (int count = 0; count < size; count++) {
-			Request head = eventsQueue.poll();
+			Request head = eventsQueue.poll();// check to see if head is A destination request
 			if (head instanceof ElevatorDestinationRequest){
 				eventsQueue.offer(head);
 				this.destinationRequestFlag=true;
@@ -210,9 +212,9 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 			else {
 				tmp.offer(head);
 			}
-		}
+		} //arrange queue so that destination requests are at the front
 		eventsQueue.addAll(tmp);
-		if(!this.destinationRequestFlag){
+		if(!this.destinationRequestFlag){ // send event if no more destination requests
 			ElevatorWaitRequest request = new ElevatorWaitRequest(this.name);
 			this.sendToServer(request);
 		}
@@ -220,18 +222,18 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 
 	private void handleDestinationRequest(ElevatorDestinationRequest request){
 		this.toggleLamp(Integer.parseInt(request.getDestinationFloor()), true);
+		this.consoleOutput(RequestEvent.SENT, "Scheduler", "Destination request to " + request.getDestinationFloor());
 		this.sendToServer(request);
 		boolean tempflag = false;
-		int size = this.eventsQueue.size();
 		if(this.destinationRequestFlag) {
-			for (int count = 0; count < size; count++) {
-				Request head = eventsQueue.peek();
-				if (head instanceof ElevatorDestinationRequest) {
-					tempflag = true;
-				}
+			//This works because the collection has been ordered to ensure all ElevatorDestinationRequests to the front
+			Request head = eventsQueue.peek();
+			if (!(head instanceof ElevatorDestinationRequest)) {
+				tempflag = true;
 			}
-			if (tempflag) {
+			if (tempflag) { // if no more destination requests send wait event
 				ElevatorWaitRequest sendRequest = new ElevatorWaitRequest(this.name);
+				this.consoleOutput(RequestEvent.SENT, "Scheduler", "Wait complete.");
 				this.sendToServer(sendRequest);
 				this.destinationRequestFlag = false;
 			}
@@ -285,7 +287,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 			//Create an instance of ElevatorSubsystem for this 'elevatorName'
 			ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem(elevatorName, Integer.parseInt(elevatorConfiguration.get("port")),
 					Integer.parseInt(elevatorConfiguration.get("startFloor")), Integer.parseInt(schedulerConfiguration.get("port")),tempfloor,
-					Integer.parseInt(elevatorConfiguration.get("timeBetweenFloors")), Integer.parseInt(elevatorConfiguration.get("passangerWaitTime")),
+					Integer.parseInt(elevatorConfiguration.get("timeBetweenFloors")), Integer.parseInt(elevatorConfiguration.get("passengerWaitTime")),
 					Integer.parseInt(elevatorConfiguration.get("doorOperationTime")));
 			
 			//Spawn and start a new thread for this ElevatorSubsystem instance
