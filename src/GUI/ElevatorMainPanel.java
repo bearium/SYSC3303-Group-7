@@ -23,6 +23,8 @@ public class ElevatorMainPanel extends JPanel implements Observer {
 	
 	
 	ElevatorState elevator;
+	ElevatorDoorsPanel DP;
+	ElevatorButtonPanel BP;
 	ArrayList<JLabel> buttons;
 	
 	public ElevatorMainPanel(ElevatorState elevator) {
@@ -36,17 +38,20 @@ public class ElevatorMainPanel extends JPanel implements Observer {
 		
 		HashMap<Integer, Boolean> lamps = elevator.getLamps();
 		this.setLayout(new GridLayout(1,3));
-		ElevatorDoorsPanel DP = new ElevatorDoorsPanel(ElevatorDoorStatus.CLOSED);
+		DP = new ElevatorDoorsPanel(elevator.getDoorStatus());
 		this.add(DP);
-		this.add(new ElevatorButtonPanel(lamps));
-		
+		BP = new ElevatorButtonPanel(lamps);
+		this.add(BP);
+		elevator.addObserver(this);
 		JButton toggle_close = new JButton("Close/Open");
 		JPanel last_panel = new JPanel();
+		boolean p = true;
 		toggle_close.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				DP.refreshStatus(DP.getStatus() == ElevatorDoorStatus.OPENED ? ElevatorDoorStatus.CLOSED :ElevatorDoorStatus.OPENED );
+				elevator.setDoorStatus(elevator.getDoorStatus() == ElevatorDoorStatus.OPENED ? ElevatorDoorStatus.CLOSED : ElevatorDoorStatus.OPENED );
+				elevator.toggleLamp(5, Math.random() * 10 > 5 ? true : false);
 			}
 			
 		});
@@ -71,7 +76,16 @@ public class ElevatorMainPanel extends JPanel implements Observer {
 
 	@Override
 	public void update(Observable arg0, Object arg1) {
-		
+		if(arg0 instanceof ElevatorState) {
+		//	ElevatorState newState = (ElevatorState) arg0;
+			this.refresh();
+		}
+	}
+
+	private void refresh() {
+		DP.refreshStatus(elevator.getDoorStatus());
+		BP.refreshStatus(elevator.getLamps());
+		this.repaint();
 	}
 	
 }

@@ -441,4 +441,20 @@ public class ElevatorMonitor {
 		sb.append("]\n");
 		return sb.toString();
 	}
+
+	/**
+	 * @return the elevatorState
+	 */
+	public ElevatorState getElevatorState() {
+		return elevatorState;
+	}
+
+	/**
+	 * @param elevatorState the elevatorState to set
+	 */
+	public void setElevatorState(ElevatorState elevatorState) {
+		this.elevatorState = elevatorState;
+	}
+	
+	
 }

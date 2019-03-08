@@ -5,6 +5,8 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -12,7 +14,7 @@ import javax.swing.JPanel;
 
 import main.global.ElevatorDoorStatus;
 
-public class ElevatorDoorsPanel extends JPanel{
+public class ElevatorDoorsPanel extends JPanel implements Observer{
 	BufferedImage icon_closed; //= new ImageIcon("resources/images/elevator/elevator_closed");
 	BufferedImage icon_opened;// = new ImageIcon("resources/images/elevator/elevator_opened");
 	
@@ -91,6 +93,11 @@ public class ElevatorDoorsPanel extends JPanel{
 
 	    // Return the buffered image
 	    return bimage;
+	}
+
+	@Override
+	public void update(Observable arg0, Object arg1) {
+		
 	}
 	
 }

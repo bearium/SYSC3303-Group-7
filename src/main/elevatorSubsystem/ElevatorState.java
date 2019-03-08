@@ -7,8 +7,9 @@ import main.global.ElevatorStatus;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Observable;
 
-public class ElevatorState {
+public class ElevatorState extends Observable{
 	private Integer startFloor;
 	private Integer currentFloor;
 	private Direction direction;
@@ -38,6 +39,8 @@ public class ElevatorState {
 
 	public void setStartFloor(Integer floor) {
 		this.startFloor = floor;
+		this.setChanged();
+		this.notifyObservers();
 	}
 
 	public Integer getCurrentFloor() {
@@ -46,6 +49,8 @@ public class ElevatorState {
 
 	public void setCurrentFloor(Integer floor) {
 		this.currentFloor = floor;
+		this.setChanged();
+		this.notifyObservers();
 	}
 
 	public Direction getDirection() {
@@ -54,6 +59,8 @@ public class ElevatorState {
 
 	public void setDirection(Direction direction) {
 		this.direction = direction;
+		this.setChanged();
+		this.notifyObservers();
 	}
 
 	public ElevatorStatus getCurrentStatus() {
@@ -62,6 +69,8 @@ public class ElevatorState {
 
 	public void setStatus(ElevatorStatus status) {
 		this.status = status;
+		this.setChanged();
+		this.notifyObservers();
 	}
 
 	public ElevatorDoorStatus getDoorStatus() {
@@ -70,6 +79,8 @@ public class ElevatorState {
 
 	public void setDoorStatus(ElevatorDoorStatus doorStatus) {
 		this.doorStatus = doorStatus;
+		this.setChanged();
+		this.notifyObservers(this.doorStatus);
 	}
 
 	public Integer getMaxFloor() {
@@ -78,6 +89,8 @@ public class ElevatorState {
 
 	public void toggleLamp(Integer floor, Boolean b) {
 		lamps.put(floor, b);
+		this.setChanged();
+		this.notifyObservers();
 	}
 
 	public HashMap<Integer, Boolean> getLamps() {

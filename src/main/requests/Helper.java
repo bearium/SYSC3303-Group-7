@@ -156,7 +156,6 @@ public final class Helper {
 	private static String ParseString(byte[] data, MutInt counter) {
 		String ret = "";
 		if(data[counter.intValue()] != 0){
-			System.out.println("data: "+data[counter.intValue()]);
 			if(data[counter.intValue()] == (byte) -1){
 				counter.add(2);
 				return ret;
