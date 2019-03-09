@@ -123,7 +123,8 @@ public class Parser {
 			String PickupFloor = ParseString();
 			String DestFloor = ParseString();
 			String ElevatorName = ParseString();
-			request = new ElevatorDestinationRequest(PickupFloor,DestFloor,ElevatorName);
+			Fault fault = (Fault) ParseOptionalEnum(Fault.class);
+			request = new ElevatorDestinationRequest(PickupFloor,DestFloor,ElevatorName, fault);
 		} else if(Arrays.equals(rt, ElevatorWaitRequest.getRequestType())){
 			/* Parse based on Elevator Wait Request */
 			String elevatorName = ParseString();
