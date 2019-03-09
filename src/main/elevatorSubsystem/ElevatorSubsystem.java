@@ -35,7 +35,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 		this.passengerTime = passengerTime;
 		this.doorTime = doorTime;
 		this.eventsQueue = new LinkedList<Request>();
-		this.state = new ElevatorState(startFloor,startFloor, Direction.IDLE, ElevatorStatus.STOPPED, ElevatorDoorStatus.OPENED, maxFloor);
+		this.state = new ElevatorState(startFloor,startFloor, Direction.IDLE, ElevatorStatus.STOPPED, ElevatorDoorStatus.OPENED, maxFloor,travelTime,passengerTime,doorTime);
 		this.schedulerPort = schedulerPort;
 
 		//Create a server (bound to this Instance of ElevatorSubsystem) in a new thread.
