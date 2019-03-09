@@ -170,6 +170,10 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 				ElevatorArrivalRequest request = new ElevatorArrivalRequest(this.name, Integer.toString(this.state.getCurrentFloor()), this.state.getDirection());
 				this.sendToServer(request);
 			}
+            else{
+                this.motorFaultFlag=false;
+            }
+
 		}
 
 	}
@@ -188,6 +192,9 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 			ElevatorDoorRequest request = new ElevatorDoorRequest(this.name, ElevatorDoorStatus.OPENED);
 			this.sendToServer(request);
 		}
+		else{
+            this.doorFaultFlag=false;
+        }
 	}
 
 	private void handleElevatorCloseDoor(){
@@ -203,6 +210,9 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 			ElevatorDoorRequest request = new ElevatorDoorRequest(this.name, ElevatorDoorStatus.CLOSED);
 			this.sendToServer(request);
 		}
+        else{
+            this.doorFaultFlag=false;
+        }
 	}
 
 	private void handleWaitForPassengers(){
