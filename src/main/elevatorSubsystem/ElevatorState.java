@@ -16,14 +16,22 @@ public class ElevatorState {
 	private ElevatorDoorStatus doorStatus;
 	private Integer maxFloor;
 	private HashMap<Integer, Boolean> lamps;
+	private Integer timeBetweenFloors;
+	private Integer passengerWaitTime;
+	private Integer doorOperationTime;
+
 	
-	public ElevatorState(Integer defaultFloor, Integer currentFloor, Direction direction, ElevatorStatus status, ElevatorDoorStatus doorStatus, Integer maxFloors) {
+	public ElevatorState(Integer defaultFloor, Integer currentFloor, Direction direction, ElevatorStatus status, ElevatorDoorStatus doorStatus,
+						 Integer maxFloors,Integer timeBetweenFloors, Integer passengerWaitTime, Integer doorOperationTime) {
 		this.startFloor = defaultFloor;
 		this.currentFloor = currentFloor;
 		this.direction = direction;
 		this.status = status;
 		this.doorStatus = doorStatus;
 		this.maxFloor = maxFloors;
+		this.timeBetweenFloors= timeBetweenFloors;
+		this.passengerWaitTime= passengerWaitTime;
+		this.doorOperationTime= doorOperationTime;
 		this.lamps = new HashMap<Integer, Boolean>();
 
 		for (int i = 1; i <= this.maxFloor; i++){
@@ -78,6 +86,30 @@ public class ElevatorState {
 
 	public void toggleLamp(Integer floor, Boolean b) {
 		lamps.put(floor, b);
+	}
+
+	public Integer getPassengerWaitTime() {
+		return passengerWaitTime;
+	}
+
+	public void setPassengerWaitTime(Integer time) {
+		this.passengerWaitTime = time;
+	}
+
+	public Integer getDoorOperationTime() {
+		return doorOperationTime;
+	}
+
+	public void setDoorOperationTime(Integer time) {
+		this.doorOperationTime = time;
+	}
+
+	public Integer getTimeBetweenFloors() {
+		return timeBetweenFloors;
+	}
+
+	public void setTimeBetweenFloors(Integer time) {
+		this.timeBetweenFloors = time;
 	}
 
 }
