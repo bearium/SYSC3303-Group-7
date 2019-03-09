@@ -138,6 +138,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 			this.state.setDirection(Direction.UP);
 			this.state.setStatus(ElevatorStatus.MOVING);
 			this.consoleOutput("Elevator motor set to move up. Simulating travel time...");
+			//check if fault
 			if(!this.motorFaultFlag) {
 				try {
 					Thread.sleep(this.travelTime);
@@ -157,6 +158,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 			this.state.setDirection(Direction.DOWN);
 			this.state.setStatus(ElevatorStatus.MOVING);
 			this.consoleOutput("Elevator motor set to move down. Simulating travel time...");
+			//check if fault
 			if(!this.motorFaultFlag) {
 				try {
 					Thread.sleep(this.travelTime);
@@ -174,6 +176,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 
 	private void handleElevatorOpenDoor(){
 		this.consoleOutput("Elevator opening doors...");
+		//check if fault
 		if(!this.doorFaultFlag) {
 			try {
 				Thread.sleep(this.doorTime);
@@ -232,6 +235,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 
 	private void handleDestinationRequest(ElevatorDestinationRequest request){
 		this.toggleLamp(Integer.parseInt(request.getDestinationFloor()), true);
+		//check if fault in request and set appropriate flag
 		if(request.getFault()!=null){
 			if(request.getFault() == Fault.MOTOR){
 				this.motorFaultFlag=true;
