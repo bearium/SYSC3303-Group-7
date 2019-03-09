@@ -22,7 +22,7 @@ public class ElevatorState {
 
 	
 	public ElevatorState(Integer defaultFloor, Integer currentFloor, Direction direction, ElevatorStatus status, ElevatorDoorStatus doorStatus,
-						 Integer maxFloors,Integer timeBetweenFloors, Integer passengerWaitTime, Integer doorOperationTime) {
+						 Integer maxFloors, Integer timeBetweenFloors, Integer passengerWaitTime, Integer doorOperationTime) {
 		this.startFloor = defaultFloor;
 		this.currentFloor = currentFloor;
 		this.direction = direction;

@@ -23,7 +23,8 @@ public class ElevatorMonitor {
 	private ArrayList<TripRequest> successfullyCompletedTripRequests;
 	private ElevatorState elevatorState;
 	
-	public ElevatorMonitor(String elevatorName, Integer elevatorStartFloorLocation, Integer currentElevatorFloorLocation, Direction currentElevatorDirection, ElevatorStatus currentElevatorStatus, ElevatorDoorStatus currentElevatorDoorStatus, Integer totalNumberOfFloors) {
+	public ElevatorMonitor(String elevatorName, Integer elevatorStartFloorLocation, Integer currentElevatorFloorLocation, Direction currentElevatorDirection, ElevatorStatus currentElevatorStatus, 
+			ElevatorDoorStatus currentElevatorDoorStatus, Integer totalNumberOfFloors, Integer timeBetweenFloors, Integer passengerWaitTime, Integer doorOperationTime) {
 		this.elevatorName = elevatorName;
 		this.queue = new LinkedHashSet<TripRequest>();
 		this.destinationFloors = new HashSet<Integer>();
@@ -36,7 +37,10 @@ public class ElevatorMonitor {
 				currentElevatorDirection,
 				currentElevatorStatus,
 				currentElevatorDoorStatus,
-				totalNumberOfFloors);
+				totalNumberOfFloors,
+				timeBetweenFloors, 
+				passengerWaitTime, 
+				doorOperationTime);
 	}
 	
 //------------------------------------------------Mutators----------------------------------------------------------
@@ -122,7 +126,18 @@ public class ElevatorMonitor {
 	public Integer getElevatorStartingFloorLocation() {
 		return this.elevatorState.getStartFloor();
 	}
+	
+	public Integer getPassengerWaitTime() {
+		return this.elevatorState.getPassengerWaitTime();
+	}
 
+	public Integer getDoorOperationTime() {
+		return this.elevatorState.getDoorOperationTime();
+	}
+
+	public Integer getTimeBetweenFloors() {
+		return this.elevatorState.getTimeBetweenFloors();
+	}
 //------------------------------------------------Queries-----------------------------------------------------------
 //Queries that require some analysis of the ElevatorMonitor state. No internal values are modified by these methods.
 	/**
@@ -138,6 +153,12 @@ public class ElevatorMonitor {
 	public Integer estimatePickupTime(TripRequest tripRequest) {
 		int averageTravelTimePerFloor = 5;
 		int averageTimePerStop = 9;
+		
+		//Ensure that if the elevator is out of service, that it can not have any trips assigned to it
+		if (this.elevatorState.getCurrentStatus() == ElevatorStatus.OUT_OF_SERVICE) {
+			return null;
+		}
+
 		if (this.isTripQueueEmpty()) {
 			return (Math.abs(this.elevatorState.getCurrentFloor() - tripRequest.getPickupFloor()) * averageTravelTimePerFloor);
 		} else if (this.isTripEnRoute(tripRequest)){
@@ -178,6 +199,14 @@ public class ElevatorMonitor {
 			return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * Return the size of the queue.
+	 * @return
+	 */
+	public Integer getQueueLength() {
+		return this.queue.size();
 	}
 	
 	/**
@@ -326,6 +355,10 @@ public class ElevatorMonitor {
 	 * @return
 	 */
 	public boolean addDestination(Integer pickupFloor, Integer destinationFloor) {
+		//Ensure that if the elevator is out of service, that it can not have any trips assigned to it
+		if (this.elevatorState.getCurrentStatus() == ElevatorStatus.OUT_OF_SERVICE) {
+			return false;
+		}
 		boolean destinationFloorValid = false;
 		//Check whether the elevator can take this destinationFloor given the elevators current state (the elevator must be in service of the queue (not travelling towards the first pickup floor)
 		//The destination must not require the elevator to change directions from its current location.
@@ -372,11 +405,45 @@ public class ElevatorMonitor {
 	 * @return
 	 */
 	public boolean addTripRequest(TripRequest tripRequest) {
+		//Ensure that if the elevator is out of service, that it can not have any trips assigned to it
+		if (this.elevatorState.getCurrentStatus() == ElevatorStatus.OUT_OF_SERVICE) {
+			return false;
+		}
 		if (this.isTripQueueEmpty()) {
 			return this.addFirstTripRequest(tripRequest);
 		} else {
 			return this.addEnRouteTripRequest(tripRequest);
 		}
+	}
+	
+
+	/**
+	 * Unassigns all pending trip requests from this Elevator. 
+	 * By definition a pending trip request has not been started yet, so it's pickup floor 
+	 * will still be in the pickupFloors collection. Also the TripRequest will not have a destination yet.
+	 * This will remove all of the pending TripRequests from the queue and all the pending Trip's pickup floors
+	 * from the pickupFloors collection.
+	 * 
+	 * @return
+	 */
+	public ArrayList<TripRequest> unassignPendingTripRequests(){
+		ArrayList<TripRequest> pendingTripRequests = new ArrayList<TripRequest>();
+		
+		//For each TripRequest in the queue, if the pickup has not yet been completed
+		//remove this TripRequest from the queue, add to pendingTripRequests (to be returned)
+		for (TripRequest tripRequest : new ArrayList<TripRequest>(this.queue)) {
+			if (this.pickupFloors.contains(tripRequest.getPickupFloor())){
+				pendingTripRequests.add(tripRequest);
+				this.queue.remove(tripRequest);
+			}
+		}
+		
+		//Now remove all pendingTripRequests from pickupFloors collection, (pendingTripRequests will not have a destination)
+		for (TripRequest tripRequest : pendingTripRequests) {
+			this.pickupFloors.remove(tripRequest.getPickupFloor());
+		}
+		
+		return pendingTripRequests;
 	}
 	
 	private boolean isTripEnRoute(TripRequest tripRequest) {
