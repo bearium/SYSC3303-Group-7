@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import main.ElevatorSystemComponent;
+import main.elevatorSubsystem.ElevatorState;
 import main.global.*;
 import main.requests.*;
 import main.server.Server;
@@ -139,13 +140,15 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		switch (monitoredSchedulerEvent) {
 			case ELEVATOR_MOVE:
 				ElevatorMonitor elevatorMonitor = this.elevatorMonitorByElevatorName.get(subsystemName);
+				
+				//If an elevator response has not been received for an ELEVATOR_MOVE monitoredEvent, then set the Elevator as OUT_OF_SERVICE
 				elevatorMonitor.updateElevatorStatus(ElevatorStatus.OUT_OF_SERVICE);
 				this.consoleOutput("[RESPONSE NOT RECEIVED FROM " + subsystemName + "] Expected floor arrival notice. Elevator stuck between floors. " + subsystemName + " is OUT OF SERVICE");
 
 				//Rescheduled any pending trips (that have not yet begun, in other words, pickup hasn't occurred) from this elevator.
 				ArrayList<TripRequest> reassignableTripRequests = elevatorMonitor.unassignPendingTripRequests();
 				for (TripRequest tripRequest : reassignableTripRequests) {
-					this.consoleOutput("[REASSIGN PENDING TRIP REQUEST] " + tripRequest + " from " + subsystemName);
+					this.consoleOutput("Reassigning pending trip request " + tripRequest + " from " + subsystemName + "...");
 					this.eventTripRequestReceived(tripRequest);
 				}
 				break;
@@ -219,36 +222,61 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		} else if (event instanceof ElevatorArrivalRequest) {
 			ElevatorArrivalRequest request = (ElevatorArrivalRequest) event;
 			
-			this.consoleOutput(RequestEvent.RECEIVED, request.getElevatorName(), "Elevator arrival notice at floor " + request.getFloorName() + ".");
-			this.eventElevatorArrivalNotice(request.getElevatorName(), Integer.parseInt(request.getFloorName()));
+			//Only handle this event if the elevatorStatus is not OUT OF SERVICE
+			if (this.elevatorMonitorByElevatorName.get(request.getElevatorName()).getElevatorStatus() != ElevatorStatus.OUT_OF_SERVICE) {
+				this.consoleOutput(RequestEvent.RECEIVED, request.getElevatorName(), "Elevator arrival notice at floor " + request.getFloorName() + ".");
+				this.eventElevatorArrivalNotice(request.getElevatorName(), Integer.parseInt(request.getFloorName()));
+			} else {
+				this.consoleOutput(RequestEvent.RECEIVED, request.getElevatorName(), "[OUT OF SERVICE - Ignored] Elevator arrival notice at floor " + request.getFloorName() + ".");
+			}
 		} else if (event instanceof ElevatorDoorRequest) {
 			ElevatorDoorRequest request = (ElevatorDoorRequest) event;
 			
-			this.consoleOutput(RequestEvent.RECEIVED, request.getElevatorName(), "Elevator door is " + request.getRequestAction() + ".");
-			if (request.getRequestAction() == ElevatorDoorStatus.OPENED) {
-				this.eventElevatorDoorOpened(request.getElevatorName());
-			} else if (request.getRequestAction() == ElevatorDoorStatus.CLOSED) {
-				this.eventElevatorDoorClosed(request.getElevatorName());
+			//Only handle this event if the elevatorStatus is not OUT OF SERVICE
+			if (this.elevatorMonitorByElevatorName.get(request.getElevatorName()).getElevatorStatus() != ElevatorStatus.OUT_OF_SERVICE) {
+				this.consoleOutput(RequestEvent.RECEIVED, request.getElevatorName(), "Elevator door is " + request.getRequestAction() + ".");
+				if (request.getRequestAction() == ElevatorDoorStatus.OPENED) {
+					this.eventElevatorDoorOpened(request.getElevatorName());
+				} else if (request.getRequestAction() == ElevatorDoorStatus.CLOSED) {
+					this.eventElevatorDoorClosed(request.getElevatorName());
+				}
+			} else {
+				this.consoleOutput(RequestEvent.RECEIVED, request.getElevatorName(), "[OUT OF SERVICE - Ignored] Elevator door is " + request.getRequestAction() + ".");
 			}
 		} else if (event instanceof ElevatorMotorRequest) {
 			ElevatorMotorRequest request = (ElevatorMotorRequest) event;
 
-			if (request.getRequestAction() == Direction.IDLE) {
-				this.consoleOutput(RequestEvent.RECEIVED, request.getElevatorName(), "Elevator has stopped.");
-				this.eventElevatorStopped(request.getElevatorName());
+			//Only handle this event if the elevatorStatus is not OUT OF SERVICE
+			if (this.elevatorMonitorByElevatorName.get(request.getElevatorName()).getElevatorStatus() != ElevatorStatus.OUT_OF_SERVICE) {
+				if (request.getRequestAction() == Direction.IDLE) {
+					this.consoleOutput(RequestEvent.RECEIVED, request.getElevatorName(), "Elevator has stopped.");
+					this.eventElevatorStopped(request.getElevatorName());
+				} else {
+					this.consoleOutput(RequestEvent.RECEIVED, request.getElevatorName(), "Elevator is moving " + request.getRequestAction() + ".");
+				}
 			} else {
-				this.consoleOutput(RequestEvent.RECEIVED, request.getElevatorName(), "Elevator is moving " + request.getRequestAction() + ".");
+				this.consoleOutput(RequestEvent.RECEIVED, request.getElevatorName(), "[OUT OF SERVICE - Ignored] Elevator is " + request.getRequestAction() + ".");
 			}
 		} else if (event instanceof ElevatorDestinationRequest) {
 			ElevatorDestinationRequest request = (ElevatorDestinationRequest) event;
 			
-			this.consoleOutput(RequestEvent.RECEIVED, request.getElevatorName(), "Destination request from pickup floor: " + request.getPickupFloor() + " to destination floor: " + request.getDestinationFloor());
-			this.eventElevatorDestinationRequest(request.getElevatorName(), Integer.parseInt(request.getPickupFloor()), Integer.parseInt(request.getDestinationFloor()));
+			//Only handle this event if the elevatorStatus is not OUT OF SERVICE
+			if (this.elevatorMonitorByElevatorName.get(request.getElevatorName()).getElevatorStatus() != ElevatorStatus.OUT_OF_SERVICE) {
+				this.consoleOutput(RequestEvent.RECEIVED, request.getElevatorName(), "Destination request from pickup floor: " + request.getPickupFloor() + " to destination floor: " + request.getDestinationFloor());
+				this.eventElevatorDestinationRequest(request.getElevatorName(), Integer.parseInt(request.getPickupFloor()), Integer.parseInt(request.getDestinationFloor()));
+			} else {
+				this.consoleOutput(RequestEvent.RECEIVED, request.getElevatorName(), "[OUT OF SERVICE - Ignored] Destination request from pickup floor: " + request.getPickupFloor() + " to destination floor: " + request.getDestinationFloor());
+			}
 		} else if (event instanceof ElevatorWaitRequest) {
 			ElevatorWaitRequest request = (ElevatorWaitRequest) event;
 			
-			this.consoleOutput(RequestEvent.RECEIVED, request.getElevatorName(), "Elevator has completed its wait.");
-			this.eventElevatorWaitComplete(request.getElevatorName());
+			//Only handle this event if the elevatorStatus is not OUT OF SERVICE
+			if (this.elevatorMonitorByElevatorName.get(request.getElevatorName()).getElevatorStatus() != ElevatorStatus.OUT_OF_SERVICE) {
+				this.consoleOutput(RequestEvent.RECEIVED, request.getElevatorName(), "Elevator has completed its wait.");
+				this.eventElevatorWaitComplete(request.getElevatorName());
+			} else {
+				this.consoleOutput(RequestEvent.RECEIVED, request.getElevatorName(), "[OUT OF SERVICE - Ignored] Elevator has completed its wait.");
+			}
 		}
 	}
 	
