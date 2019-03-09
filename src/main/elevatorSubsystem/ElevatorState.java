@@ -89,6 +89,7 @@ public class ElevatorState extends Observable{
 
 	public void toggleLamp(Integer floor, Boolean b) {
 		lamps.put(floor, b);
+		System.out.println("YO I TURNED OFF SOMETHIHNG");
 		this.setChanged();
 		this.notifyObservers();
 	}

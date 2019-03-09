@@ -1,5 +1,6 @@
 package GUI;
 
+import java.awt.FlowLayout;
 import java.util.HashMap;
 
 import javax.swing.JFrame;
@@ -15,11 +16,12 @@ public class ElevatorFrame extends JFrame{
 
 	public ElevatorFrame(HashMap<String, ElevatorMonitor> elevatorMonitors) {
 		super("Elevator GUI Monitor");
+		this.setLayout(new FlowLayout());
 		for(ElevatorMonitor monitor : elevatorMonitors.values()) {
 			ElevatorState state = monitor.getElevatorState();
 			ElevatorMainPanel EMP =new ElevatorMainPanel(state);
 			this.add(EMP);
-			
+			System.out.println("Adding elevator");
 		}
 		initializeJFrame();
 	}

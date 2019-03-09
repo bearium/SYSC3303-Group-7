@@ -12,6 +12,10 @@ import javax.swing.JPanel;
 import main.global.ElevatorDoorStatus;
 
 public class ElevatorButtonPanel extends JPanel{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private HashMap<Integer, Boolean> lamps;
 	private final int PANEL_COLS = 6;
 	private ArrayList<RoundButton> buttons;

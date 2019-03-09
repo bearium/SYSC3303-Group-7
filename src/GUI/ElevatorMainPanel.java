@@ -12,6 +12,7 @@ import java.util.Observer;
 import javax.swing.*;
 
 import main.elevatorSubsystem.ElevatorState;
+import main.global.Direction;
 import main.global.ElevatorDoorStatus;
 
 public class ElevatorMainPanel extends JPanel implements Observer {
@@ -23,13 +24,13 @@ public class ElevatorMainPanel extends JPanel implements Observer {
 	
 	
 	ElevatorState elevator;
+	ElevatorDirectionPanel DP2;
 	ElevatorDoorsPanel DP;
 	ElevatorButtonPanel BP;
 	ArrayList<JLabel> buttons;
 	
 	public ElevatorMainPanel(ElevatorState elevator) {
 		this.setElevator(elevator);
-		elevator.toggleLamp(3, true);
 		this.initialize();
 	}
 	
@@ -38,8 +39,17 @@ public class ElevatorMainPanel extends JPanel implements Observer {
 		
 		HashMap<Integer, Boolean> lamps = elevator.getLamps();
 		this.setLayout(new GridLayout(1,3));
+		JPanel holdPanel = new JPanel();
+		holdPanel.setLayout(new BoxLayout(holdPanel,BoxLayout.PAGE_AXIS));
+		
 		DP = new ElevatorDoorsPanel(elevator.getDoorStatus());
-		this.add(DP);
+		//this.add(DP);
+		DP2 = new ElevatorDirectionPanel(elevator.getDirection());
+		//this.add(DP2);
+
+		holdPanel.add(DP2);
+		holdPanel.add(DP);
+		this.add(holdPanel);
 		BP = new ElevatorButtonPanel(lamps);
 		this.add(BP);
 		elevator.addObserver(this);
@@ -52,11 +62,13 @@ public class ElevatorMainPanel extends JPanel implements Observer {
 			public void actionPerformed(ActionEvent e) {
 				elevator.setDoorStatus(elevator.getDoorStatus() == ElevatorDoorStatus.OPENED ? ElevatorDoorStatus.CLOSED : ElevatorDoorStatus.OPENED );
 				elevator.toggleLamp(5, Math.random() * 10 > 5 ? true : false);
+				elevator.setDirection(elevator.getDirection() == Direction.DOWN ? Direction.UP : Direction.DOWN);
 			}
 			
 		});
 		last_panel.add(toggle_close);
 		this.add(last_panel);
+		this.updateUI();
 	}
 	
 	
@@ -85,6 +97,7 @@ public class ElevatorMainPanel extends JPanel implements Observer {
 	private void refresh() {
 		DP.refreshStatus(elevator.getDoorStatus());
 		BP.refreshStatus(elevator.getLamps());
+		DP2.refreshStatus(elevator.getDirection());
 		this.repaint();
 	}
 	

@@ -372,11 +372,20 @@ public class ElevatorMonitor {
 	 * @return
 	 */
 	public boolean addTripRequest(TripRequest tripRequest) {
+		boolean tripAdded = false;
 		if (this.isTripQueueEmpty()) {
-			return this.addFirstTripRequest(tripRequest);
+			tripAdded = this.addFirstTripRequest(tripRequest);
 		} else {
-			return this.addEnRouteTripRequest(tripRequest);
+			tripAdded = this.addEnRouteTripRequest(tripRequest);
 		}
+		
+		if(tripAdded) {
+			
+		}
+		else {
+			
+		}
+		return tripAdded;
 	}
 	
 	private boolean isTripEnRoute(TripRequest tripRequest) {
@@ -524,6 +533,7 @@ public class ElevatorMonitor {
 	 */
 	public boolean isDestinationFloor(int floor) {
 		if (this.destinationFloors.contains(floor)) {
+			this.elevatorState.toggleLamp(floor, false);
 			return true;
 		}
 		return false;
