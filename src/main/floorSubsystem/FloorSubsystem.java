@@ -223,7 +223,11 @@ public class FloorSubsystem implements Runnable, ElevatorSystemComponent {
                 String floorName = info[1];
                 Direction direction = getDirectionFromString(info[2]);
                 String destinationFloor = info[3];
-                Fault floorFault = getFaultFromString(info[4]);
+                Fault floorFault;
+                if (info.length != 5)
+                    floorFault = null;
+                else
+                    floorFault = getFaultFromString(info[4]);
 
                 //Create floor button request with retrieved data, and add to ongoing list
                 FloorButtonRequest currRequest = new FloorButtonRequest(time, floorName, direction, destinationFloor, floorFault);
@@ -383,7 +387,15 @@ public class FloorSubsystem implements Runnable, ElevatorSystemComponent {
                         }
                     }
                     //Send request to floor to be sent to scheduler
-                    System.out.println("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss.S")) + "] Request details // Time:" + currRequest.getTime() + "  Floor Name: " + currRequest.getFloorName() + "  Direction: " + currRequest.getDirection() + "  Dest Floor: " + currRequest.getDestinationFloor());
+                    Fault requestFault = currRequest.getFault();
+                    String requestFaultString;
+                    if (requestFault == null){
+                        requestFaultString = "None";
+                    }
+                    else{
+                        requestFaultString = requestFault.toString();
+                    }
+                    System.out.println("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss.S")) + "] Request details // Time:" + currRequest.getTime() + "  Floor Name: " + currRequest.getFloorName() + "  Direction: " + currRequest.getDirection() + "  Dest Floor: " + currRequest.getDestinationFloor() + "  Fault: " + requestFaultString);
                     currFloor.receiveEvent(currRequest);
                     lastTime = currReqTime;
                 }
