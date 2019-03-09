@@ -26,6 +26,8 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 	private boolean debug = false;
 	private int schedulerPort;
 	private boolean destinationRequestFlag = false;
+	private boolean motorFaultFlag = false;
+	private boolean doorFaultFlag = false;
 	
 	public ElevatorSubsystem(String name, int port, int startFloor, int schedulerPort, int maxFloor, int travelTime, int passengerTime, int doorTime){
 		this.name = name;
@@ -136,15 +138,17 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 			this.state.setDirection(Direction.UP);
 			this.state.setStatus(ElevatorStatus.MOVING);
 			this.consoleOutput("Elevator motor set to move up. Simulating travel time...");
-			try {
-				Thread.sleep(this.travelTime);
-			} catch (java.lang.InterruptedException e) {
-				e.printStackTrace();
+			if(!this.motorFaultFlag) {
+				try {
+					Thread.sleep(this.travelTime);
+				} catch (java.lang.InterruptedException e) {
+					e.printStackTrace();
+				}
+				this.state.setCurrentFloor(this.state.getCurrentFloor() + 1);
+				this.consoleOutput(RequestEvent.SENT, "Scheduler", "Arriving at floor " + this.state.getCurrentFloor() + ".");
+				ElevatorArrivalRequest request = new ElevatorArrivalRequest(this.name, Integer.toString(this.state.getCurrentFloor()), this.state.getDirection());
+				this.sendToServer(request);
 			}
-			this.state.setCurrentFloor(this.state.getCurrentFloor() + 1);
-			this.consoleOutput(RequestEvent.SENT, "Scheduler", "Arriving at floor " + this.state.getCurrentFloor() + ".");
-			ElevatorArrivalRequest request = new ElevatorArrivalRequest(this.name, Integer.toString(this.state.getCurrentFloor()),this.state.getDirection());
-			this.sendToServer(request);
 		}
 	}
 
@@ -153,43 +157,49 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 			this.state.setDirection(Direction.DOWN);
 			this.state.setStatus(ElevatorStatus.MOVING);
 			this.consoleOutput("Elevator motor set to move down. Simulating travel time...");
-			try {
-				Thread.sleep(this.travelTime);
-			} catch (java.lang.InterruptedException e) {
-				e.printStackTrace();
+			if(!this.motorFaultFlag) {
+				try {
+					Thread.sleep(this.travelTime);
+				} catch (java.lang.InterruptedException e) {
+					e.printStackTrace();
+				}
+				this.state.setCurrentFloor(this.state.getCurrentFloor() - 1);
+				this.consoleOutput(RequestEvent.SENT, "Scheduler", "Arriving at floor " + this.state.getCurrentFloor() + ".");
+				ElevatorArrivalRequest request = new ElevatorArrivalRequest(this.name, Integer.toString(this.state.getCurrentFloor()), this.state.getDirection());
+				this.sendToServer(request);
 			}
-			this.state.setCurrentFloor(this.state.getCurrentFloor() - 1);
-			this.consoleOutput(RequestEvent.SENT, "Scheduler", "Arriving at floor " + this.state.getCurrentFloor() + ".");
-			ElevatorArrivalRequest request = new ElevatorArrivalRequest(this.name, Integer.toString(this.state.getCurrentFloor()),this.state.getDirection());
-			this.sendToServer(request);
 		}
 
 	}
 
 	private void handleElevatorOpenDoor(){
 		this.consoleOutput("Elevator opening doors...");
-		try {
-			Thread.sleep(this.doorTime);
-		} catch (java.lang.InterruptedException e) {
-			e.printStackTrace();
+		if(!this.doorFaultFlag) {
+			try {
+				Thread.sleep(this.doorTime);
+			} catch (java.lang.InterruptedException e) {
+				e.printStackTrace();
+			}
+			this.state.setDoorStatus(ElevatorDoorStatus.OPENED);
+			this.consoleOutput(RequestEvent.SENT, "Scheduler", "Doors are opened.");
+			ElevatorDoorRequest request = new ElevatorDoorRequest(this.name, ElevatorDoorStatus.OPENED);
+			this.sendToServer(request);
 		}
-		this.state.setDoorStatus(ElevatorDoorStatus.OPENED);
-		this.consoleOutput(RequestEvent.SENT, "Scheduler",  "Doors are opened.");
-		ElevatorDoorRequest request = new ElevatorDoorRequest(this.name, ElevatorDoorStatus.OPENED);
-		this.sendToServer(request);
 	}
 
 	private void handleElevatorCloseDoor(){
 		this.consoleOutput("Elevator closing doors...");
-		try {
-			Thread.sleep(this.doorTime);
-		} catch (java.lang.InterruptedException e) {
-			e.printStackTrace();
+		if(!this.doorFaultFlag) {
+			try {
+				Thread.sleep(this.doorTime);
+			} catch (java.lang.InterruptedException e) {
+				e.printStackTrace();
+			}
+			this.state.setDoorStatus(ElevatorDoorStatus.CLOSED);
+			this.consoleOutput(RequestEvent.SENT, "Scheduler", "Doors are closed.");
+			ElevatorDoorRequest request = new ElevatorDoorRequest(this.name, ElevatorDoorStatus.CLOSED);
+			this.sendToServer(request);
 		}
-		this.state.setDoorStatus(ElevatorDoorStatus.CLOSED);
-		this.consoleOutput(RequestEvent.SENT, "Scheduler", "Doors are closed.");
-		ElevatorDoorRequest request = new ElevatorDoorRequest(this.name, ElevatorDoorStatus.CLOSED);
-		this.sendToServer(request);
 	}
 
 	private void handleWaitForPassengers(){
@@ -222,6 +232,14 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 
 	private void handleDestinationRequest(ElevatorDestinationRequest request){
 		this.toggleLamp(Integer.parseInt(request.getDestinationFloor()), true);
+		if(request.getFault()!=null){
+			if(request.getFault() == Fault.MOTOR){
+				this.motorFaultFlag=true;
+			}
+			else{
+				this.doorFaultFlag=true;
+			}
+		}
 		this.consoleOutput(RequestEvent.SENT, "Scheduler", "Destination request to " + request.getDestinationFloor());
 		this.sendToServer(request);
 		boolean tempflag = false;
