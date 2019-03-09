@@ -154,13 +154,13 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 				break;
 			case ELEVATOR_OPEN_DOOR:
 				//Resend elevator door open
-				this.consoleOutput(subsystemName + ": [RESPONSE NOT RECEIVED] Expected door open confirmation");
+				this.consoleOutput("[RESPONSE NOT RECEIVED FROM " + subsystemName + "] Expected door open confirmation");
 				this.consoleOutput(RequestEvent.SENT, subsystemName, "Open elevator door.");
 				this.sendToServer(new ElevatorDoorRequest(subsystemName, ElevatorDoorStatus.OPENED), this.portsByElevatorName.get(subsystemName));
 				break;
 			case ELEVATOR_CLOSE_DOOR:
 				//resend elevator door close
-				this.consoleOutput(subsystemName + ": [RESPONSE NOT RECEIVED] Expected door closed confirmation");
+				this.consoleOutput("[RESPONSE NOT RECEIVED FROM " + subsystemName + "] Expected door closed confirmation");
 				this.consoleOutput(RequestEvent.SENT, subsystemName, "Close elevator door.");
 				this.sendToServer(new ElevatorDoorRequest(subsystemName, ElevatorDoorStatus.CLOSED), this.portsByElevatorName.get(subsystemName));
 				break;
