@@ -378,6 +378,7 @@ public class ElevatorMonitor {
 		//If the destination floor is valid, add it to the destination floors queue and add it to its corresponding tripRequest
 		if (destinationFloorValid) {
 			this.destinationFloors.add(destinationFloor);
+			this.elevatorState.toggleLamp(destinationFloor, true);
 			this.addDestinationToTripRequest(pickupFloor, destinationFloor);
 			return true;
 		} else {
@@ -565,6 +566,7 @@ public class ElevatorMonitor {
 	private boolean removeDestinationFloor(int floor) {
 		if (this.destinationFloors.contains(floor)) {
 			this.destinationFloors.remove(floor);
+			this.elevatorState.toggleLamp(floor, false);
 			return true;
 		}
 		return false;
