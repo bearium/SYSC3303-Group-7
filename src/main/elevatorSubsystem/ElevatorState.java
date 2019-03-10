@@ -17,14 +17,22 @@ public class ElevatorState extends Observable{
 	private ElevatorDoorStatus doorStatus;
 	private Integer maxFloor;
 	private HashMap<Integer, Boolean> lamps;
+	private Integer timeBetweenFloors;
+	private Integer passengerWaitTime;
+	private Integer doorOperationTime;
+
 	
-	public ElevatorState(Integer defaultFloor, Integer currentFloor, Direction direction, ElevatorStatus status, ElevatorDoorStatus doorStatus, Integer maxFloors) {
+	public ElevatorState(Integer defaultFloor, Integer currentFloor, Direction direction, ElevatorStatus status, ElevatorDoorStatus doorStatus,
+						 Integer maxFloors, Integer timeBetweenFloors, Integer passengerWaitTime, Integer doorOperationTime) {
 		this.startFloor = defaultFloor;
 		this.currentFloor = currentFloor;
 		this.direction = direction;
 		this.status = status;
 		this.doorStatus = doorStatus;
 		this.maxFloor = maxFloors;
+		this.timeBetweenFloors= timeBetweenFloors;
+		this.passengerWaitTime= passengerWaitTime;
+		this.doorOperationTime= doorOperationTime;
 		this.lamps = new HashMap<Integer, Boolean>();
 
 		for (int i = 1; i <= this.maxFloor; i++){
@@ -40,7 +48,7 @@ public class ElevatorState extends Observable{
 	public void setStartFloor(Integer floor) {
 		this.startFloor = floor;
 		this.setChanged();
-		this.notifyObservers();
+		notifyObservers();
 	}
 
 	public Integer getCurrentFloor() {
@@ -50,7 +58,7 @@ public class ElevatorState extends Observable{
 	public void setCurrentFloor(Integer floor) {
 		this.currentFloor = floor;
 		this.setChanged();
-		this.notifyObservers();
+		notifyObservers();
 	}
 
 	public Direction getDirection() {
@@ -60,7 +68,7 @@ public class ElevatorState extends Observable{
 	public void setDirection(Direction direction) {
 		this.direction = direction;
 		this.setChanged();
-		this.notifyObservers();
+		notifyObservers();
 	}
 
 	public ElevatorStatus getCurrentStatus() {
@@ -70,7 +78,7 @@ public class ElevatorState extends Observable{
 	public void setStatus(ElevatorStatus status) {
 		this.status = status;
 		this.setChanged();
-		this.notifyObservers();
+		notifyObservers();
 	}
 
 	public ElevatorDoorStatus getDoorStatus() {
@@ -80,7 +88,7 @@ public class ElevatorState extends Observable{
 	public void setDoorStatus(ElevatorDoorStatus doorStatus) {
 		this.doorStatus = doorStatus;
 		this.setChanged();
-		this.notifyObservers(this.doorStatus);
+		notifyObservers();
 	}
 
 	public Integer getMaxFloor() {
@@ -89,14 +97,37 @@ public class ElevatorState extends Observable{
 
 	public void toggleLamp(Integer floor, Boolean b) {
 		lamps.put(floor, b);
-		System.out.println("YO I TURNED OFF SOMETHIHNG");
 		this.setChanged();
-		this.notifyObservers();
+		notifyObservers();
+	}
+
+	public Integer getPassengerWaitTime() {
+		return passengerWaitTime;
+	}
+
+	public void setPassengerWaitTime(Integer time) {
+		this.passengerWaitTime = time;
+	}
+
+	public Integer getDoorOperationTime() {
+		return doorOperationTime;
+	}
+
+	public void setDoorOperationTime(Integer time) {
+		this.doorOperationTime = time;
+	}
+
+	public Integer getTimeBetweenFloors() {
+		return timeBetweenFloors;
+	}
+
+	public void setTimeBetweenFloors(Integer time) {
+		this.timeBetweenFloors = time;
 	}
 
 	public HashMap<Integer, Boolean> getLamps() {
 		// TODO Auto-generated method stub
-		return lamps;
+		return this.lamps;
 	}
 
 }

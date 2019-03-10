@@ -9,7 +9,7 @@ public class GUItest {
 
 	public static void main(String[] args) {
 		JFrame frame = new JFrame("lol");
-		ElevatorState state = new ElevatorState(0, 0, Direction.IDLE, ElevatorStatus.STOPPED, ElevatorDoorStatus.OPENED,35);
+		ElevatorState state = new ElevatorState(0, 0, Direction.IDLE, ElevatorStatus.STOPPED, ElevatorDoorStatus.OPENED,35, null, null, null);
 		frame.add(new ElevatorMainPanel(state));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.pack();
