@@ -11,7 +11,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import GUI.ElevatorFrame;
 import main.ElevatorSystemComponent;
 import main.elevatorSubsystem.ElevatorState;
 import main.global.*;
@@ -731,7 +730,6 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		
 		//Spawn and start a new thread for this Scheduler
 		Thread schedulerThread = new Thread(scheduler, schedulerConfiguration.get("name"));
-		ElevatorFrame frame = new ElevatorFrame(scheduler.elevatorMonitorByElevatorName);
 		schedulerThread.start();
 	}
 }
