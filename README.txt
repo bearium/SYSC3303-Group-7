@@ -44,10 +44,18 @@ There are 3 files that are necessary to run the elevator system.
 All Diagrams are located in the 'doc' folder
 
 BREAKDOWN OF RESPONSIBILITIES for Iteration 3
-Dillon Claremont - Update Scheduler to detect and handle error scenarios (elevator stuck/ door stuck)
+Dillon Claremont - Update Scheduler to detect and handle error scenarios (elevator stuck/ door stuck).
+				 - If an elevator is stuck between floors, it is set as "out of service" and not assigned any more trips. 
+				 	- Any pending trips that have not been started yet by this elevator is then reassigned.
+				 - If an elevator door open/close is interrupted, the scheduler resends the door open/close event to the elevator.
 Thomas Bryk - Update FloorSubsystem to allow faults (elevator stuck/ door stuck) to be encoded in input file
+			- The input file can have trips encoded with 'Motor' and 'Door' faults
+				- 'Motor': simulates an elevator stuck between floors
+				- 'Door': simulates a door open/close interruption
 Jacob Martin - Update ElevatorSubsystem to handle faults (elevator stuck/ door stuck) received from FloorSubsystem
-Mustafa Abdulmajeed - Update Request system to support the above mentioned error scenarios. GUI planning + prototyping
+			 - Handles both 'Motor' and 'Door' scenarios
+Mustafa Abdulmajeed - Update Request system to support the above mentioned error scenarios. 
+					- GUI planning + prototyping
 Gordon Macdonald - GUI planning
 
 BREAKDOWN OF RESPONSIBILITIES for Iteration 2
