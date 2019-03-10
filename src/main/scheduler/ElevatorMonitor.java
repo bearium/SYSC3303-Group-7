@@ -406,15 +406,24 @@ public class ElevatorMonitor {
 	 * @return
 	 */
 	public boolean addTripRequest(TripRequest tripRequest) {
+		boolean tripAdded = false;
 		//Ensure that if the elevator is out of service, that it can not have any trips assigned to it
 		if (this.elevatorState.getCurrentStatus() == ElevatorStatus.OUT_OF_SERVICE) {
 			return false;
 		}
 		if (this.isTripQueueEmpty()) {
-			return this.addFirstTripRequest(tripRequest);
+			tripAdded = this.addFirstTripRequest(tripRequest);
 		} else {
-			return this.addEnRouteTripRequest(tripRequest);
+			tripAdded = this.addEnRouteTripRequest(tripRequest);
 		}
+		
+		if(tripAdded) {
+			
+		}
+		else {
+			
+		}
+		return tripAdded;
 	}
 	
 
@@ -593,6 +602,7 @@ public class ElevatorMonitor {
 	 */
 	public boolean isDestinationFloor(int floor) {
 		if (this.destinationFloors.contains(floor)) {
+			this.elevatorState.toggleLamp(floor, false);
 			return true;
 		}
 		return false;
@@ -673,4 +683,20 @@ public class ElevatorMonitor {
 		sb.append("]\n");
 		return sb.toString();
 	}
+
+	/**
+	 * @return the elevatorState
+	 */
+	public ElevatorState getElevatorState() {
+		return elevatorState;
+	}
+
+	/**
+	 * @param elevatorState the elevatorState to set
+	 */
+	public void setElevatorState(ElevatorState elevatorState) {
+		this.elevatorState = elevatorState;
+	}
+	
+	
 }
