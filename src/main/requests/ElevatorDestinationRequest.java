@@ -1,5 +1,7 @@
 package main.requests;
 
+import main.global.Fault;
+
 public class ElevatorDestinationRequest extends Request {
 
 	/**
@@ -16,11 +18,15 @@ public class ElevatorDestinationRequest extends Request {
 	 * Name of the floor elevator is pickup up at
 	 */
 	private String PickupFloor;
-
+	
+	/**
+	 * Fault included
+	 */
+	private Fault fault;
+	
 	/**
 	 * Type of request for parsing purposes
 	 */
-
 	private static byte[] RequestType = new byte[] {1,8};
 
 
@@ -35,6 +41,11 @@ public class ElevatorDestinationRequest extends Request {
 		this.setPickupFloor(pickupFloor);
 		this.setDestinationFloor(destName);
 		this.setElevatorName(elevatorName);
+	}
+	
+	public ElevatorDestinationRequest(String pickupFloor, String destName, String elevatorName, Fault fault){
+		this(pickupFloor, destName, elevatorName);
+		this.setFault(fault);
 	}
 
 	
@@ -96,6 +107,20 @@ public class ElevatorDestinationRequest extends Request {
 	 */
 	public void setPickupFloor(String pickupFloor) {
 		PickupFloor = pickupFloor;
+	}
+
+	/**
+	 * @return the fault
+	 */
+	public Fault getFault() {
+		return fault;
+	}
+
+	/**
+	 * @param fault the fault to set
+	 */
+	public void setFault(Fault fault) {
+		this.fault = fault;
 	}
 
 

@@ -129,6 +129,7 @@ public class Populater {
 			Populate(req.getPickupFloor());
 			Populate(req.getDestinationFloor());
 			Populate(req.getElevatorName());
+			PopulateOptionalEnum(req.getFault());
 		} else if(request instanceof ElevatorWaitRequest){
 			/* Floor Button Request is of the form 0DIRECTION0ACTION0 */
 			ElevatorWaitRequest req = (ElevatorWaitRequest) request;
