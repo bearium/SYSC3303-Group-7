@@ -1,4 +1,4 @@
-SYSC 3303 Term Project. L1G7 - Iteration 2
+SYSC 3303 Term Project. L1G7 - Iteration 3
 
 TO IMPORT THE PROJECT INTO ECLIPSE
 1. Import project from archive file into Eclipse
@@ -7,7 +7,7 @@ TO IMPORT THE PROJECT INTO ECLIPSE
 	- Select 'Import' menu item
 	- Under 'General' select 'Projects From File System or Archive File'
 	- Select 'Archive...'
-	- Locate 'L1G7_Project_Iteration2.zip' as Import source.
+	- Locate 'L1G7_Project_Iteration3.zip' as Import source.
 	- Click 'Finish'
 3. From within the project "SYSC3303-Group-7"
 	- Run Scheduler.java (located src > main > scheduler)
@@ -18,7 +18,19 @@ TO IMPORT THE PROJECT INTO ECLIPSE
 		- To change the configuration the config.xml file needs to be updated. This file is located at src\resources\config.xml
 		- Every <Sheduler> <Elevator> and <Floor> element have a port attribute defined. Update the corresponding ports for the Class that has displayed an error (Scheduler / Floor / Elevator)
 		- IMPORTANT: All programs MUST be restarted in order for the updated ports to take effect.
-
+	- To change the trips scheduled for the elevators, the requests.txt document must be modified.
+		- The file is located at src\resources\requests.txt
+		- Trip requests must be entered one per line
+			- in the following format: relative time from now, pickup floor, trip direction, destination floor, fault [optional]
+				- 00:00:13.000 2 UP 15 Motor
+					- relative time from now = 00:00:13.000 - this means this request will be sent in 13 seconds
+					- pickup floor = 2 
+					- direction = up
+					- destination floor = 15
+					- fault = Motor
+						- this can be either 'Motor' or 'Door'
+						- this param is optional.
+	
 FILE EXPLANATIONS (Main files)
 There are 3 files that are necessary to run the elevator system.
 	- ElevatorSubsystem.java
@@ -29,15 +41,14 @@ There are 3 files that are necessary to run the elevator system.
 		- When run from main(), this will instantiate the scheduler as defined in the config.xml file. The scheduler will then wait to receive and process requests.
 
 
-
 All Diagrams are located in the 'doc' folder
 
 BREAKDOWN OF RESPONSIBILITIES for Iteration 3
 Dillon Claremont - Update Scheduler to detect and handle error scenarios (elevator stuck/ door stuck)
-Thomas Bryk - Update FloorSubsystem to allow FAULTS to be encoded in input file
-Jacob Martin - Update ElevatorSubsystem to handle faultes received from FloorSubsystem
-Mustafa Abdulmajeed - Update Request system with new requests and necessary modifications
-Gordon Macdonald -
+Thomas Bryk - Update FloorSubsystem to allow faults (elevator stuck/ door stuck) to be encoded in input file
+Jacob Martin - Update ElevatorSubsystem to handle faults (elevator stuck/ door stuck) received from FloorSubsystem
+Mustafa Abdulmajeed - Update Request system to support the above mentioned error scenarios. GUI planning + prototyping
+Gordon Macdonald - GUI planning
 
 BREAKDOWN OF RESPONSIBILITIES for Iteration 2
 Dillon Claremont - Update Scheduler to support destination requests directly from elevator, Diagrams.
