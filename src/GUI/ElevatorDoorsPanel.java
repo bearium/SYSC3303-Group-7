@@ -10,6 +10,7 @@ import java.util.Observer;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import main.global.ElevatorDoorStatus;
@@ -17,7 +18,7 @@ import main.global.ElevatorDoorStatus;
 public class ElevatorDoorsPanel extends JPanel implements Observer{
 	BufferedImage icon_closed; //= new ImageIcon("resources/images/elevator/elevator_closed");
 	BufferedImage icon_opened;// = new ImageIcon("resources/images/elevator/elevator_opened");
-	
+	JLabel doors;
 	/**
 	 * 
 	 */
@@ -40,6 +41,8 @@ public class ElevatorDoorsPanel extends JPanel implements Observer{
 		}
 		icon_closed = toBufferedImage(icon_closed.getScaledInstance(65 * 3,80 * 3, Image.SCALE_DEFAULT));
 		icon_opened = toBufferedImage(icon_opened.getScaledInstance(65 * 3,80 * 3, Image.SCALE_DEFAULT));
+		doors = new JLabel();
+		this.add(doors);
 	}
 
 	/**
@@ -73,7 +76,8 @@ public class ElevatorDoorsPanel extends JPanel implements Observer{
         {
         	image = icon_opened;
         }
-        g.drawImage(image, 0, 0, this); // see javadoc for more info on the parameters            
+        doors.setIcon(new ImageIcon(image));
+        //g.drawImage(image, 0, 0, this); // see javadoc for more info on the parameters            
     }
 	
 	public static BufferedImage toBufferedImage(Image img)

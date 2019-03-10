@@ -8,7 +8,7 @@ import main.global.Fault;
 public class Test {
 	public static void main(String[] args){
 		//Request request = new ElevatorMotorRequest("ELEVATOR NAME", Direction.UP);
-		Request request = new FloorButtonRequest("lol", "lol2", Direction.IDLE, "Lol4", Fault.DOOR);
+		Request request = new FloorButtonRequest("lol", "lol2", Direction.IDLE, "Lol4");
 		request.setSource("Elevator 1");
 		try {
 			DatagramPacket packet = Helper.CreateRequest(request);

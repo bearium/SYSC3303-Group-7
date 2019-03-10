@@ -28,6 +28,7 @@ public class ElevatorFrame extends JFrame{
 	
 	private void initializeJFrame() {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
 		this.pack();
 		this.setVisible(true);
 	}

@@ -1,6 +1,7 @@
 package GUI;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -35,23 +36,25 @@ public class ElevatorMainPanel extends JPanel implements Observer {
 	}
 	
 	private void initialize() {
-		//this.setSize(400, 400);
+		this.setSize(65, 126);
 		
 		HashMap<Integer, Boolean> lamps = elevator.getLamps();
-		this.setLayout(new GridLayout(1,3));
-		JPanel holdPanel = new JPanel();
-		holdPanel.setLayout(new BoxLayout(holdPanel,BoxLayout.PAGE_AXIS));
-		
-		DP = new ElevatorDoorsPanel(elevator.getDoorStatus());
-		//this.add(DP);
+		this.setLayout(new BoxLayout(this,BoxLayout.PAGE_AXIS));
+		//JPanel holdPanel = new JPanel();
+		//holdPanel.setLayout(new BoxLayout(holdPanel,BoxLayout.PAGE_AXIS));
 		DP2 = new ElevatorDirectionPanel(elevator.getDirection());
-		//this.add(DP2);
+		//DP2.setSize(32, 32);
+		this.add(DP2);
+		DP = new ElevatorDoorsPanel(elevator.getDoorStatus());
+		DP.setSize(200,200);
+		this.add(DP);
+		
 
-		holdPanel.add(DP2);
-		holdPanel.add(DP);
-		this.add(holdPanel);
-		BP = new ElevatorButtonPanel(lamps);
-		this.add(BP);
+		//holdPanel.add(DP2);
+		//holdPanel.add(DP);
+		//this.add(holdPanel);
+		//BP = new ElevatorButtonPanel(lamps);
+		//this.add(BP);
 		elevator.addObserver(this);
 		JButton toggle_close = new JButton("Close/Open");
 		JPanel last_panel = new JPanel();
@@ -67,7 +70,7 @@ public class ElevatorMainPanel extends JPanel implements Observer {
 			
 		});
 		last_panel.add(toggle_close);
-		this.add(last_panel);
+		//this.add(last_panel);
 		this.updateUI();
 	}
 	
