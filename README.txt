@@ -13,6 +13,11 @@ TO IMPORT THE PROJECT INTO ECLIPSE
 	- Run Scheduler.java (located src > main > scheduler)
 	- Run ElevatorSubsystem.java (located src > main > elevatorSubsystem)
 	- Run FloorSubsystem.java (located src > main > floorSubsystem)
+	- NOTE: 
+		- IF an error occurs immediately upon running either the Scheduler, ElevatorSubsystem or FloorSubsystem, the likely cause is due to ports in the local environment that are already in use.
+		- To change the configuration the config.xml file needs to be updated. This file is located at src\resources\config.xml
+		- Every <Sheduler> <Elevator> and <Floor> element have a port attribute defined. Update the corresponding ports for the Class that has displayed an error (Scheduler / Floor / Elevator)
+		- IMPORTANT: All programs MUST be restarted in order for the updated ports to take effect.
 
 FILE EXPLANATIONS (Main files)
 There are 3 files that are necessary to run the elevator system.
@@ -24,7 +29,15 @@ There are 3 files that are necessary to run the elevator system.
 		- When run from main(), this will instantiate the scheduler as defined in the config.xml file. The scheduler will then wait to receive and process requests.
 
 
+
 All Diagrams are located in the 'doc' folder
+
+BREAKDOWN OF RESPONSIBILITIES for Iteration 3
+Dillon Claremont - Update Scheduler to detect and handle error scenarios (elevator stuck/ door stuck)
+Thomas Bryk - Update FloorSubsystem to allow FAULTS to be encoded in input file
+Jacob Martin - Update ElevatorSubsystem to handle faultes received from FloorSubsystem
+Mustafa Abdulmajeed - Update Request system with new requests and necessary modifications
+Gordon Macdonald -
 
 BREAKDOWN OF RESPONSIBILITIES for Iteration 2
 Dillon Claremont - Update Scheduler to support destination requests directly from elevator, Diagrams.
@@ -39,4 +52,6 @@ Thomas Bryk - FloorSubsystem + related classes
 Jacob Martin - ElevatorSubsystem + related classes
 Mustafa Abdulmajeed - Request system
 Gordon Macdonald - Test framework + UML documentation
+
+ 
 
