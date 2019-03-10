@@ -36,7 +36,7 @@ public class ElevatorMainPanel extends JPanel implements Observer {
 	}
 	
 	private void initialize() {
-		this.setSize(65, 126);
+		this.setSize(80, 500);
 		
 		HashMap<Integer, Boolean> lamps = elevator.getLamps();
 		this.setLayout(new BoxLayout(this,BoxLayout.PAGE_AXIS));
@@ -53,8 +53,8 @@ public class ElevatorMainPanel extends JPanel implements Observer {
 		//holdPanel.add(DP2);
 		//holdPanel.add(DP);
 		//this.add(holdPanel);
-		//BP = new ElevatorButtonPanel(lamps);
-		//this.add(BP);
+		BP = new ElevatorButtonPanel(lamps);
+		this.add(BP);
 		elevator.addObserver(this);
 		JButton toggle_close = new JButton("Close/Open");
 		JPanel last_panel = new JPanel();
