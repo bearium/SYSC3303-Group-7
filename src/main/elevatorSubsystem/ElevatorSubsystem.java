@@ -28,8 +28,9 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 	private boolean destinationRequestFlag = false;
 	private boolean motorFaultFlag = false;
 	private boolean doorFaultFlag = false;
+	private InetAddress host;
 	
-	public ElevatorSubsystem(String name, int port, int startFloor, int schedulerPort, int maxFloor, int travelTime, int passengerTime, int doorTime){
+	public ElevatorSubsystem(String name, int port, int startFloor, int schedulerPort, int maxFloor, int travelTime, int passengerTime, int doorTime, String host){
 		this.name = name;
 		this.travelTime = travelTime;
 		this.passengerTime = passengerTime;
@@ -37,6 +38,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 		this.eventsQueue = new LinkedList<Request>();
 		this.state = new ElevatorState(startFloor,startFloor, Direction.IDLE, ElevatorStatus.STOPPED, ElevatorDoorStatus.OPENED, maxFloor,travelTime,passengerTime,doorTime);
 		this.schedulerPort = schedulerPort;
+		this.host = new InetAddress.getByName(host);
 
 		//Create a server (bound to this Instance of ElevatorSubsystem) in a new thread.
 		//When this server receives requests, they will be added to the eventsQueue of THIS ElevatorSubsystem instance.
@@ -275,7 +277,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 
 	private void sendToServer(Request request) {
 		try {
-			this.server.send(request, InetAddress.getLocalHost(), this.schedulerPort);
+			this.server.send(request, this.host, this.schedulerPort);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
@@ -320,7 +322,7 @@ public class ElevatorSubsystem implements Runnable, ElevatorSystemComponent {
 			ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem(elevatorName, Integer.parseInt(elevatorConfiguration.get("port")),
 					Integer.parseInt(elevatorConfiguration.get("startFloor")), Integer.parseInt(schedulerConfiguration.get("port")),tempfloor,
 					Integer.parseInt(elevatorConfiguration.get("timeBetweenFloors")), Integer.parseInt(elevatorConfiguration.get("passengerWaitTime")),
-					Integer.parseInt(elevatorConfiguration.get("doorOperationTime")));
+					Integer.parseInt(elevatorConfiguration.get("doorOperationTime")),schedularConfiguration.get("host"));
 			
 			//Spawn and start a new thread for this ElevatorSubsystem instance
 			Thread elevatorSubsystemThread = new Thread(elevatorSubsystem, elevatorName);
