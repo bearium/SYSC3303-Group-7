@@ -7,7 +7,7 @@ TO IMPORT THE PROJECT INTO ECLIPSE
 	- Select 'Import' menu item
 	- Under 'General' select 'Projects From File System or Archive File'
 	- Select 'Archive...'
-	- Locate 'L1G7_Project_Iteration3.zip' as Import source.
+	- Locate 'L1G7_Project_Iteration4.zip' as Import source.
 	- Click 'Finish'
 3. From within the project "SYSC3303-Group-7"
 	- Run Scheduler.java (located src > main > scheduler)
@@ -31,7 +31,7 @@ TO IMPORT THE PROJECT INTO ECLIPSE
 						- this can be either 'Motor' or 'Door'
 						- this param is optional.
 	- For the purposes of Iteration 4, the scheduler is hard coded to print the scheduler response statistics after approx 2.5 minutes, this is the approximate expected (as test) time
-	  for completion of the current requests as defined in src/respirces/requests.txt.
+	  for completion of the current requests as defined in src/resources/requests.txt.
 	  If the runtime is vastly different in a different environment, it may make sense to increase this time so that the report is run at the end of execution. This can be updated by
 	  increasing the Thread.sleep time in the Scheduler's main(). 
 	
@@ -50,6 +50,7 @@ BREAKDOWN OF RESPONSIBILITIES for Iteration 4
 Dillon Claremont - Update Scheduler to support communications with Floors & Elevators on different hosts
 				 - Time response times for all events received by the scheduler, provided capability for scheduler to preduce a simple report displaying mean repsponse time and variance
 Thomas Bryk - Update FloorSubsystem to support communications with Elevators & Scheduler on different hosts
+            - Timing Diagrams
 Jacob Martin - Update ElevatorSubsystem to support communications with Floors & Elevators on different hosts
 Mustafa Abdulmajeed - GUI planning + prototyping
 Gordon Macdonald - GUI planning
@@ -63,6 +64,7 @@ Thomas Bryk - Update FloorSubsystem to allow faults (elevator stuck/ door stuck)
 			- The input file can have trips encoded with 'Motor' and 'Door' faults
 				- 'Motor': simulates an elevator stuck between floors
 				- 'Door': simulates a door open/close interruption
+			- Timing Diagrams
 Jacob Martin - Update ElevatorSubsystem to handle faults (elevator stuck/ door stuck) received from FloorSubsystem
 			 - Handles both 'Motor' and 'Door' scenarios
 Mustafa Abdulmajeed - Update Request system to support the above mentioned error scenarios. 
