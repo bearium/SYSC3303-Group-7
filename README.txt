@@ -33,7 +33,17 @@ TO IMPORT THE PROJECT INTO ECLIPSE
 	- For the purposes of Iteration 4, the scheduler is hard coded to print the scheduler response statistics after approx 2.5 minutes, this is the approximate expected (as test) time
 	  for completion of the current requests as defined in src/resources/requests.txt.
 	  If the runtime is vastly different in a different environment, it may make sense to increase this time so that the report is run at the end of execution. This can be updated by
-	  increasing the Thread.sleep time in the Scheduler's main(). 
+	  increasing the Thread.sleep time in the Scheduler's main().
+	  
+Displaying Scheduler Response Statistics
+Event Type                     # of Events Mean Response(ms)      Variance(ms^2)     
+ElevatorArrivalRequest                 33                0.69205            0.14964 
+ElevatorMotorRequest                   11                0.45501            0.00314 
+ElevatorWaitRequest                    11                0.73071            0.09076 
+FloorButtonRequest                      6                5.66157           17.90195 
+ElevatorDestinationRequest              6                0.45495            0.04837 
+ElevatorDoorRequest                    23                1.04955            0.62669 
+
 	
 FILE EXPLANATIONS (Main files)
 There are 3 files that are necessary to run the elevator system.
