@@ -1,7 +1,5 @@
 package main.scheduler;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -13,7 +11,6 @@ import java.util.Queue;
 
 import GUI.ElevatorFrame;
 import main.ElevatorSystemComponent;
-import main.elevatorSubsystem.ElevatorState;
 import main.global.*;
 import main.requests.*;
 import main.server.Server;
@@ -35,6 +32,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 	private Server server;
 	private Thread serverThread;
 	private Queue<Request> eventsQueue;															//This queue contains an ordered list of events as received by the Scheduler from other subsystems		
+	private HashMap<Class<?>, ArrayList<Double>> eventElapsedTimes;								//key -> class type (ie. ElevatorArrivalRequest, FloorButtonRequest, etc.), value -> list containing elapsed times to fully handle the request (milliseconds)
 	private boolean debug = false;
 	private HashMap<String, Integer> portsByElevatorName;										//key -> elevator name, value -> port number
 	private HashMap<String, Integer> portsByFloorName;											//key -> floor number, value -> port number
@@ -54,6 +52,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		this.monitoredSchedulerEvents = new HashMap<String, MonitoredEventTimer>();
 		this.hostByElevatorName = new HashMap<String, String>();
 		this.hostByFloorName = new HashMap<String, String>();
+		this.eventElapsedTimes = new HashMap<Class<?>, ArrayList<Double>>();
 		
 		//Initialize infrastructure configurations (elevators/floors)
 		this.init(elevatorConfiguration, floorConfigurations);
@@ -285,6 +284,79 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 				this.consoleOutput(RequestEvent.RECEIVED, request.getElevatorName(), "[OUT OF SERVICE - Ignored] Elevator has completed its wait.");
 			}
 		}
+		
+		//Set the end time for the request, and add it the event history.
+		event.setEndTime();
+		this.addCompletedEvent(event);
+	}
+	
+	/**
+	 * 
+	 * @param event
+	 */
+	private void addCompletedEvent(Request event) {
+		ArrayList<Double> elapsedTimes = this.eventElapsedTimes.get(event.getClass());
+		if (elapsedTimes == null) {
+			elapsedTimes = new ArrayList<Double>();
+			this.eventElapsedTimes.put(event.getClass(), elapsedTimes);
+		}
+		elapsedTimes.add(event.getElapsedTime());
+		this.eventElapsedTimes.put(event.getClass(), elapsedTimes);
+	}
+	
+	/**
+	 * Calculates the Scheduler's response mean and variance for every each request type. Displays this information to console. 
+	 * All time values are in milliseconds.
+	 * 
+	 */
+	public void displaySchedulerResponseTimes() {
+		System.out.println("\n\n-----------------------------------------");
+		System.out.println("Displaying Scheduler Response Statistics");
+		System.out.printf("%-30s %-10s %-22s %-18s %n", "Event Type", "# of Events", "Mean Response(ms)", "Variance(ms^2)");
+		for (Class<?> eventType: this.eventElapsedTimes.keySet()) {
+			ArrayList<Double> elapsedTimes = this.eventElapsedTimes.get(eventType);
+			Double mean = this.calculateMean(elapsedTimes);
+			Double variance = this.calculateVariance(elapsedTimes, mean);
+			System.out.printf("%-30s %10d %22.5f %18.5f %n", eventType.getSimpleName(), elapsedTimes.size(), mean, variance);
+		}
+	}
+	
+	/**
+	 * Calculates and returns mean average value of a list containing elapsedTimes
+	 * 
+	 * @param elapsedTimes
+	 * @return mean in nanoseconds
+	 */
+	private Double calculateMean(ArrayList<Double> elapsedTimes) {
+		Double responseTotals = 0.0;
+		
+		if (elapsedTimes.size() > 0) {
+			for (Double elapsedTime : elapsedTimes) {
+				responseTotals += elapsedTime;
+			}
+			return responseTotals/elapsedTimes.size();
+		}
+		return 0.0;
+	}
+	
+	/**
+	 * Calculates and returns the variance of a list containing elapsedTimes
+	 * 
+	 * @param elapsedTimes
+	 * @param mean
+	 * @return
+	 */
+	private Double calculateVariance(ArrayList<Double> elapsedTimes, Double mean) {
+		Double sum = 0.0;
+		
+		if (elapsedTimes.size() > 0) {
+			for (Double elapsedTime : elapsedTimes) {
+				sum += Math.pow(elapsedTime - mean, 2);
+			}
+			return sum/elapsedTimes.size();
+		}
+		
+		return 0.0;
 	}
 	
 	/**
@@ -293,11 +365,7 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 	 * @param elevatorName
 	 */
 	private void sendToServer(Request request, String host, int port) {
-		//try {
-			this.server.send(request, host, port);
-		/*} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}*/
+		this.server.send(request, host, port);
 	}
 	
 	/**
@@ -739,5 +807,14 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		Thread schedulerThread = new Thread(scheduler, schedulerConfiguration.get("name"));
 		//ElevatorFrame frame = new ElevatorFrame(scheduler.elevatorMonitorByElevatorName);
 		schedulerThread.start();
+		
+		//Sleep for 2.5 minutes to allow for simulation to complete. Then computer Scheduler's average response times
+		try {
+			Thread.sleep(150000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		scheduler.displaySchedulerResponseTimes();
+
 	}
 }

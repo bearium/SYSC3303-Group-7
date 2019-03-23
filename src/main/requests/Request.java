@@ -15,7 +15,7 @@ public class Request {
 	 * Type of request for parsing purposes
 	 */
 	private byte[] RequestType;
-	
+	private long startTime, endTime, elapsedTime;
 	
 	protected Request(){
 		
@@ -74,6 +74,29 @@ public class Request {
 	 */
 	public byte[] IGetRequestType(){
 		return this.RequestType;
+	}
+	
+	/**
+	 * Set's the start time for this Request as the current value of System.nanoTime()
+	 */
+	public void setStartTime() {
+		this.startTime = System.nanoTime();
+	}
+	
+	/**
+	 * Set's the end time for this Request as the current value of System.nanoTime()
+	 */
+	public void setEndTime() {
+		this.endTime = System.nanoTime();
+		this.elapsedTime = this.endTime - this.startTime;
+	}
+	
+	/**
+	 * Returns the elapsed time for this Request in milliseconds
+	 * @return
+	 */
+	public double getElapsedTime() {
+		return (double) this.elapsedTime/1000000;
 	}
 	
 }

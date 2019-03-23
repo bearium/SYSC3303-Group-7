@@ -207,7 +207,9 @@ public class Server implements Runnable{
 			
 			//turn the packet received into a Request and add it to the elevatorSystemComponent's queue.
 			try {
-				elevatorSystemComponent.receiveEvent(Helper.ParseRequest(packet));
+				Request request = Helper.ParseRequest(packet);
+				request.setStartTime();
+				elevatorSystemComponent.receiveEvent(request);
 			} catch (InvalidRequestException e) {
 				e.printStackTrace();
 			}
