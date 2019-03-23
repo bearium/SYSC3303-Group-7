@@ -544,6 +544,11 @@ public class ElevatorMonitor {
 				completedTrips = this.removeTripsWithDestinationFloor(this.elevatorState.getCurrentFloor());
 			}
 		
+			//Update each completedTrip to reflect it's current endTime
+			for (TripRequest completedTrip : completedTrips) {
+				completedTrip.setCompleted();
+			}
+			
 			//Update the queue direction to IDLE if there are no more trips left in the queue
 			if (this.isTripQueueEmpty()) {
 				this.queueDirection = Direction.IDLE;

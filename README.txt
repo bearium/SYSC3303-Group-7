@@ -1,4 +1,4 @@
-SYSC 3303 Term Project. L1G7 - Iteration 3
+SYSC 3303 Term Project. L1G7 - Iteration 4
 
 TO IMPORT THE PROJECT INTO ECLIPSE
 1. Import project from archive file into Eclipse
@@ -30,6 +30,10 @@ TO IMPORT THE PROJECT INTO ECLIPSE
 					- fault = Motor
 						- this can be either 'Motor' or 'Door'
 						- this param is optional.
+	- For the purposes of Iteration 4, the scheduler is hard coded to print the scheduler response statistics after approx 2.5 minutes, this is the approximate expected (as test) time
+	  for completion of the current requests as defined in src/respirces/requests.txt.
+	  If the runtime is vastly different in a different environment, it may make sense to increase this time so that the report is run at the end of execution. This can be updated by
+	  increasing the Thread.sleep time in the Scheduler's main(). 
 	
 FILE EXPLANATIONS (Main files)
 There are 3 files that are necessary to run the elevator system.
@@ -42,6 +46,13 @@ There are 3 files that are necessary to run the elevator system.
 
 
 All Diagrams are located in the 'doc' folder
+BREAKDOWN OF RESPONSIBILITIES for Iteration 4
+Dillon Claremont - Update Scheduler to support communications with Floors & Elevators on different hosts
+				 - Time response times for all events received by the scheduler, provided capability for scheduler to preduce a simple report displaying mean repsponse time and variance
+Thomas Bryk - Update FloorSubsystem to support communications with Elevators & Scheduler on different hosts
+Jacob Martin - Update ElevatorSubsystem to support communications with Floors & Elevators on different hosts
+Mustafa Abdulmajeed - GUI planning + prototyping
+Gordon Macdonald - GUI planning
 
 BREAKDOWN OF RESPONSIBILITIES for Iteration 3
 Dillon Claremont - Update Scheduler to detect and handle error scenarios (elevator stuck/ door stuck).

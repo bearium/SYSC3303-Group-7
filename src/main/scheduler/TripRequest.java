@@ -11,11 +11,13 @@ public class TripRequest {
 	private int destinationFloor;
 	private Direction direction;
 	private boolean hasDestination;
+	private long startTime, endTime, elapsedTime;
 	
 	public TripRequest(int pickupFloor, Direction direction) {
 		this.pickupFloor = pickupFloor;
 		this.hasDestination = false;
 		this.direction = direction;
+		this.startTime = System.nanoTime();
 	}
 	
 	public boolean hasDestination() {
@@ -64,6 +66,14 @@ public class TripRequest {
 			return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * Set the end time for this TripRequest.
+	 */
+	public void setCompleted() {
+		this.endTime = System.nanoTime();
+		this.elapsedTime = System.nanoTime();
 	}
 	
 	/**
