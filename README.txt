@@ -36,7 +36,7 @@ NOTES:
 	  for completion of the current requests as defined in src/resources/requests.txt.
 	  If the runtime is vastly different in a different environment, it may make sense to increase this time so that the report is run at the end of execution. This can be updated by
 	  increasing the Thread.sleep time in the Scheduler's main().
-	- For the creation of the timing diagram, it is important to note that the values returned through the scheduler's response time analysis will vary depending on the system that it is
+	- It is important to note that the values returned through the scheduler's response time analysis will vary depending on the system that it is
 	  on. For the creation of "Timing Diagram - Scheduler Mean Response Time.pdf", the following data was used:
 	  
 	Event Type                     # of Events Mean Response(ms)      Variance(ms^2)     
