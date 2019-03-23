@@ -30,19 +30,22 @@ TO IMPORT THE PROJECT INTO ECLIPSE
 					- fault = Motor
 						- this can be either 'Motor' or 'Door'
 						- this param is optional.
+						
+NOTES: 						
 	- For the purposes of Iteration 4, the scheduler is hard coded to print the scheduler response statistics after approx 2.5 minutes, this is the approximate expected (as test) time
 	  for completion of the current requests as defined in src/resources/requests.txt.
 	  If the runtime is vastly different in a different environment, it may make sense to increase this time so that the report is run at the end of execution. This can be updated by
 	  increasing the Thread.sleep time in the Scheduler's main().
+	- For the creation of the timing diagram, it is important to note that the values returned through the scheduler's response time analysis will vary depending on the system that it is
+	  on. For the creation of "Timing Diagram - Scheduler Mean Response Time.pdf", the following data was used:
 	  
-Displaying Scheduler Response Statistics
-Event Type                     # of Events Mean Response(ms)      Variance(ms^2)     
-ElevatorArrivalRequest                 33                0.69205            0.14964 
-ElevatorMotorRequest                   11                0.45501            0.00314 
-ElevatorWaitRequest                    11                0.73071            0.09076 
-FloorButtonRequest                      6                5.66157           17.90195 
-ElevatorDestinationRequest              6                0.45495            0.04837 
-ElevatorDoorRequest                    23                1.04955            0.62669 
+	Event Type                     # of Events Mean Response(ms)      Variance(ms^2)     
+	ElevatorArrivalRequest                 33                0.69205            0.14964 
+	ElevatorMotorRequest                   11                0.45501            0.00314 
+	ElevatorWaitRequest                    11                0.73071            0.09076 
+	FloorButtonRequest                      6                5.66157           17.90195 
+	ElevatorDestinationRequest              6                0.45495            0.04837 
+	ElevatorDoorRequest                    23                1.04955            0.62669 
 
 	
 FILE EXPLANATIONS (Main files)
@@ -56,11 +59,12 @@ There are 3 files that are necessary to run the elevator system.
 
 
 All Diagrams are located in the 'doc' folder
+
 BREAKDOWN OF RESPONSIBILITIES for Iteration 4
 Dillon Claremont - Update Scheduler to support communications with Floors & Elevators on different hosts
 				 - Time response times for all events received by the scheduler, provided capability for scheduler to preduce a simple report displaying mean repsponse time and variance
 Thomas Bryk - Update FloorSubsystem to support communications with Elevators & Scheduler on different hosts
-            - Timing Diagrams
+            - Timing Diagram - Scheduler Mean Response Time.pdf
 Jacob Martin - Update ElevatorSubsystem to support communications with Floors & Elevators on different hosts
 Mustafa Abdulmajeed - GUI planning + prototyping
 Gordon Macdonald - GUI planning
@@ -75,6 +79,8 @@ Thomas Bryk - Update FloorSubsystem to allow faults (elevator stuck/ door stuck)
 				- 'Motor': simulates an elevator stuck between floors
 				- 'Door': simulates a door open/close interruption
 			- Timing Diagrams
+				- Fault Door Timing Diagram.pdf
+				- Fault Motor Timing Diagram.pdf
 Jacob Martin - Update ElevatorSubsystem to handle faults (elevator stuck/ door stuck) received from FloorSubsystem
 			 - Handles both 'Motor' and 'Door' scenarios
 Mustafa Abdulmajeed - Update Request system to support the above mentioned error scenarios. 
