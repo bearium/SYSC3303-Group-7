@@ -38,7 +38,7 @@ public class ElevatorMainPanel extends JPanel implements Observer {
 	
 	private void initialize() {
 		this.setSize(60, 500);
-		this.setBorder(new EmptyBorder(10, 10, 10, 10));
+		this.setBorder(new EmptyBorder(0, 10, 10, 10));
 		HashMap<Integer, Boolean> lamps = elevator.getLamps();
 		this.setLayout(new BoxLayout(this,BoxLayout.PAGE_AXIS));
 		//JPanel holdPanel = new JPanel();

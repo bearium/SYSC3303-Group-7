@@ -1,10 +1,14 @@
 package GUI;
 
+import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -58,7 +62,31 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
 
 		up = new JLabel();
 		down = new JLabel();
+		
+		
 		currFloor = new JLabel();
+		String filename="src\\resources\\images\\elevator\\digital-7.ttf";
+		
+		Font font;
+		try {
+			font = Font.createFont(Font.TRUETYPE_FONT, new File(filename));
+			font = font.deriveFont(Font.BOLD,20);
+			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+			ge.registerFont(font);
+			currFloor.setFont(font);
+			
+			
+		} catch (FontFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+
+		
+
 		
 		this.add(down);
 		this.add(currFloor);
