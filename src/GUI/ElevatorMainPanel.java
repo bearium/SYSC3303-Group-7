@@ -11,6 +11,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
 import main.elevatorSubsystem.ElevatorState;
 import main.global.Direction;
@@ -36,8 +37,8 @@ public class ElevatorMainPanel extends JPanel implements Observer {
 	}
 	
 	private void initialize() {
-		this.setSize(80, 500);
-		
+		this.setSize(60, 500);
+		this.setBorder(new EmptyBorder(10, 10, 10, 10));
 		HashMap<Integer, Boolean> lamps = elevator.getLamps();
 		this.setLayout(new BoxLayout(this,BoxLayout.PAGE_AXIS));
 		//JPanel holdPanel = new JPanel();
@@ -100,7 +101,7 @@ public class ElevatorMainPanel extends JPanel implements Observer {
 	private void refresh() {
 		DP.refreshStatus(elevator.getDoorStatus());
 		BP.refreshStatus(elevator.getLamps());
-		DP2.refreshStatus(elevator.getDirection());
+		DP2.refreshStatus(elevator.getDirection(), elevator.getCurrentFloor());
 		this.repaint();
 	}
 	

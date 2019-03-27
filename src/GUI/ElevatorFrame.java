@@ -1,6 +1,8 @@
 package GUI;
 
+import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridBagLayout;
 import java.util.HashMap;
 
 import javax.swing.JFrame;
@@ -16,7 +18,7 @@ public class ElevatorFrame extends JFrame{
 
 	public ElevatorFrame(HashMap<String, ElevatorMonitor> elevatorMonitors) {
 		super("Elevator GUI Monitor");
-		this.setLayout(new FlowLayout());
+		this.setLayout(new GridBagLayout());
 		for(ElevatorMonitor monitor : elevatorMonitors.values()) {
 			ElevatorState state = monitor.getElevatorState();
 			ElevatorMainPanel EMP =new ElevatorMainPanel(state);
@@ -30,7 +32,11 @@ public class ElevatorFrame extends JFrame{
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		this.pack();
+		this.setMinimumSize(new Dimension(950, 900));
+		this.setSize(1000,1000);
+		this.setResizable(true);
 		this.setVisible(true);
+		
 	}
 	
 }

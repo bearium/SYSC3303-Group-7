@@ -32,8 +32,8 @@ public class ElevatorDoorsPanel extends JPanel implements Observer{
 		
 		try 
 		{
-			icon_closed = ImageIO.read(new File("C:\\Users\\Mustafa\\git\\SYSC3303-Group-7\\src\\resources\\images\\elevator\\elevator_closed.png"));
-			icon_opened = ImageIO.read(new File("C:\\Users\\Mustafa\\git\\SYSC3303-Group-7\\src\\resources\\images\\elevator\\elevator_opened.png"));
+			icon_closed = ImageIO.read(new File("src\\resources\\images\\elevator\\Door_Closing.gif"));
+			icon_opened = ImageIO.read(new File("src\\resources\\images\\elevator\\Door_Opening.gif"));
 		}
 		catch (Exception E) {
 			System.out.println("UH OH " + System.getProperty("user.dir"));

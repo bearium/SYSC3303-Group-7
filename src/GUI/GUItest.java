@@ -1,6 +1,7 @@
 package GUI;
 import javax.swing.*;
 
+import GUI.ElevatorMainPanel;
 import main.elevatorSubsystem.ElevatorState;
 import main.global.Direction;
 import main.global.ElevatorDoorStatus;

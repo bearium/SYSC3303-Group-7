@@ -22,8 +22,10 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
 	BufferedImage up_off;// = new ImageIcon("resources/images/elevator/elevator_opened");
 	BufferedImage down_on; //= new ImageIcon("resources/images/elevator/elevator_closed");
 	BufferedImage down_off;
+	int currentFloor;
 	JLabel up;
 	JLabel down;
+	JLabel currFloor;
 	
 	/**
 	 * 
@@ -31,6 +33,7 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
 	private static final long serialVersionUID = 1270317896891165638L;
 	
 	private Direction direction;
+	
 
 	public ElevatorDirectionPanel(Direction initial_direction) {
 		super();
@@ -55,7 +58,10 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
 
 		up = new JLabel();
 		down = new JLabel();
+		currFloor = new JLabel();
+		
 		this.add(down);
+		this.add(currFloor);
 		this.add(up);
 		
 	}
@@ -74,8 +80,17 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
 		this.direction = dir;
 	}
 	
-	public void refreshStatus(Direction new_status) {
+	public int getCurrFloor() {
+		return this.currentFloor;
+	}
+	
+	public void setCurrFloor(int newCurrFloor) {
+		this.currentFloor = newCurrFloor;
+	}
+	
+	public void refreshStatus(Direction new_status, int newCurrFloor) {
 		setDirection(new_status);
+		setCurrFloor(newCurrFloor);
 		this.repaint();
 	}
 	
@@ -101,6 +116,7 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
         }
         up.setIcon(new ImageIcon(image_up));
         down.setIcon(new ImageIcon(image_down));
+        currFloor.setText(Integer.toString(currentFloor));
         //g.drawImage(image_down, 0, 0, this); // see javadoc for more info on the parameters            
         //g.drawImage(image_up, 64, 0, this);
     }
