@@ -28,12 +28,14 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
 	BufferedImage up_off;// = new ImageIcon("resources/images/elevator/elevator_opened");
 	BufferedImage down_on; //= new ImageIcon("resources/images/elevator/elevator_closed");
 	BufferedImage down_off;
-	BufferedImage outOfService; 
+	BufferedImage outOfService;
+	BufferedImage idle;
+	BufferedImage moving;
 	int currentFloor;
 	JLabel up;
 	JLabel down;
 	JLabel currFloor;
-	JLabel ooService;
+	JLabel status;
 	
 	/**
 	 * 
@@ -54,7 +56,9 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
 			up_off = ImageIO.read(new File("src\\resources\\images\\elevator\\up_off.png"));
 			down_on = ImageIO.read(new File("src\\resources\\images\\elevator\\down_on.png"));
 			down_off = ImageIO.read(new File("src\\resources\\images\\elevator\\down_off.png"));
-			outOfService = ImageIO.read(new File("src\\resources\\images\\elevator\\OutofService.jpg"));
+			outOfService = ImageIO.read(new File("src\\resources\\images\\elevator\\OutOfService.jpg"));
+			moving = ImageIO.read(new File("src\\resources\\images\\elevator\\InMotion.gif"));
+			idle = ImageIO.read(new File("src\\resources\\images\\elevator\\idle.gif"));
 		}
 		catch (Exception E) {
 			System.out.println("UH OH " + System.getProperty("user.dir"));
@@ -65,10 +69,12 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
 		down_on =  toBufferedImage(down_on.getScaledInstance(32,32, Image.SCALE_DEFAULT));
 		down_off =  toBufferedImage(down_off.getScaledInstance(32,32, Image.SCALE_DEFAULT));
 		outOfService =  toBufferedImage(outOfService.getScaledInstance(32,32, Image.SCALE_DEFAULT));
+		moving = toBufferedImage(moving.getScaledInstance(32,32, Image.SCALE_DEFAULT));
+		idle = toBufferedImage(idle.getScaledInstance(32,32, Image.SCALE_DEFAULT));
 
 		up = new JLabel();
 		down = new JLabel();
-		ooService = new JLabel();
+		status = new JLabel();
 		
 		currFloor = new JLabel();
 		String filename="src\\resources\\images\\elevator\\digital-7.ttf";
@@ -97,7 +103,8 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
 		this.add(down);
 		this.add(currFloor);
 		this.add(up);
-		this.add(ooService);
+		this.add(status);
+		
 		
 	}
 
@@ -125,8 +132,15 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
 	
 	public void checkOutOfService(ElevatorStatus status) {
 		if (status == ElevatorStatus.OUT_OF_SERVICE) {
-			this.ooService.setIcon(new ImageIcon(outOfService));
+			this.status.setIcon(new ImageIcon(outOfService));
 		}
+		else if(status == ElevatorStatus.MOVING) {
+			this.status.setIcon(new ImageIcon(moving));
+		}
+		else if(status == ElevatorStatus.STOPPED) {
+			this.status.setIcon(new ImageIcon(idle));
+		}
+		
 	}
 	
 	public void refreshStatus(Direction new_status, int newCurrFloor, ElevatorStatus elevatorStatus) {
