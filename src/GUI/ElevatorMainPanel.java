@@ -101,7 +101,7 @@ public class ElevatorMainPanel extends JPanel implements Observer {
 	private void refresh() {
 		DP.refreshStatus(elevator.getDoorStatus());
 		BP.refreshStatus(elevator.getLamps());
-		DP2.refreshStatus(elevator.getDirection(), elevator.getCurrentFloor());
+		DP2.refreshStatus(elevator.getDirection(), elevator.getCurrentFloor(), elevator.getCurrentStatus());
 		this.repaint();
 	}
 	

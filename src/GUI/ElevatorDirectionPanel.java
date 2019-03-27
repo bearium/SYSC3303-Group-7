@@ -21,16 +21,19 @@ import javax.swing.border.EmptyBorder;
 
 import main.global.Direction;
 import main.global.ElevatorDoorStatus;
+import main.global.ElevatorStatus;
 
 public class ElevatorDirectionPanel extends JPanel implements Observer{
 	BufferedImage up_on; //= new ImageIcon("resources/images/elevator/elevator_closed");
 	BufferedImage up_off;// = new ImageIcon("resources/images/elevator/elevator_opened");
 	BufferedImage down_on; //= new ImageIcon("resources/images/elevator/elevator_closed");
 	BufferedImage down_off;
+	BufferedImage outOfService; 
 	int currentFloor;
 	JLabel up;
 	JLabel down;
 	JLabel currFloor;
+	JLabel ooService;
 	
 	/**
 	 * 
@@ -51,6 +54,7 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
 			up_off = ImageIO.read(new File("src\\resources\\images\\elevator\\up_off.png"));
 			down_on = ImageIO.read(new File("src\\resources\\images\\elevator\\down_on.png"));
 			down_off = ImageIO.read(new File("src\\resources\\images\\elevator\\down_off.png"));
+			outOfService = ImageIO.read(new File("src\\resources\\images\\elevator\\OutofService.jpg"));
 		}
 		catch (Exception E) {
 			System.out.println("UH OH " + System.getProperty("user.dir"));
@@ -60,10 +64,11 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
 		up_off =  toBufferedImage(up_off.getScaledInstance(32,32, Image.SCALE_DEFAULT));
 		down_on =  toBufferedImage(down_on.getScaledInstance(32,32, Image.SCALE_DEFAULT));
 		down_off =  toBufferedImage(down_off.getScaledInstance(32,32, Image.SCALE_DEFAULT));
+		outOfService =  toBufferedImage(outOfService.getScaledInstance(32,32, Image.SCALE_DEFAULT));
 
 		up = new JLabel();
 		down = new JLabel();
-		
+		ooService = new JLabel();
 		
 		currFloor = new JLabel();
 		String filename="src\\resources\\images\\elevator\\digital-7.ttf";
@@ -92,6 +97,7 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
 		this.add(down);
 		this.add(currFloor);
 		this.add(up);
+		this.add(ooService);
 		
 	}
 
@@ -117,9 +123,16 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
 		this.currentFloor = newCurrFloor;
 	}
 	
-	public void refreshStatus(Direction new_status, int newCurrFloor) {
+	public void checkOutOfService(ElevatorStatus status) {
+		if (status == ElevatorStatus.OUT_OF_SERVICE) {
+			this.ooService.setIcon(new ImageIcon(outOfService));
+		}
+	}
+	
+	public void refreshStatus(Direction new_status, int newCurrFloor, ElevatorStatus elevatorStatus) {
 		setDirection(new_status);
 		setCurrFloor(newCurrFloor);
+		checkOutOfService(elevatorStatus);
 		this.repaint();
 	}
 	
