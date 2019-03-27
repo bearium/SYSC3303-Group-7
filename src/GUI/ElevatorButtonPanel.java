@@ -43,10 +43,10 @@ public class ElevatorButtonPanel extends JPanel{
         super.paintComponent(g);
         for(Integer i : lamps.keySet()) {
 			if(lamps.get(i).booleanValue()) {
-				buttons.get(i - 1).setBackground(Color.RED);
+				buttons.get(i - 1).setBackground(Color.yellow);
 			}
 			else {
-				buttons.get(i - 1).setBackground(Color.gray);
+				buttons.get(i - 1).setBackground(Color.white);
 			}
 		}
     }

@@ -17,6 +17,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 
 import main.global.Direction;
 import main.global.ElevatorDoorStatus;
@@ -66,7 +67,6 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
 		
 		currFloor = new JLabel();
 		String filename="src\\resources\\images\\elevator\\digital-7.ttf";
-		
 		Font font;
 		try {
 			font = Font.createFont(Font.TRUETYPE_FONT, new File(filename));
@@ -83,6 +83,7 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		currFloor.setBorder(new EmptyBorder(0, 10, 10, 10));
 		
 
 		
