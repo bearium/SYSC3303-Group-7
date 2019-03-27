@@ -27,6 +27,7 @@ public class RoundButton extends JButton {
 		size.height = 40;
 		size.width = size.height = Math.max(size.width, size.height);
 		setPreferredSize(size);
+		
 
 		/*
      This call causes the JButton not to paint the background.
