@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import GUI.ElevatorFrame;
+
 import main.ElevatorSystemComponent;
 import main.global.*;
 import main.requests.*;
