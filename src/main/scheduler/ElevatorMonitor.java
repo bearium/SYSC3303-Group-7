@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Observable;
 
 import main.elevatorSubsystem.ElevatorState;
 import main.global.*;
@@ -14,7 +15,7 @@ import main.global.*;
  * is responsible for a single Elevator.
  *
  */
-public class ElevatorMonitor {
+public class ElevatorMonitor extends Observable{
 	private String elevatorName;
 	private LinkedHashSet<TripRequest> queue;
 	private HashSet<Integer> destinationFloors;
@@ -406,15 +407,28 @@ public class ElevatorMonitor {
 	 * @return
 	 */
 	public boolean addTripRequest(TripRequest tripRequest) {
+		boolean tripAdded = false;
+		
 		//Ensure that if the elevator is out of service, that it can not have any trips assigned to it
 		if (this.elevatorState.getCurrentStatus() == ElevatorStatus.OUT_OF_SERVICE) {
 			return false;
 		}
+
+		//If the trip queue is empty, then follow process to add first trip, otherwise add enroute trip
 		if (this.isTripQueueEmpty()) {
-			return this.addFirstTripRequest(tripRequest);
+			tripAdded = this.addFirstTripRequest(tripRequest);
 		} else {
-			return this.addEnRouteTripRequest(tripRequest);
+			tripAdded = this.addEnRouteTripRequest(tripRequest);
 		}
+		
+		//If the trip was successfully added, update any observers
+		if (tripAdded) {
+			this.setChanged();
+			this.notifyObservers();
+		}
+		
+		//return outcome
+		return tripAdded;
 	}
 	
 
@@ -443,6 +457,10 @@ public class ElevatorMonitor {
 		for (TripRequest tripRequest : pendingTripRequests) {
 			this.pickupFloors.remove(tripRequest.getPickupFloor());
 		}
+		
+		//Update any observers
+		this.setChanged();
+		this.notifyObservers();
 		
 		return pendingTripRequests;
 	}
@@ -558,6 +576,13 @@ public class ElevatorMonitor {
 		//Is this stop a pickup? IF so, this pickup Floor can be removed from the pickup queue (this does not mark a trip as successfully completed in the tripRequestQueue)
 		if (this.isPickupFloor(this.elevatorState.getCurrentFloor())){
 			this.removePickupFloor(this.elevatorState.getCurrentFloor());
+			
+			//Update each tripRequest whose pickup floor is this floor (the elevator's current floor location) to reflect it's current pickupTime
+			for (TripRequest tripRequest : this.queue) {
+				if (tripRequest.getPickupFloor() == this.elevatorState.getCurrentFloor()) {
+					tripRequest.setStarted();
+				}
+			}
 		}
 		
 		return completedTrips;

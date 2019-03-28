@@ -311,7 +311,18 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 	 */
 	public void displaySchedulerResponseTimes() {
 		System.out.println("\n\n-----------------------------------------");
-		System.out.println("Displaying Scheduler Response Statistics");
+		System.out.println("Displaying Scheduler Response Data");
+		System.out.printf("%-30s %-22s %n", "Event Type", "Response(ms)");
+		for (Class<?> eventType: this.eventElapsedTimes.keySet()) {
+			ArrayList<Double> elapsedTimes = this.eventElapsedTimes.get(eventType);
+			System.out.printf("%-30s %-22s %n", eventType.getSimpleName(), "");
+			for (Double elapsedTime : elapsedTimes) {
+				System.out.printf("%-30s %-22s %n", "", elapsedTime);
+			}
+		}
+		
+		System.out.println("\n\n-----------------------------------------");
+		System.out.println("Displaying Scheduler Response Summary");
 		System.out.printf("%-30s %-10s %-22s %-18s %n", "Event Type", "# of Events", "Mean Response(ms)", "Variance(ms^2)");
 		for (Class<?> eventType: this.eventElapsedTimes.keySet()) {
 			ArrayList<Double> elapsedTimes = this.eventElapsedTimes.get(eventType);
@@ -569,6 +580,10 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		HashSet<TripRequest> completedTrips = elevatorMonitor.stopOccurred();
 		if (!completedTrips.isEmpty()) {
 			this.consoleOutput("The following trips have been completed at this stop by " + elevatorName + ":" + completedTrips);
+			for (TripRequest completedTrip : completedTrips) {
+				this.consoleOutput(completedTrip + " was completed in " + completedTrip.getTripTime() + " (mm:ss)");
+				
+			}
 		}
 		
 		//Send an open door event to the elevator
