@@ -41,8 +41,8 @@ public class Server implements Runnable{
 	 * @param inetAddress
 	 * @param port
 	 */
-	public void send(Request request, InetAddress inetAddress, Integer port) {
-
+	public void send(Request request, String host, Integer port) {
+		
 		DatagramPacket packet = null;
 		try {
 			packet = Helper.CreateRequest(request);
@@ -50,8 +50,15 @@ public class Server implements Runnable{
 			e1.printStackTrace();
 		}
 		
+		InetAddress hostAddress = null;
+		try {
+			hostAddress = InetAddress.getByName(host);
+		} catch (Exception E) {
+			
+		}
+		
 		//Set destination of packet
-		packet.setAddress(inetAddress);
+		packet.setAddress(hostAddress);
 		packet.setPort(port);
 		
 		if(this.debug) {
@@ -200,7 +207,9 @@ public class Server implements Runnable{
 			
 			//turn the packet received into a Request and add it to the elevatorSystemComponent's queue.
 			try {
-				elevatorSystemComponent.receiveEvent(Helper.ParseRequest(packet));
+				Request request = Helper.ParseRequest(packet);
+				request.setStartTime();
+				elevatorSystemComponent.receiveEvent(request);
 			} catch (InvalidRequestException e) {
 				e.printStackTrace();
 			}

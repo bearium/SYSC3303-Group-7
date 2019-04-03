@@ -1,21 +1,29 @@
 package main.scheduler;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Observable;
+import java.util.concurrent.TimeUnit;
+
 import main.global.Direction;
 
 /**
  * The TripRequest will model a trip request. It includes a pickup floor, destination floor and a direction.
  *
  */
-public class TripRequest {
+public class TripRequest extends Observable{
 	private int pickupFloor;
 	private int destinationFloor;
 	private Direction direction;
 	private boolean hasDestination;
+	private long creationTime, startTime, completedTime;
+	//private Date creationTime, startTime, completedTime;
 	
 	public TripRequest(int pickupFloor, Direction direction) {
 		this.pickupFloor = pickupFloor;
 		this.hasDestination = false;
 		this.direction = direction;
+		this.creationTime = System.currentTimeMillis();
 	}
 	
 	public boolean hasDestination() {
@@ -64,6 +72,99 @@ public class TripRequest {
 			return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * Set the start time for this TripRequest. This should be the time the pickup floor is reached.
+	 */
+	public void setStarted() {
+		this.startTime = System.currentTimeMillis();
+		this.setChanged();
+		notifyObservers();
+	}
+	
+	/**
+	 * Set the end time for this TripRequest. This should be the time the destination floor is reached.
+	 */
+	public void setCompleted() {
+		this.completedTime = System.currentTimeMillis();
+		this.setChanged();
+		notifyObservers();
+	}
+	
+	/**
+	 * Return the time at which the TripRequest was created
+	 * @return
+	 */
+	public String getCreationTime() {
+		return this.getTime(this.creationTime);
+	}
+	
+	/**
+	 * Return the time at which the TripRequest was started (elevator reached the pickup floor)
+	 * @return
+	 */
+	public String getStartTime() {
+		return this.getTime(this.startTime);
+	}
+	
+	/**
+	 * Return the time at which the TripRequest was completed (elevator reached the destination floor)
+	 * @return
+	 */
+	public String getCompletionTime() {
+		return this.getTime(this.completedTime);
+	}
+	
+	/**
+	 * Get the elevator response time in the format mm:ss.
+	 * This represents the elapsed time between the moment the request is created and the moment the pickup floor is reached.
+	 * @return - elapsed response time in format mm:ss
+	 */
+	public String getResponseTime() {
+		return getElapsedTime(this.startTime, this.creationTime);
+	}
+	
+	/**
+	 * Get the total trip time in the format mm:ss.
+	 * This represents the elapsed time between the moment the request is created and the moment the destination floor is reached.
+	 * @return - elapsed trip time in format mm:ss
+	 */
+	public String getTripTime() {
+		return getElapsedTime(this.completedTime, this.creationTime);
+	}
+	
+	/**
+	 * Calculate the difference between endTime and startTime. 
+	 * endTime and startTime are expected to be non-zero time values (in milliseconds). 
+	 * The time is returned as a String in the format mm:ss.
+	 * 
+	 * @param endTime
+	 * @param startTime
+	 * @return
+	 */
+	private String getElapsedTime(long endTime, long startTime) {
+		long elapsedTime = endTime - startTime;
+		if (elapsedTime > 0) {
+	        long hr = TimeUnit.MILLISECONDS.toHours(elapsedTime);
+	        long min = TimeUnit.MILLISECONDS.toMinutes(elapsedTime - TimeUnit.HOURS.toMillis(hr));
+	        long sec = TimeUnit.MILLISECONDS.toSeconds(elapsedTime - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min));
+	        return String.format("%02d:%02d", min, sec);
+		}
+		return "--";
+	}
+	
+	/**
+	 * Return a time formatted in HH:mm:ss. 
+	 * @param time - millisecond representation of time.
+	 * @return
+	 */
+	private String getTime(long time) {
+		if (time >0) {
+			SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+			return format.format(new Date(time));
+		} 
+		return "--";
 	}
 	
 	/**

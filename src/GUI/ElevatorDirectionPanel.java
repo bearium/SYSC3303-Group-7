@@ -9,6 +9,7 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -28,9 +29,10 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
 	BufferedImage up_off;// = new ImageIcon("resources/images/elevator/elevator_opened");
 	BufferedImage down_on; //= new ImageIcon("resources/images/elevator/elevator_closed");
 	BufferedImage down_off;
-	BufferedImage outOfService;
-	BufferedImage idle;
-	BufferedImage moving;
+	ImageIcon outOfService;
+	ImageIcon idle;
+	ImageIcon moving;
+	
 	int currentFloor;
 	JLabel up;
 	JLabel down;
@@ -52,13 +54,20 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
 		
 		try 
 		{
+			URL url = ElevatorDirectionPanel.class.getResource("../resources/images/elevator/OutOfService.jpg");
 			up_on = ImageIO.read(new File("src\\resources\\images\\elevator\\up_on.png"));
 			up_off = ImageIO.read(new File("src\\resources\\images\\elevator\\up_off.png"));
 			down_on = ImageIO.read(new File("src\\resources\\images\\elevator\\down_on.png"));
 			down_off = ImageIO.read(new File("src\\resources\\images\\elevator\\down_off.png"));
-			outOfService = ImageIO.read(new File("src\\resources\\images\\elevator\\OutOfService.jpg"));
+		//	System.out.println(url.toString());
+			outOfService = new ImageIcon(url);
+			 url = ElevatorDirectionPanel.class.getResource("../resources/images/elevator/InMotion.gif");
+			moving = new ImageIcon(url);
+			 url = ElevatorDirectionPanel.class.getResource("../resources/images/elevator/idle.gif");
+			idle = new ImageIcon(url);
+			/*outOfService = ImageIO.read(new File("src\\resources\\images\\elevator\\OutOfService.jpg"));
 			moving = ImageIO.read(new File("src\\resources\\images\\elevator\\InMotion.gif"));
-			idle = ImageIO.read(new File("src\\resources\\images\\elevator\\idle.gif"));
+			idle = ImageIO.read(new File("src\\resources\\images\\elevator\\idle.gif"));*/
 		}
 		catch (Exception E) {
 			System.out.println("UH OH " + System.getProperty("user.dir"));
@@ -68,9 +77,9 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
 		up_off =  toBufferedImage(up_off.getScaledInstance(32,32, Image.SCALE_DEFAULT));
 		down_on =  toBufferedImage(down_on.getScaledInstance(32,32, Image.SCALE_DEFAULT));
 		down_off =  toBufferedImage(down_off.getScaledInstance(32,32, Image.SCALE_DEFAULT));
-		outOfService =  toBufferedImage(outOfService.getScaledInstance(32,32, Image.SCALE_DEFAULT));
-		moving = toBufferedImage(moving.getScaledInstance(32,32, Image.SCALE_DEFAULT));
-		idle = toBufferedImage(idle.getScaledInstance(32,32, Image.SCALE_DEFAULT));
+		outOfService =  getScaledImage(outOfService.getImage(), 32,32);
+		moving = getScaledImage(moving.getImage(), 32, 32);
+		idle = getScaledImage(idle.getImage(), 32 ,32);
 
 		up = new JLabel();
 		down = new JLabel();
@@ -132,13 +141,13 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
 	
 	public void checkOutOfService(ElevatorStatus status) {
 		if (status == ElevatorStatus.OUT_OF_SERVICE) {
-			this.status.setIcon(new ImageIcon(outOfService));
+			this.status.setIcon(outOfService);
 		}
 		else if(status == ElevatorStatus.MOVING) {
-			this.status.setIcon(new ImageIcon(moving));
+			this.status.setIcon(moving);
 		}
 		else if(status == ElevatorStatus.STOPPED) {
-			this.status.setIcon(new ImageIcon(idle));
+			this.status.setIcon(idle);
 		}
 		
 	}
@@ -199,6 +208,17 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
 	@Override
 	public void update(Observable arg0, Object arg1) {
 		
+	}
+	
+
+	private ImageIcon getScaledImage(Image srcImg, int w, int h)
+
+	{
+
+		Image newimg = srcImg.getScaledInstance(w, h, Image.SCALE_DEFAULT); // scale it the smooth way
+
+		return new ImageIcon(newimg); // transform it back
+
 	}
 	
 }

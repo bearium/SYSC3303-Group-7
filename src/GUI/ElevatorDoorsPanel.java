@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.net.URL;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -18,6 +19,8 @@ import main.global.ElevatorDoorStatus;
 public class ElevatorDoorsPanel extends JPanel implements Observer{
 	BufferedImage icon_closed; //= new ImageIcon("resources/images/elevator/elevator_closed");
 	BufferedImage icon_opened;// = new ImageIcon("resources/images/elevator/elevator_opened");
+	ImageIcon icon_opening;
+	ImageIcon icon_closing;
 	JLabel doors;
 	/**
 	 * 
@@ -34,6 +37,11 @@ public class ElevatorDoorsPanel extends JPanel implements Observer{
 		{
 			icon_closed = ImageIO.read(new File("src\\resources\\images\\elevator\\Door_Closing.gif"));
 			icon_opened = ImageIO.read(new File("src\\resources\\images\\elevator\\Door_Opening.gif"));
+			URL url = ElevatorDoorsPanel.class.getResource("../resources/images/elevator/Door_Closing.gif");
+			icon_closing = new ImageIcon(url);
+			url = ElevatorDoorsPanel.class.getResource("../resources/images/elevator/Door_Opening.gif");
+			icon_opening = new ImageIcon(url);
+			
 		}
 		catch (Exception E) {
 			System.out.println("UH OH " + System.getProperty("user.dir"));
@@ -41,6 +49,8 @@ public class ElevatorDoorsPanel extends JPanel implements Observer{
 		}
 		icon_closed = toBufferedImage(icon_closed.getScaledInstance(65 * 3,80 * 3, Image.SCALE_DEFAULT));
 		icon_opened = toBufferedImage(icon_opened.getScaledInstance(65 * 3,80 * 3, Image.SCALE_DEFAULT));
+		icon_opening = getScaledImage(icon_opening.getImage(), 32, 32);
+		icon_closing = getScaledImage(icon_closing.getImage(), 32 ,32);
 		doors = new JLabel();
 		this.add(doors);
 	}
@@ -102,6 +112,15 @@ public class ElevatorDoorsPanel extends JPanel implements Observer{
 	@Override
 	public void update(Observable arg0, Object arg1) {
 		
+	}
+	private ImageIcon getScaledImage(Image srcImg, int w, int h)
+
+	{
+
+		Image newimg = srcImg.getScaledInstance(w, h, Image.SCALE_DEFAULT); // scale it the smooth way
+
+		return new ImageIcon(newimg); // transform it back
+
 	}
 	
 }
