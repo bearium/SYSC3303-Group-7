@@ -128,6 +128,15 @@ public class ElevatorMonitor extends Observable{
 		return this.elevatorState.getStartFloor();
 	}
 	
+	
+	
+	/**
+	 * @return the queue
+	 */
+	public LinkedHashSet<TripRequest> getQueue() {
+		return queue;
+	}
+
 	public Integer getPassengerWaitTime() {
 		return this.elevatorState.getPassengerWaitTime();
 	}

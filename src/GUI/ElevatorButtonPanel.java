@@ -36,7 +36,9 @@ public class ElevatorButtonPanel extends JPanel{
 			}
 			//JLabel label = new JLabel("Floor: "+i);
 			this.add(button);
+			
 		}
+		this.setBackground(SharedSettings.background_color);
 	}
 	
 	protected void paintComponent(Graphics g) {

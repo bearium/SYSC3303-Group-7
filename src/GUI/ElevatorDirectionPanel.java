@@ -1,5 +1,6 @@
 package GUI;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.Graphics;
@@ -59,15 +60,11 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
 			up_off = ImageIO.read(new File("src\\resources\\images\\elevator\\up_off.png"));
 			down_on = ImageIO.read(new File("src\\resources\\images\\elevator\\down_on.png"));
 			down_off = ImageIO.read(new File("src\\resources\\images\\elevator\\down_off.png"));
-		//	System.out.println(url.toString());
 			outOfService = new ImageIcon(url);
 			 url = ElevatorDirectionPanel.class.getResource("../resources/images/elevator/InMotion.gif");
 			moving = new ImageIcon(url);
 			 url = ElevatorDirectionPanel.class.getResource("../resources/images/elevator/idle.gif");
 			idle = new ImageIcon(url);
-			/*outOfService = ImageIO.read(new File("src\\resources\\images\\elevator\\OutOfService.jpg"));
-			moving = ImageIO.read(new File("src\\resources\\images\\elevator\\InMotion.gif"));
-			idle = ImageIO.read(new File("src\\resources\\images\\elevator\\idle.gif"));*/
 		}
 		catch (Exception E) {
 			System.out.println("UH OH " + System.getProperty("user.dir"));
@@ -94,6 +91,7 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
 			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 			ge.registerFont(font);
 			currFloor.setFont(font);
+			currFloor.setForeground(Color.red);
 			
 			
 		} catch (FontFormatException e) {
@@ -113,6 +111,7 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
 		this.add(currFloor);
 		this.add(up);
 		this.add(status);
+		this.setBackground(SharedSettings.background_color);
 		
 		
 	}

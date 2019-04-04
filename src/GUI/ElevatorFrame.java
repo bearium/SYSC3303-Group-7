@@ -1,5 +1,6 @@
 package GUI;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
@@ -16,6 +17,7 @@ public class ElevatorFrame extends JFrame{
 	 */
 	private static final long serialVersionUID = 1L;
 
+	
 	public ElevatorFrame(HashMap<String, ElevatorMonitor> elevatorMonitors) {
 		super("Elevator GUI Monitor");
 		this.setLayout(new GridBagLayout());
@@ -23,6 +25,8 @@ public class ElevatorFrame extends JFrame{
 			ElevatorState state = monitor.getElevatorState();
 			ElevatorMainPanel EMP =new ElevatorMainPanel(state);
 			this.add(EMP);
+			//ElevatorTripPanel tp = new ElevatorTripPanel(monitor);
+			//EMP.add(tp);
 			System.out.println("Adding elevator");
 		}
 		initializeJFrame();
@@ -35,6 +39,7 @@ public class ElevatorFrame extends JFrame{
 		this.setMinimumSize(new Dimension(950, 900));
 		this.setSize(1000,1000);
 		this.setResizable(true);
+		this.getContentPane().setBackground(SharedSettings.background_color);
 		this.setVisible(true);
 		
 	}
