@@ -1,12 +1,16 @@
 package GUI;
 
+import java.awt.Color;
 import java.util.LinkedHashSet;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.*;
 
+import main.scheduler.ElevatorMonitor;
 import main.scheduler.TripRequest;
 
-public class ElevatorTripPanel extends JPanel{
+public class ElevatorTripPanel extends JPanel implements Observer{
 
 	/**
 	 * 
@@ -14,21 +18,34 @@ public class ElevatorTripPanel extends JPanel{
 	private static final long serialVersionUID = 1L;
 	
 	private LinkedHashSet<TripRequest> queue;
-	private String[] columns = {"Pickup","Destination","Start","Complete"};
+	
+	private String[] columns = {"Pickup, Destination, Start, Complete"};
+	
 	private JTable table;
+	
 	private String[][] data;
-	public ElevatorTripPanel( LinkedHashSet<TripRequest> queue) {
-		this.queue = queue;
+	
+	public ElevatorTripPanel(ElevatorMonitor monitor) {
+		this.queue = monitor.getQueue();
+		monitor.addObserver(this);
 		initialize();
+		this.setForeground(Color.white);
 	}
 	
-	private void initialize() {
-		table = new JTable(data, columns);
-		this.add(table);
-	}
-	
-	public void refreshTable(LinkedHashSet<TripRequest> queue){
+	private void initialize() 
+	{
 		
+	}
+	
+	public void refreshTable(){
+		this.removeAll();
+		
+		this.add(new JLabel("Trip Requests"));
+		for(TripRequest tr : queue){
+			this.add(new JLabel(tr.toString()));
+			tr.addObserver(this);
+		}
+		this.repaint();
 	}
 
 
@@ -37,12 +54,22 @@ public class ElevatorTripPanel extends JPanel{
 		int i = 0;
 		for(TripRequest tr: queue) {
 			String[] row = new String[columns.length];
-			row[0] = tr.getPickupFloor()+"";
-			row[1] = tr.getDestinationFloor()+"";
-			row[2] = tr.getStartTime();
-			row[3] = tr.getCompletionTime();
+			row[0] = tr.toString();
+			
 			data[i] = row;
 			i++;
+		}
+	}
+
+	@Override
+	public void update(Observable arg0, Object arg1) {
+		if(arg0 instanceof ElevatorMonitor){
+		//	ElevatorMonitor monitor = (ElevatorMonitor)arg0;
+			//queue = monitor.getQueue();
+			refreshTable();
+		}
+		else if(arg0 instanceof TripRequest){
+			refreshTable();
 		}
 	}
 }

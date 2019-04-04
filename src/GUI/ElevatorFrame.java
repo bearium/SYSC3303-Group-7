@@ -17,6 +17,7 @@ public class ElevatorFrame extends JFrame{
 	 */
 	private static final long serialVersionUID = 1L;
 
+	
 	public ElevatorFrame(HashMap<String, ElevatorMonitor> elevatorMonitors) {
 		super("Elevator GUI Monitor");
 		this.setLayout(new GridBagLayout());
@@ -24,6 +25,8 @@ public class ElevatorFrame extends JFrame{
 			ElevatorState state = monitor.getElevatorState();
 			ElevatorMainPanel EMP =new ElevatorMainPanel(state);
 			this.add(EMP);
+			ElevatorTripPanel tp = new ElevatorTripPanel(monitor);
+			EMP.add(tp);
 			System.out.println("Adding elevator");
 		}
 		initializeJFrame();
