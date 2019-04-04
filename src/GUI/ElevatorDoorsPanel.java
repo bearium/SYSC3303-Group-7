@@ -59,7 +59,7 @@ public class ElevatorDoorsPanel extends JPanel implements Observer{
 		icon_closing = getScaledImage(icon_closing.getImage(), 65 * IMAGE_SCALE ,80 * IMAGE_SCALE);
 		doors = new JLabel();
 		this.add(doors);
-		this.setBackground(Color.black);
+		this.setBackground(SharedSettings.background_color);
 	}
 
 	/**

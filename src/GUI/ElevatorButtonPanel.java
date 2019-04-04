@@ -38,7 +38,7 @@ public class ElevatorButtonPanel extends JPanel{
 			this.add(button);
 			
 		}
-		this.setBackground(Color.BLACK);
+		this.setBackground(SharedSettings.background_color);
 	}
 	
 	protected void paintComponent(Graphics g) {

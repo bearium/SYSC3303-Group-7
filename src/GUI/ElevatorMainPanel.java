@@ -58,7 +58,7 @@ public class ElevatorMainPanel extends JPanel implements Observer {
 		BP = new ElevatorButtonPanel(lamps);
 		this.add(BP);
 		elevator.addObserver(this);
-		this.setBackground(Color.black);
+		this.setBackground(SharedSettings.background_color);
 		//this.add(last_panel);
 		this.updateUI();
 	}

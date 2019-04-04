@@ -821,8 +821,8 @@ public class Scheduler implements Runnable, ElevatorSystemComponent {
 		//Spawn and start a new thread for this Scheduler
 		Thread schedulerThread = new Thread(scheduler, schedulerConfiguration.get("name"));
 		ElevatorFrame frame = new ElevatorFrame(scheduler.elevatorMonitorByElevatorName);
-		ConsoleDisplay console = new ConsoleDisplay();
-		console.init();
+		//ConsoleDisplay console = new ConsoleDisplay();
+		//console.init();
 		schedulerThread.start();
 		
 		//Sleep for 2.5 minutes to allow for simulation to complete. Then computer Scheduler's average response times

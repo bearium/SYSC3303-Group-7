@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.LinkedHashSet;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.HashSet;
 
 import javax.swing.*;
 
@@ -22,7 +23,7 @@ public class ElevatorTripPanel extends JPanel implements Observer{
 	private String[] columns = {"Pickup, Destination, Start, Complete"};
 	
 	private JTable table;
-	
+	private HashSet<TripRequest> requests;
 	private String[][] data;
 	
 	public ElevatorTripPanel(ElevatorMonitor monitor) {

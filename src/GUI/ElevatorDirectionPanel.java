@@ -111,7 +111,7 @@ public class ElevatorDirectionPanel extends JPanel implements Observer{
 		this.add(currFloor);
 		this.add(up);
 		this.add(status);
-		this.setBackground(Color.BLACK);
+		this.setBackground(SharedSettings.background_color);
 		
 		
 	}
