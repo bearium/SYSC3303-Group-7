@@ -52,6 +52,8 @@ public class TripRequest extends Observable{
 	public void setDestinationFloor(int destinationFloor) {
 		this.destinationFloor = destinationFloor;
 		this.hasDestination = true;
+		this.setChanged();
+		notifyObservers();
 	}
 	
 	/**
