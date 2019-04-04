@@ -1,5 +1,6 @@
 package GUI;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
@@ -35,6 +36,7 @@ public class ElevatorFrame extends JFrame{
 		this.setMinimumSize(new Dimension(950, 900));
 		this.setSize(1000,1000);
 		this.setResizable(true);
+		this.getContentPane().setBackground(Color.black);
 		this.setVisible(true);
 		
 	}

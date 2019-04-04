@@ -88,7 +88,7 @@ public class ElevatorState extends Observable{
 	public void setDoorStatus(ElevatorDoorStatus doorStatus) {
 		this.doorStatus = doorStatus;
 		this.setChanged();
-		notifyObservers();
+		notifyObservers(this.doorStatus);
 	}
 
 	public Integer getMaxFloor() {
