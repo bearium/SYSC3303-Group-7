@@ -13,6 +13,7 @@ import main.global.Direction;
  */
 public class TripRequest extends Observable{
 	private int pickupFloor;
+	private boolean completed;
 	private int destinationFloor;
 	private Direction direction;
 	private boolean hasDestination;
@@ -24,6 +25,7 @@ public class TripRequest extends Observable{
 		this.hasDestination = false;
 		this.direction = direction;
 		this.creationTime = System.currentTimeMillis();
+		this.completed = false;
 	}
 	
 	public boolean hasDestination() {
@@ -90,6 +92,7 @@ public class TripRequest extends Observable{
 	 */
 	public void setCompleted() {
 		this.completedTime = System.currentTimeMillis();
+		this.completed = true;
 		this.setChanged();
 		notifyObservers();
 	}
@@ -111,11 +114,27 @@ public class TripRequest extends Observable{
 	}
 	
 	/**
+	 * Return the time at which the TripRequest was started (elevator reached the pickup floor)
+	 * @return
+	 */
+	public long getStartTimeLong() {
+		return this.startTime;
+	}
+	
+	/**
 	 * Return the time at which the TripRequest was completed (elevator reached the destination floor)
 	 * @return
 	 */
 	public String getCompletionTime() {
 		return this.getTime(this.completedTime);
+	}
+	
+	/**
+	 * Return the time at which the TripRequest was completed (elevator reached the destination floor)
+	 * @return
+	 */
+	public long getCompletionTimeLong() {
+		return this.completedTime;
 	}
 	
 	/**
@@ -134,6 +153,13 @@ public class TripRequest extends Observable{
 	 */
 	public String getTripTime() {
 		return getElapsedTime(this.completedTime, this.creationTime);
+	}
+	
+	/**
+	 * Check whether trip is completed or not
+	 */
+	public boolean isCompleted() {
+		return this.completed;
 	}
 	
 	/**
@@ -168,6 +194,7 @@ public class TripRequest extends Observable{
 		} 
 		return "--";
 	}
+	
 	
 	/**
 	 * Coordinate notation to depict a trip request ex -> (pickup, destination)

@@ -38,7 +38,8 @@ public class ElevatorMainPanel extends JPanel implements Observer {
 	}
 
 	private void initialize() {
-		this.setSize(60, 500);
+		//this.setSize(60, 1000);
+		this.setPreferredSize(new Dimension(70 *  3, 600));
 		this.setBorder(new EmptyBorder(0, 10, 10, 10));
 		HashMap<Integer, Boolean> lamps = elevator.getLamps();
 		this.setLayout(new BoxLayout(this,BoxLayout.PAGE_AXIS));
@@ -48,7 +49,7 @@ public class ElevatorMainPanel extends JPanel implements Observer {
 		//DP2.setSize(32, 32);
 		this.add(DP2);
 		DP = new ElevatorDoorsPanel(elevator.getDoorStatus());
-		DP.setSize(200,200);
+		DP.setSize(60,200);
 		this.add(DP);
 
 
