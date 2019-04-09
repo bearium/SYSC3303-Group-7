@@ -136,6 +136,10 @@ public class ElevatorMonitor extends Observable{
 	public LinkedHashSet<TripRequest> getQueue() {
 		return queue;
 	}
+	
+	public ArrayList<TripRequest> getCompleted(){
+		return this.successfullyCompletedTripRequests;
+	}
 
 	public Integer getPassengerWaitTime() {
 		return this.elevatorState.getPassengerWaitTime();
