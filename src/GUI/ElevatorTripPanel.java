@@ -15,8 +15,6 @@ import java.util.HashSet;
 
 import javax.swing.*;
 
-import com.sun.xml.internal.bind.v2.schemagen.xmlschema.List;
-
 import main.scheduler.ElevatorMonitor;
 import main.scheduler.TripRequest;
 
@@ -54,39 +52,67 @@ public class ElevatorTripPanel extends JPanel implements Observer{
 	}
 	
 	public void refreshTable(){
-		this.removeAll();
-		
-		this.add(new JLabel("Trip Requests"));
-		ArrayList<TripRequest> test = new ArrayList<>(pending_queue.size() + completed_trips.size());
+		//this.removeAll();
+		//this.add(new JLabel("Trip Requests"));
+
+		//Gather all TripRequests that are currently in the pending queue and completed trips list for this Elevator
+		ArrayList<TripRequest> currentTripRequestList = new ArrayList<>(pending_queue.size() + completed_trips.size());
 		for(TripRequest tr : completed_trips) {
-			test.add(tr);
+			currentTripRequestList.add(tr);
 		}
 		for(TripRequest tr : pending_queue){
-			test.add(tr);
+			currentTripRequestList.add(tr);
 		}
-		test.sort(new TripRequestComparator());
-		for(TripRequest tr : test){
-			JLabel label = new JLabel();
-			label.setOpaque(true);
-			label.setText(tr.toString());
-			if(tr.isCompleted()) {
-				label.setForeground(Color.green);
+		currentTripRequestList.sort(new TripRequestComparator());
+		
+		//Check if this Jpanel contains more trip requests than are currently in the elevatorMonitor (this means a TripRequest needs to be removed from the GUI)
+		if (this.countComponents() > currentTripRequestList.size() + 1) {
+			//Determine which TripRequest needs to be removed, traverse each of the tripRequests' labels that are contained within this panel
+			//determine which one is no longer in the queue (or completed) for this elevator
+			ArrayList<TripRequest> tripRequestLabelsToBeRemoved = new ArrayList<TripRequest>();
+			for (TripRequest tripRequestOnPanel : requests.keySet()) {
+				//If the currentTripRequestList does not contain this tripRequestLabel, then it needs to be removed
+				if (!currentTripRequestList.contains(tripRequestOnPanel)) {
+					//Remove this label from this JPanel
+					this.remove(requests.get(tripRequestOnPanel));
+					//Deregister this panel as an observer for this tripRequestLabel
+					tripRequestOnPanel.deleteObserver(this);
+					//Add this to temp collection 'tripRequestsToBeRemoved' to remove from 'requests' collection (outside this foreach loop)
+					tripRequestLabelsToBeRemoved.add(tripRequestOnPanel);
+					//Update GUI
+					this.repaint();
 				}
-			label.addMouseListener(new MouseAdapter() {
-				public void mouseClicked(MouseEvent e) {
-					if(e.getClickCount() == 2) {
-						JPanel panel = new JPanel();
-						String request_statistics = makeTRString(tr);
-						JOptionPane.showMessageDialog(null, request_statistics);
+			}
+			//Remove all tripRequestLabels that have been removed
+			for (TripRequest tripRequest : tripRequestLabelsToBeRemoved) {
+				this.requests.remove(tripRequest);
+			}
+		}
+		
+		//Traverse to all tripRequests on the elevators currentTripRequestList, add anything tripRequest that is not currently in 'requests'
+		for(TripRequest tr : currentTripRequestList){
+			//If the requests map does not contain this trip, then it must be added
+			if (!requests.containsKey(tr)) {
+				JLabel label = new JLabel();
+				label.setOpaque(true);
+				label.setText(tr.toString());
+				if(tr.isCompleted()) {
+					label.setForeground(Color.green);
+				}
+				label.addMouseListener(new MouseAdapter() {
+					public void mouseClicked(MouseEvent e) {
+						if(e.getClickCount() == 2) {
+							JPanel panel = new JPanel();
+							String request_statistics = makeTRString(tr);
+							JOptionPane.showMessageDialog(null, request_statistics);
+						}
 					}
-				}
-
-				
-			});
-			requests.put(tr, label);
-			label.setHorizontalAlignment(JLabel.CENTER);
-			this.add(label);
-			tr.addObserver(this);
+				});
+				requests.put(tr, label);
+				label.setHorizontalAlignment(JLabel.CENTER);
+				this.add(label);
+				tr.addObserver(this);
+			}
 		}
 		this.repaint();
 	}
